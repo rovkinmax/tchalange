@@ -13,6 +13,7 @@ import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXClient;
+import rx.functions.Action1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -86,11 +87,13 @@ public class EnterPhoneFragment extends BasePath implements Serializable{
 
         public void sendCode(String phoneNumber) {
                     client.sendRXUI(new TdApi.AuthSetPhoneNumber(phoneNumber))
-                    .subscribe(response -> {
-                        if (response instanceof TdApi.AuthStateWaitSetCode) {
-                            Flow.get(getView().getContext())
-                                    .set(new EnterCode());
-
+                    .subscribe(new Action1<TdApi.TLObject>() {
+                        @Override
+                        public void call(TdApi.TLObject response) {
+                            if (response instanceof TdApi.AuthStateWaitSetCode) {
+                                Flow.get(Presenter.this.getView().getContext())
+                                        .set(new EnterCode());
+                            }
                         }
                     });
         }

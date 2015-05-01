@@ -30,11 +30,13 @@ public class EnterCodeView extends RelativeLayout {
                 .addMenuItem(
                         R.menu.send_code,
                         R.id.menu_send_code,
-                        () -> {
-                            //presenter.sendCode(getPhoneNumber());
-                            hideKeyboard(smsCode);
-                            presenter.checkCode(textFrom(smsCode));
-
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                //presenter.sendCode(getPhoneNumber());
+                                hideKeyboard(smsCode);
+                                presenter.checkCode(textFrom(smsCode));
+                            }
                         }
                 );
         smsCode = ((EditText) findViewById(R.id.sms_code));

@@ -9,6 +9,7 @@ import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
+import rx.functions.Action1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,11 +51,14 @@ public class EnterCode extends BasePath implements Serializable{
         public void checkCode(String code) {
             TdApi.AuthSetCode f = new TdApi.AuthSetCode(code);
             client.sendRXUI(f)
-                    .subscribe( r -> {
-                        if (r instanceof TdApi.AuthStateOk) {
-                            auth.authorized();
-                        } else {
-                            fail("unimplemented");
+                    .subscribe(new Action1<TdApi.TLObject>() {
+                        @Override
+                        public void call(TdApi.TLObject r) {
+                            if (r instanceof TdApi.AuthStateOk) {
+                                auth.authorized();
+                            } else {
+                                fail("unimplemented");
+                            }
                         }
                     });
         }

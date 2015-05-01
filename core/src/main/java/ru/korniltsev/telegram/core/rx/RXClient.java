@@ -8,6 +8,8 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import org.drinkless.td.libcore.telegram.TdApi.TLObject;
 import ru.korniltsev.telegram.core.adapters.RequestHandlerAdapter;
 import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
@@ -24,14 +26,15 @@ public class RXClient {
 
     public RXClient(Context ctx) {
         this.ctx = ctx;
-        TG.setUpdatesHandler(globalSubject::onNext);
+        TG.setUpdatesHandler(new Client.ResultHandler() {
+            @Override
+            public void onResult(TLObject object) {
+                globalSubject.onNext(object);
+            }
+        });
         TG.setDir(ctx.getFilesDir().getAbsolutePath() + "/");
         this.client = TG.getClientInstance();
-//        globalSubject.subscribe(o -> {
-//            Log.d("RxClient.Global", o.toString());
-//        });
-        filesUpdates()
-                .subscribe(u -> Log.d("FileUpdates", String.valueOf(u.fileId)));
+
     }
 
     public Observable<TLObject> sendRXUI(final TdApi.TLFunction function) {
@@ -47,18 +50,22 @@ public class RXClient {
 
     //observe function
     private Observable<TLObject> sendRX(final TdApi.TLFunction function, final long delay) {
-        return Observable.create(s -> {
-            client.send(function, object -> {
-                //                SystemClock.sleep(delay);
-
-                if (object instanceof TdApi.Error) {
-                    Log.e("RxClient", ((TdApi.Error) object).text);
-                    s.onError(new RxClientException((TdApi.Error) object));
-                } else {
-                    s.onNext(object);
-                    s.onCompleted();
-                }
-            });
+        return Observable.create(new Observable.OnSubscribe<TLObject>() {
+            @Override
+            public void call(final Subscriber<? super TLObject> s) {
+                client.send(function, new Client.ResultHandler() {
+                    @Override
+                    public void onResult(TLObject object) {
+                        if (object instanceof TdApi.Error) {
+                            Log.e("RxClient", ((TdApi.Error) object).text);
+                            s.onError(new RxClientException((TdApi.Error) object));
+                        } else {
+                            s.onNext(object);
+                            s.onCompleted();
+                        }
+                    }
+                });
+            }
         });
     }
 
@@ -67,12 +74,23 @@ public class RXClient {
     }
 
     public Observable<TdApi.User> getUser(int id) {
-        return sendRXUI(new TdApi.GetUser(id)).map( o -> (TdApi.User) o);
+        return sendRXUI(new TdApi.GetUser(id))
+                .map(new Func1<TLObject, TdApi.User>() {
+                    @Override
+                    public TdApi.User call(TLObject o) {
+                        return (TdApi.User) o;
+                    }
+                });
     }
 
     public Observable<TdApi.GroupChatFull> getGroupChatInfo(int id) {
         return sendRXUI(new TdApi.GetGroupChatFull(id))
-                .map(o -> (TdApi.GroupChatFull) o);
+                .map(new Func1<TLObject, TdApi.GroupChatFull>() {
+                    @Override
+                    public TdApi.GroupChatFull call(TLObject o) {
+                        return (TdApi.GroupChatFull) o;
+                    }
+                });
     }
 
     static class RxClientException extends Exception {
@@ -86,8 +104,18 @@ public class RXClient {
 
     public Observable<TdApi.UpdateFile> filesUpdates() {
         return globalSubject
-                .filter(tlObject -> tlObject instanceof TdApi.UpdateFile)
-                .map(o -> (TdApi.UpdateFile) o)
+                .filter(new Func1<TLObject, Boolean>() {
+                    @Override
+                    public Boolean call(TLObject tlObject) {
+                        return tlObject instanceof TdApi.UpdateFile;
+                    }
+                })
+                .map(new Func1<TLObject, TdApi.UpdateFile>() {
+                    @Override
+                    public TdApi.UpdateFile call(TLObject o) {
+                        return (TdApi.UpdateFile) o;
+                    }
+                })
                 .observeOn(mainThread());
     }
 
@@ -105,16 +133,31 @@ public class RXClient {
 
     public Observable<TdApi.Chats> getChats(int offset, int limit) {
         return sendRXUI(new TdApi.GetChats(offset, limit), 0)
-                .map(o -> (TdApi.Chats) o);
+                .map(new Func1<TLObject, TdApi.Chats>() {
+                    @Override
+                    public TdApi.Chats call(TLObject o) {
+                        return (TdApi.Chats) o;
+                    }
+                });
     }
 
     public Observable<TdApi.User> getMe() {
         return sendRXUI(new TdApi.GetMe(), 0)
-                .map(o -> (TdApi.User) o);
+                .map(new Func1<TLObject, TdApi.User>() {
+                    @Override
+                    public TdApi.User call(TLObject o) {
+                        return (TdApi.User) o;
+                    }
+                });
     }
 
     public Observable<TdApi.Messages> getMessages(final long chatId, final int fromId, final int offset, final int limit) {
         return sendRXUI(new TdApi.GetChatHistory(chatId, fromId, offset, limit), 0)
-                .map(o -> (TdApi.Messages) o);
+                .map(new Func1<TLObject, TdApi.Messages>() {
+                    @Override
+                    public TdApi.Messages call(TLObject o) {
+                        return (TdApi.Messages) o;
+                    }
+                });
     }
 }

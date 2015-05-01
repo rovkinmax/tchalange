@@ -7,6 +7,8 @@ import android.widget.RelativeLayout;
 import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.auth.country.Countries;
 import ru.korniltsev.telegram.auth.R;
+import rx.android.view.OnClickEvent;
+import rx.functions.Action1;
 
 import javax.inject.Inject;
 
@@ -36,12 +38,18 @@ public class EnterPhoneView extends RelativeLayout {
                 .addMenuItem(
                         R.menu.send_code,
                         R.id.menu_send_code,
-                        () -> {
-                            presenter.sendCode(getPhoneNumber());
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                presenter.sendCode(EnterPhoneView.this.getPhoneNumber());
+                            }
                         }
                 );
-        clicks(btnSelectCountry).subscribe(e -> {
-            presenter.selectCountry();
+        clicks(btnSelectCountry).subscribe(new Action1<OnClickEvent>() {
+            @Override
+            public void call(OnClickEvent e) {
+                presenter.selectCountry();
+            }
         });
     }
 

@@ -11,6 +11,9 @@ import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxPicasso;
 import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
@@ -54,7 +57,7 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
                 request();
             }
             if (fullChatInfoRequest == null) {
-                if (isGroupChat){
+                if (isGroupChat) {
                     TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) chat.chat.type).groupChat;
                     fullChatInfoRequest = rxClient.getGroupChatInfo(groupChat.id);
                 }
@@ -65,8 +68,7 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
         view.addMessages(ms.getMs());
         setViewSubtitle();
 
-
-        if (!isGroupChat){
+        if (!isGroupChat) {
             TdApi.User user = ((TdApi.PrivateChatInfo) chat.chat.type).user;
             view.setPirvateChatSubtitle(user.status);
         }
@@ -99,22 +101,29 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
         if (request != null) {
             //todo show progressBar
             subscription.add(
-                    request.subscribe((messages) -> {
-                        request = null;
-                        if (messages.ms.isEmpty()) {
-                            downloadedAll = true;
-                        } else {
-                            ms.add(messages);
-                            getView().addMessages(messages);
+                    request.subscribe(new Action1<MessagesHolder.MessagesAndUsers>() {
+                        @Override
+                        public void call(MessagesHolder.MessagesAndUsers messages) {
+                            request = null;
+                            if (messages.ms.isEmpty()) {
+                                downloadedAll = true;
+                            } else {
+                                ms.add(messages);
+                                Presenter.this.getView().addMessages(messages);
+                            }
                         }
                     }));
         }
         if (fullChatInfoRequest != null) {
             subscription.add(
-                    fullChatInfoRequest.subscribe(
-                            this::updateOnlineStatus));
+                    fullChatInfoRequest.subscribe(new Action1<TdApi.GroupChatFull>() {
+                                                      @Override
+                                                      public void call(TdApi.GroupChatFull groupChatFull) {
+                                                          updateOnlineStatus(groupChatFull);
+                                                      }
+                                                  }
+                    ));
         }
-
     }
 
     private void updateOnlineStatus(TdApi.GroupChatFull info) {
@@ -125,7 +134,6 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
             }
         }
         getView().setwGroupChatSubtitle(info.participants.length, online);
-
     }
 
     private final Set<Integer> users = new HashSet<>();//todo object allocs!
@@ -134,26 +142,32 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
         assertNull(request);
         TdApi.Message lastMessage = ms.getLastMessage();
         request = rxClient.getMessages(chat.chat.id, lastMessage.id, 0, Chat.LIMIT)
-                .flatMap((ms) -> {
-                    //todo do not flatmap on ui thread!
-                    TdApi.Message[] messages = ms.messages;
-                    users.clear();
-                    for (TdApi.Message message : messages) {
-                        users.add(message.fromId);
-                        if (message.forwardFromId != 0) {
-                            users.add(message.forwardFromId);
+                .flatMap(new Func1<TdApi.Messages, Observable<? extends MessagesHolder.MessagesAndUsers>>() {
+                    @Override
+                    public Observable<? extends MessagesHolder.MessagesAndUsers> call(TdApi.Messages ms) {
+                        //todo do not flatmap on ui thread!
+                        TdApi.Message[] messages = ms.messages;
+                        users.clear();
+                        for (TdApi.Message message : messages) {
+                            users.add(message.fromId);
+                            if (message.forwardFromId != 0) {
+                                users.add(message.forwardFromId);
+                            }
                         }
+                        List<Observable<TdApi.User>> os = new ArrayList<>();
+                        for (Integer uid : users) {
+                            os.add(rxClient.getUser(uid));
+                        }
+                        Observable<List<TdApi.User>> allUsers = Observable.merge(os)
+                                .toList();
+                        Observable<TdApi.Messages> messagesCopy = Observable.just(ms);
+                        return allUsers.zipWith(messagesCopy, new Func2<List<TdApi.User>, TdApi.Messages, MessagesHolder.MessagesAndUsers>() {
+                            @Override
+                            public MessagesHolder.MessagesAndUsers call(List<TdApi.User> users1, TdApi.Messages messages1) {
+                                return new MessagesHolder.MessagesAndUsers(messages1, users1);
+                            }
+                        });
                     }
-                    List<Observable<TdApi.User>> os = new ArrayList<>();
-                    for (Integer uid : users) {
-                        os.add(rxClient.getUser(uid));
-                    }
-                    Observable<List<TdApi.User>> allUsers = Observable.merge(os)
-                            .toList();
-                    Observable<TdApi.Messages> messagesCopy = Observable.just(ms);
-                    return allUsers.zipWith(messagesCopy, (users1, messages1) -> {
-                        return new MessagesHolder.MessagesAndUsers(messages1, users1);
-                    });
                 });
     }
 
@@ -190,9 +204,12 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
         subscription.add(
                 rxClient.sendRXUI(
                         new TdApi.DeleteChatHistory(chat.chat.id))
-                        .subscribe(o -> {
-                            getView()
-                                    .clearAdapter();
+                        .subscribe(new Action1<TdApi.TLObject>() {
+                            @Override
+                            public void call(TdApi.TLObject o) {
+                                getView()
+                                        .clearAdapter();
+                            }
                         }));
         ;
     }
@@ -203,9 +220,12 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
         subscription.add(
                 rxClient.sendRXUI(
                         new TdApi.DeleteChatParticipant(chat.chat.id, chat.me.id)
-                ).subscribe((o) -> {
-                    Flow.get(getView().getContext())
-                            .goBack();
+                ).subscribe(new Action1<TdApi.TLObject>() {
+                    @Override
+                    public void call(TdApi.TLObject o) {
+                        Flow.get(getView().getContext())
+                                .goBack();
+                    }
                 }));
         ;
     }

@@ -3,9 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.1.0'
-        classpath 'me.tatarka:gradle-retrolambda:3.0.1'
-
+        classpath 'com.android.tools.build:gradle:1.2.2'
     }
 }
 ext {
@@ -14,7 +12,6 @@ ext {
 allprojects{
   repositories {
       jcenter()
-      maven { url "https://oss.sonatype.org/content/repositories/snapshots/"}
   }
   ext {
       compileSdkVersion = 21
@@ -25,26 +22,13 @@ allprojects{
 
       appcompat_v7 = "com.android.support:appcompat-v7:21.0.3"
       recycler_v7 = "com.android.support:recyclerview-v7:21.0.3"
-//      support_v4 = "com.android.support:support-v4:21.0.3"
       rx_java = "io.reactivex:rxjava:1.0.9"
       rx_android = "io.reactivex:rxandroid:0.24.0"
       picasso = 'com.squareup.picasso:picasso:2.5.2'
       flow_and_mortar = rootProject.flow_and_mortar
-      gson = 'com.google.code.gson:gson:2.3.1'
 
       dagger = 'com.squareup.dagger:dagger:1.2.2'
       dagger_compiler = 'com.squareup.dagger:dagger-compiler:1.2.2'
-//      <dependency>
-//      <groupId>com.squareup.dagger</groupId>
-//  <artifactId>dagger</artifactId>
-//      <version>1.2.2</version>
-//</dependency>
-//      <dependency>
-//      <groupId>com.squareup.dagger</groupId>
-//  <artifactId>dagger-compiler</artifactId>
-//      <version>1.2.2</version>
-//  <optional>true</optional>
-//      </dependency>
 
 
   }

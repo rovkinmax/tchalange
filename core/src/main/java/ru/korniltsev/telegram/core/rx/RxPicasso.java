@@ -22,6 +22,8 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.views.AvatarStubColors;
 import ru.korniltsev.telegram.utils.R;
 import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,16 +34,12 @@ import java.util.concurrent.TimeoutException;
 
 public class RxPicasso {
 
-
-//    private final RXClient client;
-//    private final RXAuthState auth;
+    //    private final RXClient client;
+    //    private final RXAuthState auth;
     private final Picasso picasso;
     private final LruCache memoryCache;
 
-
-
     public RxPicasso(Context ctx, RXClient client, RXAuthState auth) {
-
 
         memoryCache = new LruCache(ctx);
         picasso = new Picasso.Builder(ctx)
@@ -49,48 +47,62 @@ public class RxPicasso {
                 .addRequestHandler(new RXRequestHandler(ctx, client))
                 .build();
         auth.listen()
-                .filter(s -> s == RXAuthState.AuthState.LOGOUT)
-                .subscribe(s -> memoryCache.clear());
+                .filter(new Func1<RXAuthState.AuthState, Boolean>() {
+                    @Override
+                    public Boolean call(RXAuthState.AuthState s) {
+                        return s == RXAuthState.AuthState.LOGOUT;
+                    }
+                })
+                .subscribe(new Action1<RXAuthState.AuthState>() {
+                    @Override
+                    public void call(RXAuthState.AuthState s) {
+                        memoryCache.clear();
+                    }
+                });
     }
 
     public Picasso getPicasso() {
         return picasso;
     }
 
-    private static final RxPicasso.StubAware STUB_AWARE_GROUP_CHAT = o -> {
-        TdApi.GroupChat chat = (TdApi.GroupChat) o;
-        String title = chat.title;
-        if (title.length() > 0) {
-            return String.valueOf(
-                    Character.toUpperCase(title.charAt(0)));
+    private static final RxPicasso.StubAware STUB_AWARE_GROUP_CHAT = new StubAware() {
+        @Override
+        public String needStub(TdApi.TLObject o) {
+            TdApi.GroupChat chat = (TdApi.GroupChat) o;
+            String title = chat.title;
+            if (title.length() > 0) {
+                return String.valueOf(
+                        Character.toUpperCase(title.charAt(0)));
+            }
+            return "";
         }
-        return "";
     };
 
-
-
-    private static final RxPicasso.StubAware STUB_AWARE_USER = o -> {
-        TdApi.User user  = (TdApi.User) o;
-        StringBuilder sb = new StringBuilder();
-        if (user.firstName.length() > 0) {
-            sb.append(
-                    Character.toUpperCase(
-                            user.firstName.charAt(0)));
+    private static final RxPicasso.StubAware STUB_AWARE_USER = new StubAware() {
+        @Override
+        public String needStub(TdApi.TLObject o) {
+            TdApi.User user = (TdApi.User) o;
+            StringBuilder sb = new StringBuilder();
+            if (user.firstName.length() > 0) {
+                sb.append(
+                        Character.toUpperCase(
+                                user.firstName.charAt(0)));
+            }
+            if (user.lastName.length() > 0) {
+                sb.append(
+                        Character.toUpperCase(
+                                user.lastName.charAt(0)));
+            }
+            return sb.toString();
         }
-        if (user.lastName.length() >0) {
-            sb.append(
-                    Character.toUpperCase(
-                            user.lastName.charAt(0)));
-        }
-        return sb.toString();
     };
 
     /**
-     * @param o  can badge TdApi.Chat or TdApi.User
+     * @param o    can badge TdApi.Chat or TdApi.User
      * @param size size of target view. The loaded bitmap will be resized to the square of that size
      * @return request builder that can be loaded into some view or target
      */
-    public RequestCreator loadAvatar( TdApi.TLObject o, int size) {
+    public RequestCreator loadAvatar(TdApi.TLObject o, int size) {
         int colorId;
         TdApi.File f;
         TdApi.TLObject stubTarget;
@@ -122,7 +134,6 @@ public class RxPicasso {
             throw new IllegalArgumentException();
         }
 
-
         RequestCreator res;
         if (f instanceof TdApi.FileEmpty) {
             TdApi.FileEmpty fileEmpty = (TdApi.FileEmpty) f;
@@ -145,7 +156,6 @@ public class RxPicasso {
         res.resize(size, size);
         return res;
     }
-
 
     private static class RXRequestHandler extends RequestHandler {
 
@@ -244,11 +254,16 @@ public class RxPicasso {
             return new Result(bmp, Picasso.LoadedFrom.NETWORK);
         }
 
-        private Result loadFileEmpty(int id) throws IOException {
+        private Result loadFileEmpty(final int id) throws IOException {
             TdApi.UpdateFile first;
             try {
                 Observable<TdApi.UpdateFile> specificFileUpdate = client.filesUpdates()
-                        .filter(u -> u.fileId == id)
+                        .filter(new Func1<TdApi.UpdateFile, Boolean>() {
+                            @Override
+                            public Boolean call(TdApi.UpdateFile u) {
+                                return u.fileId == id;
+                            }
+                        })
                         .first();
                 client.sendSilently(new TdApi.DownloadFile(id));
                 first = specificFileUpdate.toBlocking()

@@ -19,6 +19,8 @@ import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
 import rx.android.content.ContentObservable;
 import rx.android.view.OnClickEvent;
+import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
@@ -67,7 +69,12 @@ public class ChatList extends BasePath implements Serializable {
             if (chatsRequest == null) {
                 if (!atLeastOneResponseReturned) {
                     requestChats();
-                    meRequest = chatsRequest.flatMap(chats -> client.getMe());
+                    meRequest = chatsRequest.flatMap(new Func1<TdApi.Chats, Observable<? extends TdApi.User>>() {
+                        @Override
+                        public Observable<? extends TdApi.User> call(TdApi.Chats chats) {
+                            return client.getMe();
+                        }
+                    });
                 } else {
                     //wait for scroll
                 }
@@ -94,36 +101,45 @@ public class ChatList extends BasePath implements Serializable {
 
             if (meRequest != null) {
                 subscription.add(
-                        meRequest.subscribe(user -> {
-                            getView()
-                                    .showMe(user);
-                            me = user;
+                        meRequest.subscribe(new Action1<TdApi.User>() {
+                            @Override
+                            public void call(TdApi.User user) {
+                                Presenter.this.getView()
+                                        .showMe(user);
+                                me = user;
+                            }
                         }));
             }
             subscription.add(
-                    networkState.subscribe(i -> {
-                        NetworkInfo networkInfo = i.getExtras()
-                                .getParcelable(ConnectivityManager.EXTRA_NETWORK_INFO);
-                        NetworkInfo.State state = networkInfo.getState();
-                        getView()
-                                .updateNetworkStatus(state == CONNECTED);
+                    networkState.subscribe(new Action1<Intent>() {
+                        @Override
+                        public void call(Intent i) {
+                            NetworkInfo networkInfo = i.getExtras()
+                                    .getParcelable(ConnectivityManager.EXTRA_NETWORK_INFO);
+                            NetworkInfo.State state = networkInfo.getState();
+                            Presenter.this.getView()
+                                    .updateNetworkStatus(state == CONNECTED);
+                        }
                     }));
         }
 
         private void subscribeChats() {
             if (chatsRequest != null) {
                 subscription.add(
-                        chatsRequest.subscribe(chats -> {
-                            chatsRequest = null;
-                            atLeastOneResponseReturned = true;
-                            if (chats.chats.length == 0) {
-                                downloadedAll = true;
-                                return;
+                        chatsRequest.subscribe(new Action1<TdApi.Chats>() {
+                            @Override
+                            public void call(TdApi.Chats chats) {
+                                chatsRequest = null;
+                                atLeastOneResponseReturned = true;
+                                if (chats.chats.length == 0) {
+                                    downloadedAll = true;
+                                    return;
+                                }
+                                List<TdApi.Chat> ts = Arrays.asList(chats.chats);
+                                chatsHolder.addAll(ts);
+                                Presenter.this.getView()
+                                        .addChats(ts);
                             }
-                            List<TdApi.Chat> ts = Arrays.asList(chats.chats);
-                            chatsHolder.addAll(ts);
-                            getView()
-                                    .addChats(ts);
                         }));
             }
         }
@@ -142,7 +158,7 @@ public class ChatList extends BasePath implements Serializable {
                     || chat.type instanceof TdApi.GroupChatInfo;
         }
 
-        public void logout(OnClickEvent e) {
+        public void logout() {
             authState.logout();
         }
 

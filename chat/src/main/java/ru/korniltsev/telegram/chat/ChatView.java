@@ -65,7 +65,12 @@ public class ChatView extends LinearLayout {
         adapter = new Adapter(getContext());
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
-        list.setOnScrollListener(new EndlessOnScrollListener(layout, adapter, presenter::listScrolledToEnd));
+        list.setOnScrollListener(new EndlessOnScrollListener(layout, adapter, new Runnable() {
+            @Override
+            public void run() {
+                presenter.listScrolledToEnd();
+            }
+        }));
         this.target = new TargetAdapter() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {

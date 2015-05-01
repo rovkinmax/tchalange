@@ -15,6 +15,7 @@ import ru.korniltsev.telegram.core.flow.SerializableParceler;
 import ru.korniltsev.telegram.core.mortar.core.MortarScreenSwitcherFrame;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import rx.Subscription;
+import rx.functions.Action1;
 
 import static mortar.bundler.BundleServiceRunner.getBundleServiceRunner;
 
@@ -67,11 +68,14 @@ public class MainActivity extends Activity {
         super.onResume();
         flow.onResume();
         subscription = authState.listen()
-                .subscribe(s -> {
-                    History history = History.single(
-                            getScreenForAuthState(s));
-                    Flow.get(this)
-                            .setHistory(history, Flow.Direction.REPLACE);
+                .subscribe(new Action1<RXAuthState.AuthState>() {
+                    @Override
+                    public void call(RXAuthState.AuthState s) {
+                        History history = History.single(
+                                MainActivity.this.getScreenForAuthState(s));
+                        Flow.get(MainActivity.this)
+                                .setHistory(history, Flow.Direction.REPLACE);
+                    }
                 });
 
 

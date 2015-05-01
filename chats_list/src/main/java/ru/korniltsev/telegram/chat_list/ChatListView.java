@@ -13,6 +13,8 @@ import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import rx.android.view.OnClickEvent;
+import rx.functions.Action1;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -57,12 +59,22 @@ public class ChatListView extends DrawerLayout {
         super.onFinishInflate();
         injectViews();
         //list
-        adapter = new Adapter(getContext(), presenter::openChat);
+        adapter = new Adapter(getContext(), new Action1<TdApi.Chat>() {
+            @Override
+            public void call(TdApi.Chat chat) {
+                presenter.openChat(chat);
+            }
+        });
         layout = new LinearLayoutManager(getContext());
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
         list.setOnScrollListener(
-                new EndlessOnScrollListener(layout, adapter, presenter::listScrolledToEnd));
+                new EndlessOnScrollListener(layout, adapter, new Runnable() {
+                    @Override
+                    public void run() {
+                        presenter.listScrolledToEnd();
+                    }
+                }));
 
         //toolbar
         toolbar = initToolbar(this)
@@ -70,7 +82,12 @@ public class ChatListView extends DrawerLayout {
 
         //logout
         clicks(btnLogout)
-                .subscribe(presenter::logout);
+                .subscribe(new Action1<OnClickEvent>() {
+                    @Override
+                    public void call(OnClickEvent onClickEvent) {
+                        presenter.logout();
+                    }
+                });
 
 
     }

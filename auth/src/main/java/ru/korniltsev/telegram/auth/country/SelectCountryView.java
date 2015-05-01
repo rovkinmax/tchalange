@@ -32,7 +32,12 @@ public class SelectCountryView extends LinearLayout {
         list.setLayoutManager(new LinearLayoutManager(getContext()));
         List<Countries.Entry> countries = new Countries(getContext())
                 .getData();
-        list.setAdapter(new Adapter(getContext(), countries, presenter::countrySelected));
+        list.setAdapter(new Adapter(getContext(), countries, new Adapter.CountryClickListener() {
+            @Override
+            public void clicked(Countries.Entry c) {
+                presenter.countrySelected(c);
+            }
+        }));
     }
 
     @Override

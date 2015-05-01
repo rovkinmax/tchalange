@@ -8,7 +8,9 @@ import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import rx.android.view.OnClickEvent;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import static rx.android.view.ViewObservable.clicks;
 
@@ -62,7 +64,12 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
             avatar = (AvatarView) itemView.findViewById(R.id.avatar);
             message = (TextView) itemView.findViewById(R.id.message);
             clicks(itemView)
-                    .map(e -> getItem(getPosition()))
+                    .map(new Func1<OnClickEvent, TdApi.Chat>() {
+                        @Override
+                        public TdApi.Chat call(OnClickEvent onClickEvent) {
+                            return getItem(getPosition());
+                        }
+                    })
                     .subscribe(clicker);
 
         }

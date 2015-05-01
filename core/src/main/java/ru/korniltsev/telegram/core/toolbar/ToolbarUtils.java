@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import flow.Flow;
 import flow.path.PathContext;
@@ -41,9 +42,12 @@ public class ToolbarUtils {
 
     public ToolbarUtils pop(){
         toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-        toolbar.setNavigationOnClickListener(view -> {
-            Flow.get(view.getContext())
-                    .goBack();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Flow.get(view.getContext())
+                        .goBack();
+            }
         });
         return this;
     }
@@ -63,12 +67,15 @@ public class ToolbarUtils {
 
     public ToolbarUtils addMenuItem(int menu, final int id, final Runnable runnable) {
         toolbar.inflateMenu(menu);
-        toolbar.setOnMenuItemClickListener(menuItem -> {
-            if (id == menuItem.getItemId()) {
-                runnable.run();
-                return true;
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                if (id == menuItem.getItemId()) {
+                    runnable.run();
+                    return true;
+                }
+                return false;
             }
-            return false;
         });
         return this;
     }
