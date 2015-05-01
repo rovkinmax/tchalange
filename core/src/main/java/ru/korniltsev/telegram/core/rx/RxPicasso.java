@@ -28,6 +28,8 @@ import rx.functions.Func1;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -38,6 +40,8 @@ public class RxPicasso {
     //    private final RXAuthState auth;
     private final Picasso picasso;
     private final LruCache memoryCache;
+    private final ConcurrentMap<Integer, TdApi.UpdateFile> allDownloadedFiles = new ConcurrentHashMap<>();
+
 
     public RxPicasso(Context ctx, RXClient client, RXAuthState auth) {
 
@@ -46,6 +50,13 @@ public class RxPicasso {
                 .memoryCache(memoryCache)
                 .addRequestHandler(new RXRequestHandler(ctx, client))
                 .build();
+        client.filesUpdates().subscribe(new Action1<TdApi.UpdateFile>() {
+            @Override
+            public void call(TdApi.UpdateFile updateFile) {
+                allDownloadedFiles.put(updateFile.fileId, updateFile);
+            }
+        });
+
         auth.listen()
                 .filter(new Func1<RXAuthState.AuthState, Boolean>() {
                     @Override
@@ -138,14 +149,22 @@ public class RxPicasso {
         if (f instanceof TdApi.FileEmpty) {
             TdApi.FileEmpty fileEmpty = (TdApi.FileEmpty) f;
             int id = fileEmpty.id;
+
             Uri uri;
             if (id == 0) {
                 uri = RXRequestHandler.create(stubFactory.needStub(stubTarget), colorId);
                 res = picasso.load(uri);
             } else {
-                uri = RXRequestHandler.create(fileEmpty);
-                res = picasso.load(uri)
-                        .transform(new CircleTransformation());
+                TdApi.UpdateFile updateFile = allDownloadedFiles.get(id);
+                if (updateFile == null){
+                    uri = RXRequestHandler.create(fileEmpty);
+                    res = picasso.load(uri)
+                            .transform(new CircleTransformation());
+                } else {
+                    File file = new File(updateFile.path);
+                    res = picasso.load(file)
+                            .transform(new CircleTransformation());
+                }
             }
         } else {
             TdApi.FileLocal local = (TdApi.FileLocal) f;
@@ -281,6 +300,7 @@ public class RxPicasso {
     }
 
     private static class CircleTransformation implements Transformation {
+        //todo thread locals for
         @Override
         public Bitmap transform(Bitmap source) {
             int width = source.getWidth();

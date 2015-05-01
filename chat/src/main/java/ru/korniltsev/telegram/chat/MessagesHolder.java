@@ -4,7 +4,6 @@ import android.support.annotation.Nullable;
 import org.drinkless.td.libcore.telegram.TdApi;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +47,8 @@ public class MessagesHolder {
         final Map<Integer, TdApi.User> us ;
 
 
-        public MessagesAndUsers(TdApi.Messages ms, List<TdApi.User> us) {
-            this.ms = Arrays.asList(ms.messages);
+        public MessagesAndUsers(List<TdApi.Message> ms, List<TdApi.User> us) {
+            this.ms = ms;
             this.us = new HashMap<>();
             for (TdApi.User u : us) {
                 this.us.put(u.id, u);

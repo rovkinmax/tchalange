@@ -6,6 +6,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import junit.framework.Assert;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.rx.RXClient;
 
 /**
  * Created by korniltsev on 23/04/15.
@@ -23,14 +24,21 @@ public class Utils {
 
 
     @Nullable
-    public static TdApi.User getUserFromChat(TdApi.Chat chat){
+    public static TdApi.User getUserFromChat(RXClient client, TdApi.Chat chat){
         TdApi.ChatInfo type = chat.type;
         if (type instanceof TdApi.PrivateChatInfo) {
             TdApi.User user = ((TdApi.PrivateChatInfo) type).user;
             return user;
         } else if (type instanceof TdApi.GroupChatInfo) {//
-//            Assert.fail();
-            return null;//todo
+
+            int fromId = chat.topMessage.fromId;
+            if (fromId != 0) {
+                return client.getUser(fromId)
+                        .toBlocking()//fuck it we block for user
+                        .first();
+            } else {
+                return null;//todo
+            }
         } else {
             Assert.fail();
             return null;

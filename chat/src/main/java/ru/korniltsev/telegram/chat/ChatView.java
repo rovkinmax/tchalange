@@ -15,6 +15,7 @@ import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.adapters.TargetAdapter;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
+import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxPicasso;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
@@ -30,6 +31,7 @@ public class ChatView extends LinearLayout {
     private final int toolbarAvatarSize;
     @Inject Presenter presenter;
     @Inject RxPicasso picasso;
+    @Inject RXClient client;//todo delte
 
     private RecyclerView list;
     private Adapter adapter;
@@ -62,7 +64,7 @@ public class ChatView extends LinearLayout {
         list = (RecyclerView) this.findViewById(R.id.list);
 
         layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
-        adapter = new Adapter(getContext());
+        adapter = new Adapter(getContext(), client);
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
         list.setOnScrollListener(new EndlessOnScrollListener(layout, adapter, new Runnable() {

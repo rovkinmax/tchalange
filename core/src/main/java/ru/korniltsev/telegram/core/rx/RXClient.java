@@ -115,8 +115,7 @@ public class RXClient {
                     public TdApi.UpdateFile call(TLObject o) {
                         return (TdApi.UpdateFile) o;
                     }
-                })
-                .observeOn(mainThread());
+                });
     }
 
     /*public Observable<TdApi.UpdateFile> fileUpdate(final TdApi.FileEmpty file) {

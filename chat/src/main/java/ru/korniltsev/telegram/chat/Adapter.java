@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
+import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
 import java.util.HashMap;
@@ -14,8 +15,10 @@ import java.util.Map;
 
 public class Adapter extends BaseAdapter<TdApi.Message, Adapter.VH> {
     private Map<Integer, TdApi.User> us = new HashMap<>();
-    public Adapter(Context ctx) {
+    final RXClient client;
+    public Adapter(Context ctx, RXClient client) {
         super(ctx);
+        this.client = client;
     }
 
     @Override
@@ -38,6 +41,7 @@ public class Adapter extends BaseAdapter<TdApi.Message, Adapter.VH> {
         if (user != null) {
             holder.avatar.loadAvatarFor(user);
         } else {
+//            TdApi.User first = client.getUser(msg.fromId).toBlocking().first();
             holder.avatar
                     .picasso2
                     .getPicasso()

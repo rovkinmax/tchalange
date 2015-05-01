@@ -27,20 +27,24 @@ import static junit.framework.Assert.assertNull;
 
 @Singleton
 public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenuItemClickListener {
+    public static final Func2<List<TdApi.User>, List<TdApi.Message>, MessagesHolder.MessagesAndUsers> ZIPPER = new Func2<List<TdApi.User>, List<TdApi.Message>, MessagesHolder.MessagesAndUsers>() {
+        @Override
+        public MessagesHolder.MessagesAndUsers call(List<TdApi.User> users, List<TdApi.Message> messages) {
+            return new MessagesHolder.MessagesAndUsers(messages, users);
+        }
+    };
+    //    public static final ListMessagesMessagesAndUsersFunc2 ZIPPER = new ListMessagesMessagesAndUsersFunc2();
     final RXClient rxClient;
-    private RxPicasso picasso;
 
     @Nullable private Observable<MessagesHolder.MessagesAndUsers> request;
     @Nullable private Observable<TdApi.GroupChatFull> fullChatInfoRequest;
     CompositeSubscription subscription;
-    //    private Subscription requestSubscription = Subscriptions.unsubscribed();
     private Chat chat;
     private boolean downloadedAll = false;
 
     @Inject
-    public Presenter(RXClient rxClient, RxPicasso picasso) {
+    public Presenter(RXClient rxClient) {
         this.rxClient = rxClient;
-        this.picasso = picasso;
     }
 
     MessagesHolder ms = new MessagesHolder();
@@ -52,9 +56,8 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
 
         boolean isGroupChat = isGroupChat(chat.chat);
         if (ms.isEmpty()) {
-            ms.add(chat.chat.topMessage, Utils.getUserFromChat(chat.chat));//todo dangerous to npe!!!
             if (request == null) {
-                request();
+                request(chat.chat.topMessage);
             }
             if (fullChatInfoRequest == null) {
                 if (isGroupChat) {
@@ -103,13 +106,14 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
             subscription.add(
                     request.subscribe(new Action1<MessagesHolder.MessagesAndUsers>() {
                         @Override
-                        public void call(MessagesHolder.MessagesAndUsers messages) {
+                        public void call(MessagesHolder.MessagesAndUsers portion) {
                             request = null;
-                            if (messages.ms.isEmpty()) {
+
+                            if (portion.ms.isEmpty()) {
                                 downloadedAll = true;
                             } else {
-                                ms.add(messages);
-                                Presenter.this.getView().addMessages(messages);
+                                ms.add(portion);
+                                Presenter.this.getView().addMessages(portion);
                             }
                         }
                     }));
@@ -138,21 +142,27 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
 
     private final Set<Integer> users = new HashSet<>();//todo object allocs!
 
-    private void request() {//todo rewrite this shit
+    private void request(@Nullable final TdApi.Message initMessage) {//todo rewrite this shit
         assertNull(request);
-        TdApi.Message lastMessage = ms.getLastMessage();
+        TdApi.Message lastMessage;
+        if (initMessage != null){
+            lastMessage = initMessage;
+        } else {
+            lastMessage = ms.getLastMessage();
+
+        }
         request = rxClient.getMessages(chat.chat.id, lastMessage.id, 0, Chat.LIMIT)
                 .flatMap(new Func1<TdApi.Messages, Observable<? extends MessagesHolder.MessagesAndUsers>>() {
                     @Override
-                    public Observable<? extends MessagesHolder.MessagesAndUsers> call(TdApi.Messages ms) {
+                    public Observable<? extends MessagesHolder.MessagesAndUsers> call(TdApi.Messages portion) {
                         //todo do not flatmap on ui thread!
-                        TdApi.Message[] messages = ms.messages;
+                        TdApi.Message[] messages = portion.messages;
                         users.clear();
                         for (TdApi.Message message : messages) {
-                            users.add(message.fromId);
-                            if (message.forwardFromId != 0) {
-                                users.add(message.forwardFromId);
-                            }
+                            getUIDs(message);
+                        }
+                        if (ms.isEmpty()){
+                            getUIDs(chat.chat.topMessage);
                         }
                         List<Observable<TdApi.User>> os = new ArrayList<>();
                         for (Integer uid : users) {
@@ -160,19 +170,28 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
                         }
                         Observable<List<TdApi.User>> allUsers = Observable.merge(os)
                                 .toList();
-                        Observable<TdApi.Messages> messagesCopy = Observable.just(ms);
-                        return allUsers.zipWith(messagesCopy, new Func2<List<TdApi.User>, TdApi.Messages, MessagesHolder.MessagesAndUsers>() {
-                            @Override
-                            public MessagesHolder.MessagesAndUsers call(List<TdApi.User> users1, TdApi.Messages messages1) {
-                                return new MessagesHolder.MessagesAndUsers(messages1, users1);
-                            }
-                        });
+                        final List<TdApi.Message> messageList= new ArrayList<>();
+                        if (initMessage != null) {
+                            messageList.add(initMessage);
+                        }
+                        for (TdApi.Message m : portion.messages) {
+                            messageList.add(m);
+                        }
+                        Observable<List<TdApi.Message>> messagesCopy = Observable.just(messageList);
+                        return allUsers.zipWith(messagesCopy, ZIPPER);
                     }
                 });
     }
 
+    private void getUIDs(TdApi.Message message) {
+        users.add(message.fromId);
+        if (message.forwardFromId != 0) {
+            users.add(message.forwardFromId);
+        }
+    }
+
     public void requestNewPortion() {
-        request();
+        request(null);
         subscribe();
     }
 
@@ -229,4 +248,6 @@ public class Presenter extends ViewPresenter<ChatView> implements Toolbar.OnMenu
                 }));
         ;
     }
+
+
 }
