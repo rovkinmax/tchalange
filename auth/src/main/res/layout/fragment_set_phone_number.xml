@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ru.korniltsev.telegram.auth.phone.EnterPhoneView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+    <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar"/>
+
+    <EditText
+            android:id="@+id/btn_select_country"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/toolbar"
+            android:editable="false"
+            android:focusable="false"
+            />
+    <EditText
+            android:id="@+id/country_phone_code"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_select_country"
+            />
+
+    <EditText
+            android:id="@+id/user_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_select_country"
+            android:layout_toRightOf="@id/country_phone_code"
+            android:inputType="phone"
+            />
+
+</ru.korniltsev.telegram.auth.phone.EnterPhoneView>

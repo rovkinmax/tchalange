@@ -1,0 +1,16 @@
+android_resource(
+  name = 'res',
+  res = 'res',
+  package = 'com.example',
+  visibility = [
+    'PUBLIC',
+  ],
+  deps = [
+    '//jars:appcompat-v7',
+  ]
+)
+
+project_config(
+  src_target = ':res',
+  src_roots = None,
+)

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="messages">Messages</string>
+    <string name="waiting_for_connection">Waiting for connection…</string>
+    <string name="navigation_drawer_open">open</string>
+    <string name="navigation_drawer_close">close</string>
+    <string name="logout">Log Out</string>
+</resources>

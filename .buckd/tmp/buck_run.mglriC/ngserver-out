@@ -1,0 +1,36 @@
+NGServer 0.9.2-SNAPSHOT started on 127.0.0.1, port 59872.
+NGSession 2: 127.0.0.1: com.facebook.buck.cli.Main exited with status 1
+NGSession 5: 127.0.0.1: com.facebook.buck.cli.Main disconnected
+NGSession 5: 127.0.0.1: com.facebook.buck.cli.Main exited with status 1
+NGSession 8: 127.0.0.1: com.facebook.buck.cli.Main disconnected
+NGSession 8: 127.0.0.1: com.facebook.buck.cli.Main exited with status 1
+NGSession 9: 127.0.0.1: ng-stats disconnected
+NGSession 11: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 14: 127.0.0.1: com.facebook.buck.cli.Main exited with status 1
+NGSession 17: 127.0.0.1: com.facebook.buck.cli.Main exited with status 1
+NGSession 20: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 23: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 26: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 29: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 32: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 35: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 38: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 41: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 44: 127.0.0.1: com.facebook.buck.cli.Main exited with status 1
+NGSession 47: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 50: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 53: 127.0.0.1: com.facebook.buck.cli.Main disconnected
+NGSession 53: 127.0.0.1: com.facebook.buck.cli.Main exited with status 1
+NGSession 56: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 59: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 62: 127.0.0.1: com.facebook.buck.cli.Main disconnected
+NGSession 62: 127.0.0.1: com.facebook.buck.cli.Main exited with status 1
+NGSession 65: 127.0.0.1: com.facebook.buck.cli.Main exited with status 0
+NGSession 68: 127.0.0.1: com.facebook.buck.cli.Main exited with status 1
+com.facebook.buck.cli.Main: 23/0
+com.martiansoftware.nailgun.builtins.NGAlias: 0/0
+com.martiansoftware.nailgun.builtins.NGClasspath: 0/0
+com.martiansoftware.nailgun.builtins.NGServerStats: 45/0
+com.martiansoftware.nailgun.builtins.NGStop: 0/0
+com.martiansoftware.nailgun.builtins.NGVersion: 0/0
+NGServer shut down.

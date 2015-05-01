@@ -1,0 +1,30 @@
+apply plugin: 'com.android.library'
+apply plugin: 'me.tatarka.retrolambda'
+
+dependencies {
+    compile project.rx_java
+    compile project.rx_android
+    compile project.appcompat_v7
+    compile project.recycler_v7
+    compile project.picasso
+    compile project.flow_and_mortar
+    compile project.gson
+    compile project.dagger
+    provided project.dagger_compiler
+
+    compile project(":provided_res")
+    compile project(":libtd")
+}
+
+android {
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
+    defaultConfig {
+        minSdkVersion project.minSdkVersion
+        compileSdkVersion project.compileSdkVersion
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}

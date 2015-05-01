@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="clear_history">Clear history</string>
+    <string name="leave_group">Leave group</string>
+    <string name="mute">Mute</string>
+    <string name="unmute">Unmute</string>
+    <plurals name="group_chat_members">
+        <item quantity="one">%1$d member</item>
+        <item quantity="other">%1$d members</item>
+    </plurals>
+    <plurals name="group_chat_members_online">
+        <item quantity="other">%1$d online</item>
+    </plurals>
+    <!--todo 0 members 0 online-->
+    <!-- todo zeros members/online  look in original-->
+    <string name="user_status_online">online</string>
+    <!--<string name="user_status_offline">offline</string>-->
+    <string name="user_status_last_week">last week</string>
+    <string name="user_status_last_month">last month</string>
+    <string name="user_status_recently">recently</string>
+
+</resources>

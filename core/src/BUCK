@@ -1,0 +1,23 @@
+
+
+android_library(
+  name = 'lib',
+  srcs = glob(['java/**/*.java']),
+  deps = [
+    '//jars:buck-android-support',
+    '//modules/utils/res:res',
+  ],
+  exported_deps = [    
+    '//tdlib:lib',
+    '//jars:rx-java',
+    '//jars:rx-android',
+    '//jars:support-v4',
+    '//jars:appcompat-v7',
+  ],
+  visibility = [ 'PUBLIC' ],
+)
+
+project_config(
+  src_target = ':lib',
+  src_roots = ['java']
+)
