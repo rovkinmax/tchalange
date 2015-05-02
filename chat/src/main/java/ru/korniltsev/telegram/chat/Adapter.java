@@ -43,10 +43,18 @@ public class Adapter extends BaseAdapter<TdApi.Message, Adapter.VH> {
         holder.avatar.loadAvatarFor(user);
     }
 
-    public void add(MessagesHolder.Portion ms) {
-        addAll(ms.ms);
+    public void addHistory(MessagesHolder.Portion ms) {
+        addFirst(ms.ms);
+
         us.putAll(ms.us);
     }
+
+    public void insertNewMessage(MessagesHolder.Portion portion) {
+        addAll(portion.ms);
+        us.putAll(portion.us);
+    }
+
+
 
     class VH extends RecyclerView.ViewHolder {
         private final AvatarView avatar;

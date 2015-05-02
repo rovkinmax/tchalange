@@ -43,11 +43,11 @@ public class MessagePanel extends LinearLayout{
             public void onClick(View v) {
                 String text = textFrom(input);
                 if (text.length() == 0) {
+                    showAttachPopup();
+                } else {
                     listener.sendText(
                             text);
                     input.setText("");
-                } else {
-                    showAttachPopup();
                 }
             }
         });

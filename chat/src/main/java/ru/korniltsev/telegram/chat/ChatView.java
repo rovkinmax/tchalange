@@ -28,7 +28,7 @@ import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatView extends LinearLayout {
     @Inject Presenter presenter;
-//    @Inject RxPicasso picasso;
+    //    @Inject RxPicasso picasso;
 
     private RecyclerView list;
     private MessagePanel messagePanel;
@@ -41,10 +41,7 @@ public class ChatView extends LinearLayout {
     private Adapter adapter;
     private final int toolbarAvatarSize;
 
-
     private Target target;
-
-
 
     public ChatView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -66,19 +63,21 @@ public class ChatView extends LinearLayout {
         toolbarTitle = ((TextView) customView.findViewById(R.id.title));
         toolbarSubtitle = ((TextView) customView.findViewById(R.id.subtitle));
         list = (RecyclerView) findViewById(R.id.list);
-        messagePanel = (MessagePanel)findViewById(R.id.message_panel);
+        messagePanel = (MessagePanel) findViewById(R.id.message_panel);
         messagePanel.setListener(presenter);
 
-        layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
+        layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        layout.setStackFromEnd(true);
         adapter = new Adapter(getContext());
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
-        list.setOnScrollListener(new EndlessOnScrollListener(layout, adapter, new Runnable() {
-            @Override
-            public void run() {
-                presenter.listScrolledToEnd();
-            }
-        }));
+        list.setOnScrollListener(
+                new EndlessOnScrollListener(layout, adapter, /*waitForLastItem*/ false, new Runnable() {
+                    @Override
+                    public void run() {
+                        presenter.listScrolledToEnd();
+                    }
+                }));
         this.target = new TargetAdapter() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -99,8 +98,8 @@ public class ChatView extends LinearLayout {
         presenter.dropView(this);
     }
 
-    public void addMessages(MessagesHolder.Portion messages) {
-        adapter.add(messages);
+    public void addHistory(MessagesHolder.Portion messages) {
+        adapter.addHistory(messages);
     }
 
     public void initMenu(boolean groupChat) {
@@ -117,10 +116,9 @@ public class ChatView extends LinearLayout {
         toolbarAvatar.loadAvatarFor(chat);
     }
 
-
     public void setGroupChatTitle(TdApi.GroupChat groupChat) {
         toolbarTitle.setText(
-                    groupChat.title);
+                groupChat.title);
     }
 
     public void setPrivateChatTitle(TdApi.User user) {
@@ -138,21 +136,24 @@ public class ChatView extends LinearLayout {
     }
 
     public void setPirvateChatSubtitle(TdApi.UserStatus status) {
-        if (status instanceof TdApi.UserStatusOnline){
+        if (status instanceof TdApi.UserStatusOnline) {
             toolbarSubtitle.setText(R.string.user_status_online);
         } else if (status instanceof TdApi.UserStatusOffline) {
             long wasOnline = ((TdApi.UserStatusOffline) status).wasOnline;
             Date date = new Date(wasOnline * 1000);
             toolbarSubtitle.setText(date.toString());//todo time zone
-        } else if (status instanceof TdApi.UserStatusLastWeek){
+        } else if (status instanceof TdApi.UserStatusLastWeek) {
             toolbarSubtitle.setText(R.string.user_status_last_week);
-        }else if (status instanceof TdApi.UserStatusLastMonth){
+        } else if (status instanceof TdApi.UserStatusLastMonth) {
             toolbarSubtitle.setText(R.string.user_status_last_month);
-        } else if (status instanceof TdApi.UserStatusRecently){
+        } else if (status instanceof TdApi.UserStatusRecently) {
             toolbarSubtitle.setText(R.string.user_status_recently);
         } else {
             //empty
         }
+    }
 
+    public void addNewMessage(MessagesHolder.Portion portion) {
+        adapter.insertNewMessage(portion);
     }
 }

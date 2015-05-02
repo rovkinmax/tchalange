@@ -63,4 +63,11 @@ public abstract class BaseAdapter<T, VH extends RecyclerView.ViewHolder> extends
         ts.clear();
         notifyItemRangeRemoved(0, size);
     }
+
+    public void addFirst(List<T> ms) {
+        ts.addAll(0, ms);
+        notifyItemRangeInserted(0,ms.size());
+    }
+
+
 }

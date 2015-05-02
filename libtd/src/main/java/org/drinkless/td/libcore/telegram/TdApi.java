@@ -903,13 +903,13 @@ public class TdApi {
         protected void toStringBuilder(int shift, StringBuilder s) {
             s.append("Message").append(" {\n");
             shift += 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("message").append(" = "); message.toStringBuilder(shift, s);
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("id").append(" = ").append(id).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("forwardFromId").append(" = ").append(forwardFromId).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("forwardDate").append(" = ").append(forwardDate).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("fromId").append(" = ").append(fromId).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("chatId").append(" = ").append(chatId).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("date").append(" = ").append(date).append('\n');
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("message").append(" = "); message.toStringBuilder(shift, s);
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
         }

@@ -33,6 +33,8 @@ public class MessagesHolder {
         }
     };
 
+    //new messages go to the end
+    //history goes to the start in reverse order
     private final List<TdApi.Message> ms = new ArrayList<>();
     private final Map<Integer, TdApi.User> us = new ConcurrentHashMap<>();
 
@@ -51,12 +53,7 @@ public class MessagesHolder {
         this.listner = listner;
     }
 
-    public void add(TdApi.Message topMessage, @Nullable TdApi.User u) {
-        ms.add(topMessage);
-        if (u != null) {
-            us.put(u.id, u);
-        }
-    }
+
 
     public boolean isEmpty() {
         return ms.isEmpty();
@@ -66,15 +63,18 @@ public class MessagesHolder {
         return new Portion(ms, us);
     }
 
-    public void add(Portion messages) {
-        for (TdApi.Message message : messages.ms) {
-            ms.add(message);
+    public void add(Portion messages, boolean history) {
+        if (history){
+            Collections.reverse(messages.ms);
+            ms.addAll(0, messages.ms);
+        } else {
+            ms.addAll(messages.ms);
         }
         this.us.putAll(messages.us);
     }
 
     public TdApi.Message getLastMessage() {
-        return ms.get(ms.size() - 1);
+        return ms.get(0);
     }
 
     public boolean isRequestInProgress() {
@@ -90,12 +90,28 @@ public class MessagesHolder {
                 if (portion.ms.isEmpty()) {
                     downloadedAll = true;
                 } else {
-                    add(portion);
-                    listner.messagesAdded(portion);
+                    add(portion, true);
+                    listner.historyAdded(portion);
                 }
             }
         });
     }
+
+    public Subscription subscribeNewMessages() {
+        return client.newMessageUpdate(chat.id)
+                .flatMap(new UpdateNewMessageObservableFunc1())
+                .observeOn(mainThread())
+                .subscribe(new Action1<Portion>() {
+                    @Override
+                    public void call(Portion portion) {
+                        System.out.println(portion.ms.get(0));
+                        add(portion, false);
+                        listner.newMessageAdded(portion);
+                    }
+                });
+    }
+
+
 
     //todo delete this shit ASAP
     public static class Portion {
@@ -137,10 +153,7 @@ public class MessagesHolder {
                         if (initMessage != null) {
                             getUIDs(initMessage);
                         }
-                        List<Observable<TdApi.User>> os = new ArrayList<>();
-                        for (Integer uid : users) {
-                            os.add(client.getUser(uid));
-                        }
+
 
                         final List<TdApi.Message> messageList = new ArrayList<>();
                         if (initMessage != null) {
@@ -154,6 +167,10 @@ public class MessagesHolder {
                             Portion res = new Portion(messageList, Collections.<TdApi.User>emptyList());
                             return Observable.just(res);
                         } else {
+                            List<Observable<TdApi.User>> os = new ArrayList<>();
+                            for (Integer uid : users) {
+                                os.add(client.getUser(uid));
+                            }
                             //request missing users and zip
                             Observable<List<TdApi.User>> allUsers = Observable.merge(os)
                                     .toList();
@@ -183,6 +200,33 @@ public class MessagesHolder {
     }
 
     interface AddListener {
-        void messagesAdded(Portion portion);
+        void historyAdded(Portion portion);
+        void newMessageAdded(Portion portion);
+
+    }
+
+    private class UpdateNewMessageObservableFunc1 implements Func1<TdApi.UpdateNewMessage, Observable<Portion>> {
+        @Override
+        public Observable<Portion> call(TdApi.UpdateNewMessage upd) {
+            users.clear();
+            getUIDs(upd.message);
+            List<TdApi.Message> updSingleton = Collections.singletonList(upd.message);
+            if (users.isEmpty()) {
+                Portion res = new Portion(updSingleton, Collections.<TdApi.User>emptyList());
+                return Observable.just(res);
+            } else {
+
+                List<Observable<TdApi.User>> os = new ArrayList<>();
+                for (Integer uid : users) {
+                    os.add(client.getUser(uid));
+                }
+                //request missing users and zip
+                Observable<List<TdApi.User>> allUsers = Observable.merge(os)
+                        .toList();
+
+                Observable<List<TdApi.Message>> just = Observable.just(updSingleton);
+                return allUsers.zipWith(just, ZIPPER);
+            }
+        }
     }
 }
