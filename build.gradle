@@ -14,10 +14,10 @@ allprojects{
       jcenter()
   }
   ext {
-      compileSdkVersion = 21
-      buildToolsVersion = "19.1.0"
+      compileSdkVersion = 22
+      buildToolsVersion = "22.0.1"
       minSdkVersion = 11
-      targetSdkVersion = 21
+      targetSdkVersion = 22
 
 
       appcompat_v7 = "com.android.support:appcompat-v7:21.0.3"

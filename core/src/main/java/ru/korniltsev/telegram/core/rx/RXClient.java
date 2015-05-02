@@ -19,6 +19,36 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
  */
 public class RXClient {
 
+    public static final Func1<TLObject, TdApi.Messages> CAST_TO_MESSAGE = new Func1<TLObject, TdApi.Messages>() {
+        @Override
+        public TdApi.Messages call(TLObject o) {
+            return (TdApi.Messages) o;
+        }
+    };
+    public static final Func1<TLObject, TdApi.User> CAST_TO_USER = new Func1<TLObject, TdApi.User>() {
+        @Override
+        public TdApi.User call(TLObject o) {
+            return (TdApi.User) o;
+        }
+    };
+    public static final Func1<TLObject, TdApi.Chats> CAST_TO_CHATS = new Func1<TLObject, TdApi.Chats>() {
+        @Override
+        public TdApi.Chats call(TLObject o) {
+            return (TdApi.Chats) o;
+        }
+    };
+    public static final Func1<TLObject, TdApi.UpdateFile> CAST_TO_FILE_UPDATE = new Func1<TLObject, TdApi.UpdateFile>() {
+        @Override
+        public TdApi.UpdateFile call(TLObject o) {
+            return (TdApi.UpdateFile) o;
+        }
+    };
+    public static final Func1<TLObject, Boolean> ONLY_FILE_UPDATES = new Func1<TLObject, Boolean>() {
+        @Override
+        public Boolean call(TLObject tlObject) {
+            return tlObject instanceof TdApi.UpdateFile;
+        }
+    };
     private Context ctx;
 
     private final Client client;
@@ -44,7 +74,6 @@ public class RXClient {
     //observe function on ui thread
     public Observable<TLObject> sendRXUI(final TdApi.TLFunction function, long delay) {
         return sendRX(function, delay)
-                .cache()
                 .observeOn(mainThread());
     }
 
@@ -66,7 +95,7 @@ public class RXClient {
                     }
                 });
             }
-        });
+        }).cache();
     }
 
     public void sendSilently(final TdApi.TLFunction function) {
@@ -75,12 +104,7 @@ public class RXClient {
 
     public Observable<TdApi.User> getUser(int id) {
         return sendRXUI(new TdApi.GetUser(id))
-                .map(new Func1<TLObject, TdApi.User>() {
-                    @Override
-                    public TdApi.User call(TLObject o) {
-                        return (TdApi.User) o;
-                    }
-                });
+                .map(CAST_TO_USER);
     }
 
     public Observable<TdApi.GroupChatFull> getGroupChatInfo(int id) {
@@ -104,19 +128,11 @@ public class RXClient {
 
     public Observable<TdApi.UpdateFile> filesUpdates() {
         return globalSubject
-                .filter(new Func1<TLObject, Boolean>() {
-                    @Override
-                    public Boolean call(TLObject tlObject) {
-                        return tlObject instanceof TdApi.UpdateFile;
-                    }
-                })
-                .map(new Func1<TLObject, TdApi.UpdateFile>() {
-                    @Override
-                    public TdApi.UpdateFile call(TLObject o) {
-                        return (TdApi.UpdateFile) o;
-                    }
-                });
+                .filter(ONLY_FILE_UPDATES)
+                .map(CAST_TO_FILE_UPDATE);
     }
+
+
 
     /*public Observable<TdApi.UpdateFile> fileUpdate(final TdApi.FileEmpty file) {
         sendSilently(new TdApi.DownloadFile(file.id));
@@ -132,31 +148,16 @@ public class RXClient {
 
     public Observable<TdApi.Chats> getChats(int offset, int limit) {
         return sendRXUI(new TdApi.GetChats(offset, limit), 0)
-                .map(new Func1<TLObject, TdApi.Chats>() {
-                    @Override
-                    public TdApi.Chats call(TLObject o) {
-                        return (TdApi.Chats) o;
-                    }
-                });
+                .map(CAST_TO_CHATS);
     }
 
     public Observable<TdApi.User> getMe() {
         return sendRXUI(new TdApi.GetMe(), 0)
-                .map(new Func1<TLObject, TdApi.User>() {
-                    @Override
-                    public TdApi.User call(TLObject o) {
-                        return (TdApi.User) o;
-                    }
-                });
+                .map(CAST_TO_USER);
     }
 
     public Observable<TdApi.Messages> getMessages(final long chatId, final int fromId, final int offset, final int limit) {
-        return sendRXUI(new TdApi.GetChatHistory(chatId, fromId, offset, limit), 0)
-                .map(new Func1<TLObject, TdApi.Messages>() {
-                    @Override
-                    public TdApi.Messages call(TLObject o) {
-                        return (TdApi.Messages) o;
-                    }
-                });
+        return sendRX(new TdApi.GetChatHistory(chatId, fromId, offset, limit), 0)
+                .map(CAST_TO_MESSAGE);
     }
 }

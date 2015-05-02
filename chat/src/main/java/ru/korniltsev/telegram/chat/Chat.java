@@ -26,7 +26,7 @@ import static junit.framework.Assert.assertNull;
 @WithModule(Chat.Module.class)
 public class Chat extends BasePath implements Serializable {
 
-    public static final int LIMIT = 25;
+    public static final int LIMIT = 15;
 
     public final TdApi.Chat chat;
     public final TdApi.User me;

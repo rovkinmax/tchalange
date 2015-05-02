@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
-import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
 import java.util.HashMap;
@@ -15,10 +14,9 @@ import java.util.Map;
 
 public class Adapter extends BaseAdapter<TdApi.Message, Adapter.VH> {
     private Map<Integer, TdApi.User> us = new HashMap<>();
-    final RXClient client;
-    public Adapter(Context ctx, RXClient client) {
+
+    public Adapter(Context ctx) {
         super(ctx);
-        this.client = client;
     }
 
     @Override
@@ -35,27 +33,22 @@ public class Adapter extends BaseAdapter<TdApi.Message, Adapter.VH> {
         if (message instanceof TdApi.MessageText) {
             String text = ((TdApi.MessageText) message).text;
             holder.message.setText(text);
+        } else {
+            holder.message.setText("");
+
         }
 
         TdApi.User user = us.get(msg.fromId);
-        if (user != null) {
-            holder.avatar.loadAvatarFor(user);
-        } else {
-//            TdApi.User first = client.getUser(msg.fromId).toBlocking().first();
-            holder.avatar
-                    .picasso2
-                    .getPicasso()
-                    .cancelRequest(holder.avatar);
-        }
 
+        holder.avatar.loadAvatarFor(user);
     }
 
-    public void add(MessagesHolder.MessagesAndUsers ms) {
+    public void add(MessagesHolder.Portion ms) {
         addAll(ms.ms);
         us.putAll(ms.us);
     }
 
-    class VH extends RecyclerView.ViewHolder{
+    class VH extends RecyclerView.ViewHolder {
         private final AvatarView avatar;
         private final TextView message;
 

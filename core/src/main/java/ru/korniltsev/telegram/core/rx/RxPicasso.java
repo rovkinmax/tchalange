@@ -109,7 +109,7 @@ public class RxPicasso {
     };
 
     /**
-     * @param o    can badge TdApi.Chat or TdApi.User
+     * @param o    can be TdApi.Chat or TdApi.User
      * @param size size of target view. The loaded bitmap will be resized to the square of that size
      * @return request builder that can be loaded into some view or target
      */

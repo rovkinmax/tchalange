@@ -13,10 +13,9 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.chat.view.MessagePanel;
 import ru.korniltsev.telegram.core.adapters.TargetAdapter;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
-import ru.korniltsev.telegram.core.rx.RXClient;
-import ru.korniltsev.telegram.core.rx.RxPicasso;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
@@ -28,19 +27,24 @@ import static junit.framework.Assert.assertNotNull;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatView extends LinearLayout {
-    private final int toolbarAvatarSize;
     @Inject Presenter presenter;
-    @Inject RxPicasso picasso;
-    @Inject RXClient client;//todo delte
+//    @Inject RxPicasso picasso;
 
     private RecyclerView list;
-    private Adapter adapter;
+    private MessagePanel messagePanel;
     private LinearLayoutManager layout;
     private ToolbarUtils toolbar;
-    private Target target;
     private AvatarView toolbarAvatar;
     private TextView toolbarTitle;
     private TextView toolbarSubtitle;
+
+    private Adapter adapter;
+    private final int toolbarAvatarSize;
+
+
+    private Target target;
+
+
 
     public ChatView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -61,10 +65,12 @@ public class ChatView extends LinearLayout {
         toolbarAvatar = ((AvatarView) customView.findViewById(R.id.chat_avatar));
         toolbarTitle = ((TextView) customView.findViewById(R.id.title));
         toolbarSubtitle = ((TextView) customView.findViewById(R.id.subtitle));
-        list = (RecyclerView) this.findViewById(R.id.list);
+        list = (RecyclerView) findViewById(R.id.list);
+        messagePanel = (MessagePanel)findViewById(R.id.message_panel);
+        messagePanel.setListener(presenter);
 
         layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
-        adapter = new Adapter(getContext(), client);
+        adapter = new Adapter(getContext());
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
         list.setOnScrollListener(new EndlessOnScrollListener(layout, adapter, new Runnable() {
@@ -93,7 +99,7 @@ public class ChatView extends LinearLayout {
         presenter.dropView(this);
     }
 
-    public void addMessages(MessagesHolder.MessagesAndUsers messages) {
+    public void addMessages(MessagesHolder.Portion messages) {
         adapter.add(messages);
     }
 
@@ -109,8 +115,6 @@ public class ChatView extends LinearLayout {
 
     public void loadToolBarImage(TdApi.Chat chat) {
         toolbarAvatar.loadAvatarFor(chat);
-        //        picasso.loadAvatar(chat, toolbarAvatarSize)
-        //                .into(target);
     }
 
 

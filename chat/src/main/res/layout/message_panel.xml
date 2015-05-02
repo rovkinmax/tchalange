@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ru.korniltsev.telegram.chat.view.MessagePanel
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/message_panel"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:gravity="bottom"
+        android:background="#ffcdcdcd"
+        >
+
+    <ImageView
+            android:id="@+id/btn_left"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_smiles"
+            android:scaleType="center"
+            />
+
+    <EditText
+            android:id="@+id/input"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:gravity="left|bottom"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+
+            />
+
+    <ImageView
+            android:id="@+id/btn_right"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_attach"
+            android:scaleType="center"
+            />
+</ru.korniltsev.telegram.chat.view.MessagePanel>

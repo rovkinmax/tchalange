@@ -20,7 +20,6 @@ import ru.korniltsev.telegram.utils.R;
 
 public class AvatarView extends View implements Target {
 
-
     private int size;
     private Paint paint;
 
@@ -50,21 +49,6 @@ public class AvatarView extends View implements Target {
         super.onMeasure(spec, spec);
     }
 
-    /**
-     * @param o can be TdApi.User or TdApi.Chat
-     */
-    public void loadAvatarFor(TdApi.TLObject o) {
-        this.bitmap = null;
-        picasso2.loadAvatar(o, size)
-                .into(this);
-    }
-
-    @Override
-    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-        this.bitmap = bitmap;
-        invalidate();
-    }
-
     @Override
     public void layout(int l, int t, int r, int b) {
         super.layout(l, t, r, b);
@@ -76,19 +60,27 @@ public class AvatarView extends View implements Target {
         if (bitmap != null) {
             canvas.drawBitmap(bitmap, 0, 0, paint);
         }
-        //        else if (stub != null) {
-        //            canvas.drawOval(rect, stubPaint);//todo generate i
-        //            int height = staticLayout.getHeight();
-        //            int p = (size - height) / 2;
-        //            canvas.save();
-        //            canvas.translate(0, p);
-        //            staticLayout.draw(canvas);
-        //            canvas.restore();
+    }
 
-        //            float p = (size - stubWidth) / 2;
-        //            int p2 = (size - stubTextsize )/ 2;
-        //            canvas.drawText(stub, p, p2, stubTextPaint);
-        //        }
+    /**
+     * @param o can be TdApi.User or TdApi.Chat
+     */
+    public void loadAvatarFor(@Nullable TdApi.TLObject o) {
+        this.bitmap = null;
+        if (o == null) {
+            picasso2.getPicasso()
+                    .cancelRequest(this);
+        } else {
+            picasso2.loadAvatar(o, size)
+                    .into(this);
+        }
+        invalidate();
+    }
+
+    @Override
+    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+        this.bitmap = bitmap;
+        invalidate();
     }
 
     @Override
