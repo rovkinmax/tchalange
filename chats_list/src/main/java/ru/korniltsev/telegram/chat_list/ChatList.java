@@ -18,7 +18,6 @@ import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
 import rx.android.content.ContentObservable;
-import rx.android.view.OnClickEvent;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
@@ -163,8 +162,8 @@ public class ChatList extends BasePath implements Serializable {
         }
 
         @Override
-        protected void onExitScope() {
-            super.onExitScope();
+        public void dropView(ChatListView view) {
+            super.dropView(view);
             subscription.unsubscribe();
         }
 

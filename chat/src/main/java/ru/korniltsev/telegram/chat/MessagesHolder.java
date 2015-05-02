@@ -1,8 +1,8 @@
 package ru.korniltsev.telegram.chat;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.chat.Adapter.Portion;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
 import rx.Subscription;
@@ -12,13 +12,11 @@ import rx.functions.Func2;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
+import static java.util.Collections.addAll;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
@@ -35,47 +33,48 @@ public class MessagesHolder {
 
     //new messages go to the end
     //history goes to the start in reverse order
-    private final List<TdApi.Message> ms = new ArrayList<>();
-    private final Map<Integer, TdApi.User> us = new ConcurrentHashMap<>();
+//    private final List<TdApi.Message> ms = new ArrayList<>();
+//    private final Map<Integer, TdApi.User> us = new ConcurrentHashMap<>();
 
     final RXClient client;
     final TdApi.Chat chat;
     //GuardedBy Tdlib Client thread
     private final Set<Integer> users = new HashSet<>();
-    final AddListener listner;
+    final AddListener delegate;
 
     private Observable<Portion> request;
     private boolean downloadedAll;
+    private boolean atLeastOneRequestCompleted;
 
-    public MessagesHolder(RXClient client, TdApi.Chat chat, AddListener listner) {
+    public MessagesHolder(RXClient client, TdApi.Chat chat, AddListener delegate) {
         this.client = client;
         this.chat = chat;
-        this.listner = listner;
+        this.delegate = delegate;
     }
 
 
 
-    public boolean isEmpty() {
-        return ms.isEmpty();
-    }
+//    public boolean isEmpty() {
+//        return ms.isEmpty();
+//    }
 
-    public Portion getMs() {
-        return new Portion(ms, us);
-    }
+//    public Portion getMs() {
+//        return new Portion(ms, us);
+//    }
 
-    public void add(Portion messages, boolean history) {
-        if (history){
-            Collections.reverse(messages.ms);
-            ms.addAll(0, messages.ms);
-        } else {
-            ms.addAll(messages.ms);
-        }
-        this.us.putAll(messages.us);
-    }
+//    public void add(Portion messages, boolean history) {
+//        if (history){
+//            Collections.reverse(messages.ms);
+//            ms.addAll(0, messages.ms);
+//        } else {
+//            ms.addAll(messages.ms);
+//        }
+//        this.us.putAll(messages.us);
+//    }
 
-    public TdApi.Message getLastMessage() {
-        return ms.get(0);
-    }
+//    public TdApi.Message getLastMessage() {
+//        return ms.get(0);
+//    }
 
     public boolean isRequestInProgress() {
         return request != null;
@@ -90,8 +89,8 @@ public class MessagesHolder {
                 if (portion.ms.isEmpty()) {
                     downloadedAll = true;
                 } else {
-                    add(portion, true);
-                    listner.historyAdded(portion);
+//                    add(portion, true);
+                    delegate.historyAdded(portion);
                 }
             }
         });
@@ -99,52 +98,56 @@ public class MessagesHolder {
 
     public Subscription subscribeNewMessages() {
         return client.newMessageUpdate(chat.id)
-                .flatMap(new UpdateNewMessageObservableFunc1())
+                .flatMap(new Func1<TdApi.UpdateNewMessage, Observable<Portion>>() {
+                    @Override
+                    public Observable<Portion> call(TdApi.UpdateNewMessage upd) {
+                        users.clear();
+                        getUIDs(upd.message);
+                        List<TdApi.Message> updSingleton = Collections.singletonList(upd.message);
+                        if (users.isEmpty()) {
+                            Portion res = new Portion(updSingleton, Collections.<TdApi.User>emptyList());
+                            return Observable.just(res);
+                        } else {
+
+                            List<Observable<TdApi.User>> os = new ArrayList<>();
+                            for (Integer uid : users) {
+                                os.add(client.getUser(uid));
+                            }
+                            //request missing users and zip
+                            Observable<List<TdApi.User>> allUsers = Observable.merge(os)
+                                    .toList();
+
+                            Observable<List<TdApi.Message>> just = Observable.just(updSingleton);
+                            return allUsers.zipWith(just, ZIPPER);
+                        }
+                    }
+                })
                 .observeOn(mainThread())
                 .subscribe(new Action1<Portion>() {
                     @Override
                     public void call(Portion portion) {
-                        System.out.println(portion.ms.get(0));
-                        add(portion, false);
-                        listner.newMessageAdded(portion);
+                        delegate.newMessageAdded(portion);
                     }
                 });
     }
 
 
 
-    //todo delete this shit ASAP
-    public static class Portion {
-        final List<TdApi.Message> ms;
-        final Map<Integer, TdApi.User> us;
 
-        public Portion(List<TdApi.Message> ms, List<TdApi.User> us) {
-            this.ms = ms;
-            this.us = new HashMap<>();
-            for (TdApi.User u : us) {
-                this.us.put(u.id, u);
-            }
-            Log.d("MessagesHolder", "us.size" + us.size());
-        }
 
-        public Portion(List<TdApi.Message> ms, Map<Integer, TdApi.User> us) {
-            this.ms = ms;
-            this.us = us;
-        }
-    }
-
-    public void request(@Nullable final TdApi.Message initMessage) {
+    public void request2(final TdApi.Message lastMessage, @Nullable final TdApi.Message initMessage) {
         assertNull(request);
-        TdApi.Message lastMessage;
-        if (initMessage != null) {
-            lastMessage = initMessage;
-        } else {
-            lastMessage = getLastMessage();
-        }
+//        TdApi.Message lastMessage;
+//        if (initMessage != null) {
+//            lastMessage = initMessage;
+//        } else {
+//            lastMessage = getLastMessage();
+//        }
         request = client.getMessages(chat.id, lastMessage.id, 0, Chat.LIMIT)
                 .flatMap(new Func1<TdApi.Messages, Observable<? extends Portion>>() {
                     @Override
                     public Observable<? extends Portion> call(TdApi.Messages portion) {
+                        atLeastOneRequestCompleted = true;
                         TdApi.Message[] messages = portion.messages;
                         users.clear();
                         for (TdApi.Message message : messages) {
@@ -159,9 +162,7 @@ public class MessagesHolder {
                         if (initMessage != null) {
                             messageList.add(initMessage);
                         }
-                        for (TdApi.Message m : portion.messages) {
-                            messageList.add(m);
-                        }
+                        addAll(messageList, portion.messages);
 
                         if (users.isEmpty()) {
                             Portion res = new Portion(messageList, Collections.<TdApi.User>emptyList());
@@ -185,11 +186,11 @@ public class MessagesHolder {
 
     private void getUIDs(TdApi.Message message) {
         assertTrue(message.fromId != 0);
-        if (!us.containsKey(message.fromId)) {
+        if (!delegate.hasUser(message.fromId)) {
             users.add(message.fromId);
         }
         if (message.forwardFromId != 0) {
-            if (!us.containsKey(message.forwardFromId)) {
+            if (!delegate.hasUser(message.forwardFromId)) {
                 users.add(message.forwardFromId);
             }
         }
@@ -199,34 +200,16 @@ public class MessagesHolder {
         return downloadedAll;
     }
 
+    public boolean atLeastOneRequestCompleted() {
+        return atLeastOneRequestCompleted;
+    }
+
     interface AddListener {
         void historyAdded(Portion portion);
         void newMessageAdded(Portion portion);
-
+        //called during flatmap so may be called even if we are unsubscribed
+        boolean hasUser(Integer id);
     }
 
-    private class UpdateNewMessageObservableFunc1 implements Func1<TdApi.UpdateNewMessage, Observable<Portion>> {
-        @Override
-        public Observable<Portion> call(TdApi.UpdateNewMessage upd) {
-            users.clear();
-            getUIDs(upd.message);
-            List<TdApi.Message> updSingleton = Collections.singletonList(upd.message);
-            if (users.isEmpty()) {
-                Portion res = new Portion(updSingleton, Collections.<TdApi.User>emptyList());
-                return Observable.just(res);
-            } else {
 
-                List<Observable<TdApi.User>> os = new ArrayList<>();
-                for (Integer uid : users) {
-                    os.add(client.getUser(uid));
-                }
-                //request missing users and zip
-                Observable<List<TdApi.User>> allUsers = Observable.merge(os)
-                        .toList();
-
-                Observable<List<TdApi.Message>> just = Observable.just(updSingleton);
-                return allUsers.zipWith(just, ZIPPER);
-            }
-        }
-    }
 }

@@ -66,8 +66,14 @@ public abstract class BaseAdapter<T, VH extends RecyclerView.ViewHolder> extends
 
     public void addFirst(List<T> ms) {
         ts.addAll(0, ms);
-        notifyItemRangeInserted(0,ms.size());
+        notifyItemRangeInserted(0, ms.size());
     }
 
+    public List<T> getTs() {
+        return ts;
+    }
 
+    public T getLast() {
+        return ts.get(ts.size() - 1);
+    }
 }

@@ -20,7 +20,6 @@ import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
 import javax.inject.Inject;
-
 import java.util.Date;
 
 import static junit.framework.Assert.assertNotNull;
@@ -66,13 +65,13 @@ public class ChatView extends LinearLayout {
         messagePanel = (MessagePanel) findViewById(R.id.message_panel);
         messagePanel.setListener(presenter);
 
-        layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-        layout.setStackFromEnd(true);
+        layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
+//        layout.setStackFromEnd(true);
         adapter = new Adapter(getContext());
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
         list.setOnScrollListener(
-                new EndlessOnScrollListener(layout, adapter, /*waitForLastItem*/ false, new Runnable() {
+                new EndlessOnScrollListener(layout, adapter, /*waitForLastItem*/ true, new Runnable() {
                     @Override
                     public void run() {
                         presenter.listScrolledToEnd();
@@ -98,7 +97,12 @@ public class ChatView extends LinearLayout {
         presenter.dropView(this);
     }
 
-    public void addHistory(MessagesHolder.Portion messages) {
+
+    public Adapter getAdapter() {
+        return adapter;
+    }
+
+    public void addHistory(Adapter.Portion messages) {
         adapter.addHistory(messages);
     }
 
@@ -153,15 +157,21 @@ public class ChatView extends LinearLayout {
         }
     }
 
-    public void addNewMessage(MessagesHolder.Portion portion) {
-        int lastVisible = layout.findLastCompletelyVisibleItemPosition();
+    public void addNewMessage(Adapter.Portion portion) {
+        int lastVisible = layout.findFirstCompletelyVisibleItemPosition();
         boolean scrollToBottom = false;
-        if (lastVisible == adapter.getItemCount() - 1) {
+        if (lastVisible == 0) {
             scrollToBottom = true;
         }
         adapter.insertNewMessage(portion);
         if (scrollToBottom) {
-            layout.scrollToPosition(adapter.getItemCount() - 1);
+            layout.scrollToPosition(0);
         }
     }
+
+
+
+
+
+
 }

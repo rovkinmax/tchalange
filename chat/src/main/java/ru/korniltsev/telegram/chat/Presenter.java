@@ -16,6 +16,8 @@ import rx.subscriptions.CompositeSubscription;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import java.util.Map;
+
 import static junit.framework.Assert.assertTrue;
 
 @Singleton
@@ -33,34 +35,51 @@ public class Presenter extends ViewPresenter<ChatView>
     @Inject
     public Presenter(RXClient client) {
         this.client = client;
+
     }
 
-    MessagesHolder ms;
+    private  MessagesHolder ms;
+    private Adapter.Portion savedDataFromAdapter;
+
 
     @Override
     protected void onLoad(Bundle savedInstanceState) {
         ChatView view = getView();
         chatPath = Chat.get(view.getContext());
-        if (ms == null) {
+        if (ms == null){
             ms = new MessagesHolder(client, chatPath.chat, new MessagesHolder.AddListener() {
                 @Override
-                public void historyAdded(MessagesHolder.Portion portion) {
+                public void historyAdded(Adapter.Portion portion) {
                     getView()
                             .addHistory(portion);
                 }
 
                 @Override
-                public void newMessageAdded(MessagesHolder.Portion portion) {
+                public void newMessageAdded(Adapter.Portion portion) {
                     getView()
                             .addNewMessage(portion);
+                }
+
+                @Override
+                public boolean hasUser(Integer id) {
+                    Map<Integer, TdApi.User> users;
+                    ChatView view = getView();
+                    if (view == null) {
+                        users = savedDataFromAdapter.us;
+                    } else {
+                        users = view.getAdapter()
+                                .getUsers();
+                    }
+                    return users.containsKey(id);
                 }
             });
         }
 
+
         boolean isGroupChat = isGroupChat(chatPath.chat);
-        if (ms.isEmpty()) {
+        if (!ms.atLeastOneRequestCompleted()) {
             if (!ms.isRequestInProgress()) {
-                ms.request(chatPath.chat.topMessage);
+                ms.request2(chatPath.chat.topMessage, chatPath.chat.topMessage);
             }
             if (fullChatInfoRequest == null) {
                 if (isGroupChat) {
@@ -71,7 +90,9 @@ public class Presenter extends ViewPresenter<ChatView>
         }
         view.loadToolBarImage(chatPath.chat);
         view.initMenu(isGroupChat);
-        view.addHistory(ms.getMs());
+        if (savedDataFromAdapter != null){
+            view.addHistory(savedDataFromAdapter);
+        }
         setViewSubtitle();
 
         if (!isGroupChat) {
@@ -98,9 +119,19 @@ public class Presenter extends ViewPresenter<ChatView>
     }
 
     @Override
-    protected void onExitScope() {
+    protected void onSave(Bundle outState) {
+        super.onSave(outState);
+        savedDataFromAdapter = getView()
+                .getAdapter()
+                .getPortion();
+    }
+
+    @Override
+    public void dropView(ChatView view) {
+        super.dropView(view);
         subscription.unsubscribe();
     }
+
 
     private void subscribe() {
         if (subscription != null){
@@ -121,7 +152,19 @@ public class Presenter extends ViewPresenter<ChatView>
                     ));
         }
         subscription.add(
-                ms.subscribeNewMessages());;
+                ms.subscribeNewMessages());
+
+        subscription.add(client.messageIdsUpdates(chatPath.chat.id)
+                .subscribe(new Action1<TdApi.UpdateMessageId>() {
+                    @Override
+                    public void call(TdApi.UpdateMessageId upd) {
+//                        ms.updateMessageId(upd);
+                        getView()
+                                .getAdapter()
+                                .updateMessageId(upd);
+
+                    }
+                }));
 //        subscription.add(
 //                newMessageUpdates.subscribe(new Action1<TdApi.UpdateNewMessage>() {
 //                    @Override
@@ -130,6 +173,7 @@ public class Presenter extends ViewPresenter<ChatView>
 //                    }
 //                }));
     }
+
 
     private void subscribeForMessageHistory() {
         //todo show progressBar
@@ -150,7 +194,10 @@ public class Presenter extends ViewPresenter<ChatView>
     }
 
     public void requestNewPortion() {
-        ms.request(null);
+        TdApi.Message lastMessage = getView()
+                .getAdapter()
+                .getLast();
+        ms.request2(lastMessage, null);
         subscribeForMessageHistory();
     }
 
@@ -211,6 +258,22 @@ public class Presenter extends ViewPresenter<ChatView>
     @Override
     public void sendText(String text) {
         TdApi.InputMessageText content = new TdApi.InputMessageText(text);
-        client.sendSilently(new TdApi.SendMessage(chatPath.chat.id, content));
+        client.sendRXUI(new TdApi.SendMessage(chatPath.chat.id, content))
+        //todo manage subscription
+        .subscribe(new Action1<TdApi.TLObject>() {
+            @Override
+            public void call(TdApi.TLObject tlObject) {
+                System.out.println(tlObject);
+                TdApi.Message msg = (TdApi.Message) tlObject;
+                Adapter.Portion p = new Adapter.Portion(msg);
+                //                ms.add(p, false);
+                getView().addNewMessage(p);
+            }
+        });
+
     }
+
+//    public void saveLoadedPortion(Adapter.Portion portion) {
+//        savedDataFromAdapter = portion;
+//    }
 }

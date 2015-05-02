@@ -124,7 +124,7 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
 
         // activityScope may be null in case isWrongInstance() returned true in onCreate()
-        if (activityScope != null) {
+        if (isFinishing() && activityScope != null) {
             activityScope.destroy();
             activityScope = null;
         }

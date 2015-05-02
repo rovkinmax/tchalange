@@ -62,6 +62,18 @@ public class RXClient {
             return (TdApi.UpdateNewMessage) tlObject;
         }
     };
+    public static final Func1<TLObject, Boolean> ONLY_UPDATE_MESSAGE_ID = new Func1<TLObject, Boolean>() {
+        @Override
+        public Boolean call(TLObject tlObject) {
+            return tlObject instanceof TdApi.UpdateMessageId;
+        }
+    };
+    public static final Func1<TLObject, TdApi.UpdateMessageId> CAST_TO_UPDATE_MESSAGE_ID = new Func1<TLObject, TdApi.UpdateMessageId>() {
+        @Override
+        public TdApi.UpdateMessageId call(TLObject tlObject) {
+            return (TdApi.UpdateMessageId) tlObject;
+        }
+    };
     private Context ctx;
 
     private final Client client;
@@ -79,14 +91,12 @@ public class RXClient {
         this.client = TG.getClientInstance();
 
         globalSubject
-                .filter(ONLY_NEW_MESSAGE_UPDATES)
-                .map(CAST_TO_NEW_MESSAGE_UPDATE)
-                .subscribe(new Action1<TdApi.UpdateNewMessage>() {
-                    @Override
-                    public void call(TdApi.UpdateNewMessage updateNewMessage) {
-                        System.out.println();
-                    }
-                });
+                .filter(ONLY_UPDATE_MESSAGE_ID).subscribe(new Action1<TLObject>() {
+            @Override
+            public void call(TLObject tlObject) {
+                System.out.println(tlObject);
+            }
+        });
 
     }
 
@@ -126,6 +136,7 @@ public class RXClient {
     }
 
     public Observable<TdApi.User> getUser(int id) {
+
         return sendRXUI(new TdApi.GetUser(id))
                 .map(CAST_TO_USER);
     }
@@ -140,6 +151,18 @@ public class RXClient {
                 });
     }
 
+    // ui thread
+    public Observable<TdApi.UpdateMessageId> messageIdsUpdates(final long chatId) {
+        return globalSubject.filter(ONLY_UPDATE_MESSAGE_ID)
+                .map(CAST_TO_UPDATE_MESSAGE_ID)
+                .filter(new Func1<TdApi.UpdateMessageId, Boolean>() {
+                    @Override
+                    public Boolean call(TdApi.UpdateMessageId updateMessageId) {
+                        return updateMessageId.chatId == chatId;
+                    }
+                });
+    }
+
     static class RxClientException extends Exception {
         public final TdApi.Error error;
 
@@ -149,12 +172,14 @@ public class RXClient {
         }
     }
 
+    //not ui thread
     public Observable<TdApi.UpdateFile> filesUpdates() {
         return globalSubject
                 .filter(ONLY_FILE_UPDATES)
                 .map(CAST_TO_FILE_UPDATE);
     }
 
+    //not ui thread
     public Observable<TdApi.UpdateNewMessage> newMessageUpdate(final long chatId) {
         return globalSubject
                 .filter(ONLY_NEW_MESSAGE_UPDATES)
