@@ -9,10 +9,20 @@ buildscript {
 ext {
     flow_and_mortar = fileTree(dir: 'libs', include: ['*.jar'])
 }
-subprojects{
-  repositories {
-      jcenter()
-  }
+subprojects {
+    apply plugin: 'idea'
+
+    idea {
+        module {
+            def R = new File(project.buildDir, "generated/source/r/release/")
+            sourceDirs += R
+            generatedSourceDirs += R
+        }
+    }
+    repositories {
+        jcenter()
+    }
+
     afterEvaluate {
         android {
             compileSdkVersion 22
@@ -32,20 +42,19 @@ subprojects{
 //    buildToolsVersion = "22.0.1"
 //    minSdkVersion = 11
 //    targetSdkVersion = 22
-  ext {
+    ext {
 
 
+        appcompat_v7 = "com.android.support:appcompat-v7:21.0.3"
+        recycler_v7 = "com.android.support:recyclerview-v7:21.0.3"
+        rx_java = "io.reactivex:rxjava:1.0.9"
+        rx_android = "io.reactivex:rxandroid:0.24.0"
+        picasso = 'com.squareup.picasso:picasso:2.5.2'
+        flow_and_mortar = rootProject.flow_and_mortar
 
-      appcompat_v7 = "com.android.support:appcompat-v7:21.0.3"
-      recycler_v7 = "com.android.support:recyclerview-v7:21.0.3"
-      rx_java = "io.reactivex:rxjava:1.0.9"
-      rx_android = "io.reactivex:rxandroid:0.24.0"
-      picasso = 'com.squareup.picasso:picasso:2.5.2'
-      flow_and_mortar = rootProject.flow_and_mortar
-
-      dagger = 'com.squareup.dagger:dagger:1.2.2'
-      dagger_compiler = 'com.squareup.dagger:dagger-compiler:1.2.2'
+        dagger = 'com.squareup.dagger:dagger:1.2.2'
+        dagger_compiler = 'com.squareup.dagger:dagger-compiler:1.2.2'
 
 
-  }
+    }
 }
