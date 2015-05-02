@@ -8,8 +8,3 @@ include 'auth'
 include 'chats_list'
 include 'chat'
 
-include 'flow'
-include 'flow-path'
-
-//project(":flow").projectDir = new File("3dparty/flow")
-//project(":flow-path").projectDir = new File("3dparty/flow-path")

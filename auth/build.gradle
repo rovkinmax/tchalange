@@ -5,15 +5,15 @@ dependencies {
     provided project.dagger_compiler
 }
 
-android {
-    compileSdkVersion project.compileSdkVersion
-    buildToolsVersion project.buildToolsVersion
-    defaultConfig {
-        minSdkVersion project.minSdkVersion
-        compileSdkVersion project.compileSdkVersion
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
-}
+//android {
+//    compileSdkVersion project.compileSdkVersion
+//    buildToolsVersion project.buildToolsVersion
+//    defaultConfig {
+//        minSdkVersion project.minSdkVersion
+//        compileSdkVersion project.compileSdkVersion
+//    }
+//    compileOptions {
+//        sourceCompatibility JavaVersion.VERSION_1_7
+//        targetCompatibility JavaVersion.VERSION_1_7
+//    }
+//}
