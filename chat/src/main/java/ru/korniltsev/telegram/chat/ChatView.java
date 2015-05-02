@@ -154,6 +154,14 @@ public class ChatView extends LinearLayout {
     }
 
     public void addNewMessage(MessagesHolder.Portion portion) {
+        int lastVisible = layout.findLastCompletelyVisibleItemPosition();
+        boolean scrollToBottom = false;
+        if (lastVisible == adapter.getItemCount() - 1) {
+            scrollToBottom = true;
+        }
         adapter.insertNewMessage(portion);
+        if (scrollToBottom) {
+            layout.scrollToPosition(adapter.getItemCount() - 1);
+        }
     }
 }
