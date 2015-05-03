@@ -16,6 +16,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.view.MessagePanel;
 import ru.korniltsev.telegram.core.adapters.TargetAdapter;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
+import ru.korniltsev.telegram.core.rx.RxPicasso;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
@@ -27,7 +28,7 @@ import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatView extends LinearLayout {
     @Inject Presenter presenter;
-    //    @Inject RxPicasso picasso;
+    @Inject RxPicasso picasso;
 
     private RecyclerView list;
     private MessagePanel messagePanel;
@@ -41,6 +42,7 @@ public class ChatView extends LinearLayout {
     private final int toolbarAvatarSize;
 
     private Target target;
+
 
     public ChatView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -67,7 +69,7 @@ public class ChatView extends LinearLayout {
 
         layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
 //        layout.setStackFromEnd(true);
-        adapter = new Adapter(getContext());
+        adapter = new Adapter(getContext(), picasso);
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
         list.setOnScrollListener(

@@ -176,18 +176,46 @@ public class RxPicasso {
         return res;
     }
 
+    public RequestCreator loadPhoto(TdApi.File f) {
+
+        RequestCreator res;
+        if (f instanceof TdApi.FileEmpty) {
+            TdApi.UpdateFile updateFile = allDownloadedFiles.get(((TdApi.FileEmpty) f).id);
+            if (updateFile == null){
+                Uri uri = RXRequestHandler.create((TdApi.FileEmpty) f);
+                res = picasso.load(uri);
+            } else {
+                File file = new File(updateFile.path);
+                res = picasso.load(file);;
+            }
+        } else {
+            TdApi.FileLocal local = (TdApi.FileLocal) f;
+            File file = new File(local.path);
+            res = picasso.load(file);
+        }
+        return res;
+
+    }
+
+    public void loadSticker(TdApi.MessageSticker sticker) {
+
+    }
+
     private static class RXRequestHandler extends RequestHandler {
 
         public static final String URI_SCHEME = "telegram";
         public static final String URI_PARAM_ID = "id";
         public static final String URI_PARAM_STUB = "stub";
         public static final int TIMEOUT = 30000;
+        public static final String STR_TRUE = String.valueOf("true");
+        public static final String URI_PARAM_WEBP = "webp";
         private final int stubTextSize;
 
         public static Uri create(TdApi.FileEmpty f) {
             return new Uri.Builder()
                     .scheme(URI_SCHEME)
                     .appendQueryParameter(URI_PARAM_ID, String.valueOf(f.id))
+//                    .appendQueryParameter(URI_PARAM_WEBP, String.valueOf(webp))
                     .build();
         }
 
@@ -243,6 +271,7 @@ public class RxPicasso {
 
             String stub = request.uri.getQueryParameter(URI_PARAM_STUB);
             if (stub == null) {
+                String webp = request.uri.getQueryParameter(URI_PARAM_WEBP);
                 return loadFileEmpty(id);
             } else {
                 return loadStub(request, id, stub);
@@ -288,6 +317,11 @@ public class RxPicasso {
                 first = specificFileUpdate.toBlocking()
                         .toFuture()
                         .get(TIMEOUT, TimeUnit.MILLISECONDS);
+//                https://code.google.com/p/webp/issues/detail?id=147
+//                WebP support for transparent files was added in Android JB-MR2 (4.2) onwards.
+//                if (webp  && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2){
+//                    return supportDecode(first);
+//                }
                 FileInputStream res = new FileInputStream(new File(first.path));
                 return new Result(res, Picasso.LoadedFrom.NETWORK);
             } catch (InterruptedException e) {
@@ -297,6 +331,18 @@ public class RxPicasso {
                 throw new IOException();
             }
         }
+
+//        private Result supportDecode(TdApi.UpdateFile first) throws IOException {
+//
+//
+//            RandomAccessFile f = new RandomAccessFile(first.path, "r");
+//            byte[] b = new byte[(int)f.length()];
+//            f.readFully(b);//todo pretty sure libwebp can decode image from file. so do no
+//
+//            Bitmap bmp = WebPFactory.nativeDecodeByteArray(b, null);
+//            return new Result(bmp, Picasso.LoadedFrom.NETWORK);
+//
+//        }
     }
 
     private static class CircleTransformation implements Transformation {

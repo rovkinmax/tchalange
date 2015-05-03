@@ -10,8 +10,11 @@ ext {
     flow_and_mortar = fileTree(dir: 'libs', include: ['*.jar'])
 }
 subprojects {
-    apply plugin: 'idea'
 
+    if (project.name == "libwebp"){
+        return;
+    }
+    apply plugin: 'idea'
     idea {
         module {
             def R = new File(project.buildDir, "generated/source/r/release/")

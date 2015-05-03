@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ru.korniltsev.telegram.core.views.AvatarView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/avatar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/avatar_margin_left"
+        android:layout_marginRight="@dimen/avatar_margin_right"
+        app:size="@dimen/avatar_size"
+        tools:showIn="@layout/item_photo"
+        />
