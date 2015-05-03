@@ -15,7 +15,6 @@ import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import java.util.Map;
 
 import static junit.framework.Assert.assertTrue;

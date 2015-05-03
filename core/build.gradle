@@ -13,6 +13,7 @@ dependencies {
 
     compile project(":provided_res")
     compile project(":libtd")
+    compile project(":emoji")
 }
 
 //android {

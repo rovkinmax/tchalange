@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.chat;
 
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.chat.view.EmojiTextView;
 import ru.korniltsev.telegram.chat.view.PhotoMessageView;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
@@ -30,7 +31,8 @@ public class Chat extends BasePath implements Serializable {
     @dagger.Module(
             injects = {
                     ChatView.class,
-                    PhotoMessageView.class
+                    PhotoMessageView.class,
+                    EmojiTextView.class ,
             },
             addsTo = RootModule.class)
     public static class Module {

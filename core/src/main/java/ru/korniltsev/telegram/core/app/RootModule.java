@@ -18,6 +18,7 @@ package ru.korniltsev.telegram.core.app;
 import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
+import org.telegram.android.Emoji;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxPicasso;
@@ -31,7 +32,8 @@ import javax.inject.Singleton;
         injects = {
                 RXClient.class,
                 RXAuthState.class,
-                RxPicasso.class
+                RxPicasso.class,
+                Emoji.class,
         },
         library = true)
 public class RootModule {
@@ -59,5 +61,11 @@ public class RootModule {
     @Provides
     RxPicasso providePicasso(RXClient client, RXAuthState auth) {
         return new RxPicasso(ctx, client, auth);
+    }
+
+    @Singleton
+    @Provides
+    Emoji provideEmoji() {
+        return new Emoji(ctx);
     }
 }

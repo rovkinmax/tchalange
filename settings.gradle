@@ -7,4 +7,4 @@ include 'provided_res'
 include 'auth'
 include 'chats_list'
 include 'chat'
-
+include 'emoji'

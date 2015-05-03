@@ -31,16 +31,15 @@ public class MessagesHolder {
         }
     };
 
-    //new messages go to the end
-    //history goes to the start in reverse order
-//    private final List<TdApi.Message> ms = new ArrayList<>();
-//    private final Map<Integer, TdApi.User> us = new ConcurrentHashMap<>();
 
     final RXClient client;
     final TdApi.Chat chat;
+    final AddListener delegate;
+
+
     //GuardedBy Tdlib Client thread
     private final Set<Integer> users = new HashSet<>();
-    final AddListener delegate;
+
 
     private Observable<Portion> request;
     private boolean downloadedAll;
@@ -54,27 +53,6 @@ public class MessagesHolder {
 
 
 
-//    public boolean isEmpty() {
-//        return ms.isEmpty();
-//    }
-
-//    public Portion getMs() {
-//        return new Portion(ms, us);
-//    }
-
-//    public void add(Portion messages, boolean history) {
-//        if (history){
-//            Collections.reverse(messages.ms);
-//            ms.addAll(0, messages.ms);
-//        } else {
-//            ms.addAll(messages.ms);
-//        }
-//        this.us.putAll(messages.us);
-//    }
-
-//    public TdApi.Message getLastMessage() {
-//        return ms.get(0);
-//    }
 
     public boolean isRequestInProgress() {
         return request != null;
@@ -156,7 +134,6 @@ public class MessagesHolder {
                         if (initMessage != null) {
                             getUIDs(initMessage);
                         }
-
 
                         final List<TdApi.Message> messageList = new ArrayList<>();
                         if (initMessage != null) {
