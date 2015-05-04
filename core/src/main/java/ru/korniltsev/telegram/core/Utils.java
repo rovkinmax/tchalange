@@ -1,12 +1,15 @@
 package ru.korniltsev.telegram.core;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import junit.framework.Assert;
-import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.core.rx.RXClient;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Created by korniltsev on 23/04/15.
@@ -23,39 +26,21 @@ public class Utils {
 
 
 
-    @Nullable
-    public static TdApi.User getUserFromChat(RXClient client, TdApi.Chat chat){
-        TdApi.ChatInfo type = chat.type;
-        if (type instanceof TdApi.PrivateChatInfo) {
-            TdApi.User user = ((TdApi.PrivateChatInfo) type).user;
-            return user;
-        } else if (type instanceof TdApi.GroupChatInfo) {//
-
-            int fromId = chat.topMessage.fromId;
-            if (fromId != 0) {
-                return client.getUser(fromId)
-                        .toBlocking()//fuck it we block for user
-                        .first();
-            } else {
-                return null;//todo
+    public static void copyFile(File source, File dest) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
             }
-        } else {
-            Assert.fail();
-            return null;
+        } finally {
+            if (is != null) is.close();
+            if (os != null) os.close();
         }
-
     }
 
-    public static TdApi.File getFileForChat(TdApi.Chat chat) {
-        TdApi.ChatInfo type = chat.type;
-        if (type instanceof TdApi.PrivateChatInfo) {
-            TdApi.User user = ((TdApi.PrivateChatInfo) type).user;
-            return user.photoSmall;
-        } else if (type instanceof TdApi.GroupChatInfo) {//
-            TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) type).groupChat;
-            return groupChat.photoSmall;
-        }
-        Assert.fail();
-        return null;
-    }
 }

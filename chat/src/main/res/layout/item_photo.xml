@@ -7,7 +7,7 @@
 
     <include layout="@layout/item_nick_and_time"/>
 
-    <ru.korniltsev.telegram.chat.view.PhotoMessageView
+    <ru.korniltsev.telegram.chat.adapter.view.PhotoMessageView
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

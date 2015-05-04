@@ -6,6 +6,10 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class RXAuthState {
     public static final String PREF_AUTHORIZED = "pref_authorized";
     public static final String RX_CLIENT = "rx_client";
@@ -19,6 +23,7 @@ public class RXAuthState {
     private final PublishSubject<AuthState> authState = PublishSubject.create();;
     final Context ctx;
 
+    @Inject
     public RXAuthState( Context ctx, RXClient client) {
         this.ctx = ctx;
         this.client = client;

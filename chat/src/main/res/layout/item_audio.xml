@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                style="@style/Item.Root"
+        >
+
+    <include layout="@layout/item_avatar"/>
+
+    <include layout="@layout/item_nick_and_time"/>
+
+    <ru.korniltsev.telegram.chat.adapter.view.AudioMessageView
+            android:id="@+id/audio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/item_content"
+            >
+
+        <ImageView
+                android:id="@+id/btn_play"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+
+                android:scaleType="center"
+                android:background="#ff76c4ff"
+                />
+
+        <View
+                android:id="@+id/progress"
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:background="#ef0"
+                android:layout_weight="1"
+                />
+        <TextView
+                android:id="@+id/duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+
+    </ru.korniltsev.telegram.chat.adapter.view.AudioMessageView>
+</RelativeLayout>

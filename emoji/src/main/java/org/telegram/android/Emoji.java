@@ -225,7 +225,6 @@ public class Emoji {
         placeholderPaint = new Paint();
         placeholderPaint.setColor(0x00000000);
 
-        loadEmoji(0);
     }
 
     static {

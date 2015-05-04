@@ -19,8 +19,10 @@ import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
 import org.telegram.android.Emoji;
+import ru.korniltsev.telegram.core.audio.AudioPlayer;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
+import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.rx.RxPicasso;
 
 import javax.inject.Singleton;
@@ -34,6 +36,8 @@ import javax.inject.Singleton;
                 RXAuthState.class,
                 RxPicasso.class,
                 Emoji.class,
+                RxDownloadManager.class,
+                AudioPlayer.class,
         },
         library = true)
 public class RootModule {
@@ -41,31 +45,19 @@ public class RootModule {
 
     public RootModule(Context ctx) {
         this.ctx = ctx;
-
-
     }
 
     @Singleton
     @Provides
-    RXClient provideRxClient() {
-        return new RXClient(ctx);
+    Context provideContext(){
+        return ctx;
     }
 
-    @Singleton
-    @Provides
-    RXAuthState provideRxAuthState(RXClient client) {
-        return new RXAuthState(ctx, client);
-    }
-
-    @Singleton
-    @Provides
-    RxPicasso providePicasso(RXClient client, RXAuthState auth) {
-        return new RxPicasso(ctx, client, auth);
-    }
 
     @Singleton
     @Provides
     Emoji provideEmoji() {
         return new Emoji(ctx);
     }
+
 }

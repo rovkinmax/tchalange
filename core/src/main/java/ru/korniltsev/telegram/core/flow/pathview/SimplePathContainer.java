@@ -23,16 +23,13 @@ import android.animation.ObjectAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import flow.Flow;
 import flow.path.Path;
 import flow.path.PathContainer;
 import flow.path.PathContext;
 import flow.path.PathContextFactory;
-import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.flow.utils.Utils;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static flow.Flow.Direction.REPLACE;
 
@@ -41,6 +38,8 @@ import static flow.Flow.Direction.REPLACE;
  * Uses {@link PathContext} to allow customized sub-containers.
  */
 public class SimplePathContainer extends PathContainer {
+  public static final int ANIM_DURATION = 150;
+  public static final DecelerateInterpolator INTERPOLATOR = new DecelerateInterpolator();
   private final PathContextFactory contextFactory;
 
   public SimplePathContainer(int tagKey, PathContextFactory contextFactory) {
@@ -123,8 +122,16 @@ public class SimplePathContainer extends PathContainer {
 
     AnimatorSet set = new AnimatorSet();
 
-    set.play(ObjectAnimator.ofFloat(from, View.TRANSLATION_X, fromTranslation));
-    set.play(ObjectAnimator.ofFloat(to, View.TRANSLATION_X, toTranslation, 0));
+    ObjectAnimator fromAnimation = ObjectAnimator.ofFloat(from, View.TRANSLATION_X, fromTranslation)
+            .setDuration(ANIM_DURATION);
+    ObjectAnimator toAnimation = ObjectAnimator.ofFloat(to, View.TRANSLATION_X, toTranslation, 0)
+            .setDuration(ANIM_DURATION);
+
+    fromAnimation.setInterpolator(INTERPOLATOR);
+    toAnimation.setInterpolator(INTERPOLATOR);
+
+    set.play(fromAnimation);
+    set.play(toAnimation);
 
     return set;
   }

@@ -1,4 +1,4 @@
-package ru.korniltsev.telegram.chat.view;
+package ru.korniltsev.telegram.chat.adapter.view;
 
 import android.content.Context;
 import android.text.Editable;

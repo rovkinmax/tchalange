@@ -2,7 +2,7 @@ package ru.korniltsev.telegram.chat;
 
 import android.support.annotation.Nullable;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.chat.Adapter.Portion;
+import ru.korniltsev.telegram.chat.adapter.Adapter.Portion;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
 import rx.Subscription;

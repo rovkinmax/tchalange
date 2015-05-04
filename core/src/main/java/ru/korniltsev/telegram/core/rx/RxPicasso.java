@@ -25,38 +25,32 @@ import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@Singleton
 public class RxPicasso {
 
-    //    private final RXClient client;
-    //    private final RXAuthState auth;
     private final Picasso picasso;
     private final LruCache memoryCache;
-    private final ConcurrentMap<Integer, TdApi.UpdateFile> allDownloadedFiles = new ConcurrentHashMap<>();
+    private final RXClient client;
 
-
+    @Inject
     public RxPicasso(Context ctx, RXClient client, RXAuthState auth) {
 
         memoryCache = new LruCache(ctx);
         picasso = new Picasso.Builder(ctx)
                 .memoryCache(memoryCache)
-                .addRequestHandler(new RXRequestHandler(ctx, client))
+                .addRequestHandler(new RXRequestHandler(ctx))
                 .build();
-        client.filesUpdates().subscribe(new Action1<TdApi.UpdateFile>() {
-            @Override
-            public void call(TdApi.UpdateFile updateFile) {
-                allDownloadedFiles.put(updateFile.fileId, updateFile);
-            }
-        });
 
+        this.client = client;
         auth.listen()
                 .filter(new Func1<RXAuthState.AuthState, Boolean>() {
                     @Override
@@ -152,12 +146,12 @@ public class RxPicasso {
 
             Uri uri;
             if (id == 0) {
-                uri = RXRequestHandler.create(stubFactory.needStub(stubTarget), colorId);
+                uri = createUri(stubFactory.needStub(stubTarget), colorId);
                 res = picasso.load(uri);
             } else {
-                TdApi.UpdateFile updateFile = allDownloadedFiles.get(id);
+                TdApi.UpdateFile updateFile = client.getDownloadedFile(id);
                 if (updateFile == null){
-                    uri = RXRequestHandler.create(fileEmpty);
+                    uri = createUri(fileEmpty);
                     res = picasso.load(uri)
                             .transform(new CircleTransformation());
                 } else {
@@ -180,9 +174,9 @@ public class RxPicasso {
 
         RequestCreator res;
         if (f instanceof TdApi.FileEmpty) {
-            TdApi.UpdateFile updateFile = allDownloadedFiles.get(((TdApi.FileEmpty) f).id);
+            TdApi.UpdateFile updateFile = client.getDownloadedFile(((TdApi.FileEmpty) f).id);
             if (updateFile == null){
-                Uri uri = RXRequestHandler.create((TdApi.FileEmpty) f);
+                Uri uri = createUri((TdApi.FileEmpty) f);
                 res = picasso.load(uri);
             } else {
                 File file = new File(updateFile.path);
@@ -197,37 +191,34 @@ public class RxPicasso {
 
     }
 
-    public void loadSticker(TdApi.MessageSticker sticker) {
 
+    public static Uri createUri(TdApi.FileEmpty f) {
+        return new Uri.Builder()
+                .scheme(RXRequestHandler.URI_SCHEME)
+                .appendQueryParameter(RXRequestHandler.URI_PARAM_ID, String.valueOf(f.id))
+                        //                    .appendQueryParameter(URI_PARAM_WEBP, String.valueOf(webp))
+                .build();
     }
 
-    private static class RXRequestHandler extends RequestHandler {
+    public static Uri createUri(String stub, int id) {
+        return new Uri.Builder()
+                .scheme(RXRequestHandler.URI_SCHEME)
+                .appendQueryParameter(RXRequestHandler.URI_PARAM_ID, String.valueOf(id))
+                .appendQueryParameter(RXRequestHandler.URI_PARAM_STUB, stub)
+                .build();
+    }
+
+    private class RXRequestHandler extends RequestHandler {
 
         public static final String URI_SCHEME = "telegram";
         public static final String URI_PARAM_ID = "id";
         public static final String URI_PARAM_STUB = "stub";
         public static final int TIMEOUT = 30000;
-        public static final String STR_TRUE = String.valueOf("true");
         public static final String URI_PARAM_WEBP = "webp";
         private final int stubTextSize;
 
-        public static Uri create(TdApi.FileEmpty f) {
-            return new Uri.Builder()
-                    .scheme(URI_SCHEME)
-                    .appendQueryParameter(URI_PARAM_ID, String.valueOf(f.id))
-//                    .appendQueryParameter(URI_PARAM_WEBP, String.valueOf(webp))
-                    .build();
-        }
 
-        public static Uri create(String stub, int id) {
-            return new Uri.Builder()
-                    .scheme(URI_SCHEME)
-                    .appendQueryParameter(URI_PARAM_ID, String.valueOf(id))
-                    .appendQueryParameter(URI_PARAM_STUB, stub)
-                    .build();
-        }
 
-        final RXClient client;
         final ThreadLocal<TextPaint> textPaints = new ThreadLocal<TextPaint>() {
             @Override
             protected TextPaint initialValue() {
@@ -251,9 +242,8 @@ public class RxPicasso {
             }
         };
 
-        public RXRequestHandler(final Context ctx, RXClient client) {
-            this.client = client;
-            stubTextSize = ctx.getResources().getDimensionPixelSize(R.dimen.avatar_text_size);
+        public RXRequestHandler(final Context ctx) {
+            stubTextSize = ctx.getResources().getDimensionPixelSize(R.dimen.avatar_text_size);//todo wrong size!!
         }
 
         @Override

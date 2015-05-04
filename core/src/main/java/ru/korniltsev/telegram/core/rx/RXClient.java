@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.core.rx;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import org.drinkless.td.libcore.telegram.Client;
 import org.drinkless.td.libcore.telegram.TG;
@@ -13,11 +14,17 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 /**
  * Created by korniltsev on 21/04/15.
  */
+@Singleton
 public class RXClient {
 
     public static final Func1<TLObject, TdApi.Messages> CAST_TO_MESSAGE = new Func1<TLObject, TdApi.Messages>() {
@@ -79,6 +86,10 @@ public class RXClient {
     private final Client client;
     private final PublishSubject<TdApi.TLObject> globalSubject = PublishSubject.create();
 
+    private final ConcurrentMap<Integer, TdApi.UpdateFile> allDownloadedFiles = new ConcurrentHashMap<>();
+
+
+    @Inject
     public RXClient(Context ctx) {
         this.ctx = ctx;
         TG.setUpdatesHandler(new Client.ResultHandler() {
@@ -98,20 +109,24 @@ public class RXClient {
             }
         });
 
+        filesUpdates().subscribe(new Action1<TdApi.UpdateFile>() {
+            @Override
+            public void call(TdApi.UpdateFile updateFile) {
+                allDownloadedFiles.put(updateFile.fileId, updateFile);
+            }
+        });
+
     }
 
-    public Observable<TLObject> sendRXUI(final TdApi.TLFunction function) {
-        return sendRXUI(function, 0);
-    }
 
     //observe function on ui thread
-    public Observable<TLObject> sendRXUI(final TdApi.TLFunction function, long delay) {
-        return sendRX(function, delay)
+    public Observable<TLObject> sendRXUI(final TdApi.TLFunction function) {
+        return sendRX(function)
                 .observeOn(mainThread());
     }
 
     //observe function
-    private Observable<TLObject> sendRX(final TdApi.TLFunction function, final long delay) {
+    public Observable<TLObject> sendRX(final TdApi.TLFunction function) {
         return Observable.create(new Observable.OnSubscribe<TLObject>() {
             @Override
             public void call(final Subscriber<? super TLObject> s) {
@@ -194,11 +209,15 @@ public class RXClient {
 
 
 
-    /*public Observable<TdApi.UpdateFile> fileUpdate(final TdApi.FileEmpty file) {
-        sendSilently(new TdApi.DownloadFile(file.id));
+    public Observable<TdApi.UpdateFile> fileUpdate(final TdApi.FileEmpty file) {
         return filesUpdates()
-                .filter(updateFile -> updateFile.fileId == file.id);
-    }*/
+                .filter(new Func1<TdApi.UpdateFile, Boolean>() {
+                    @Override
+                    public Boolean call(TdApi.UpdateFile updateFile) {
+                        return file.id == updateFile.fileId;
+                    }
+                });
+    }
 
     public Client getClient() {
         return client;
@@ -207,17 +226,22 @@ public class RXClient {
     ////////////
 
     public Observable<TdApi.Chats> getChats(int offset, int limit) {
-        return sendRXUI(new TdApi.GetChats(offset, limit), 0)
+        return sendRXUI(new TdApi.GetChats(offset, limit))
                 .map(CAST_TO_CHATS);
     }
 
     public Observable<TdApi.User> getMe() {
-        return sendRXUI(new TdApi.GetMe(), 0)
+        return sendRXUI(new TdApi.GetMe())
                 .map(CAST_TO_USER);
     }
 
     public Observable<TdApi.Messages> getMessages(final long chatId, final int fromId, final int offset, final int limit) {
-        return sendRX(new TdApi.GetChatHistory(chatId, fromId, offset, limit), 0)
+        return sendRX(new TdApi.GetChatHistory(chatId, fromId, offset, limit))
                 .map(CAST_TO_MESSAGE);
+    }
+
+    @Nullable
+    public TdApi.UpdateFile getDownloadedFile(Integer id) {
+        return allDownloadedFiles.get(id);
     }
 }
