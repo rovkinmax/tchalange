@@ -7,8 +7,6 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.Utils;
 
-import static junit.framework.Assert.assertTrue;
-
 //something we can draw as a single textView
 
 //MessageGroupChatCreate extends MessageContent {
@@ -97,10 +95,5 @@ public class SingleTextViewVH extends RealBaseVH {
         text.setText(R.string.message_deleted);
     }
 
-    private String getNameForSenderOf(TdApi.Message item) {
-        int fromId = item.fromId;
-        assertTrue(fromId != 0);
-        TdApi.User user = adapter.getUsers().get(fromId);
-        return Utils.uiName(user);
-    }
+
 }

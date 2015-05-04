@@ -15,8 +15,11 @@ import java.util.Map;
 
 // Message types left:
 //          MessageDocument extends MessageContent {
-//        MessageContact extends MessageContent {
 //        MessageChatChangePhoto extends MessageContent {
+
+
+//        MessageContact extends MessageContent {
+
 //
 public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
 
@@ -27,6 +30,8 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
     public static final int VIEW_TYPE_GEO = 4;
     public static final int VIEW_TYPE_VIDEO = 5;
     public static final int VIEW_TYPE_SINGLE_TEXT_VIEW = 6;
+    public static final int VIEW_TYPE_CHAT_PHOTO_CHANGED = 7;
+
     final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxPicasso picasso;
 
@@ -50,6 +55,8 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
             return VIEW_TYPE_VIDEO;
         } else if (message instanceof TdApi.MessageText) {
             return VIEW_TYPE_TEXT;
+        } else if (message instanceof TdApi.MessageChatChangePhoto){
+            return VIEW_TYPE_CHAT_PHOTO_CHANGED;
         } else {
             return VIEW_TYPE_SINGLE_TEXT_VIEW;
         }
@@ -85,6 +92,10 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
             case VIEW_TYPE_TEXT: {
                 View view = inflate(R.layout.item_message, p);
                 return new TextMessageVH(view, this);
+            }
+            case VIEW_TYPE_CHAT_PHOTO_CHANGED: {
+                View view = inflate(R.layout.item_chat_photo_changed, p);
+                return new ChatPhotoChangedVH(view, this);
             }
             default: {
                 View view = inflate(R.layout.item_single_text_view, p);
