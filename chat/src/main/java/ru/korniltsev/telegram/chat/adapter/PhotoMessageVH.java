@@ -5,7 +5,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.chat.adapter.view.PhotoMessageView;
 
-class PhotoMessageVH extends BaseVH {
+class PhotoMessageVH extends BaseAvatarVH {
     private final PhotoMessageView image;
 
 

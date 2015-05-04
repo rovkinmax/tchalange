@@ -5,7 +5,7 @@ import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 
-class TextMessageVH extends BaseVH {
+class TextMessageVH extends BaseAvatarVH {
 
     private final TextView message;
 

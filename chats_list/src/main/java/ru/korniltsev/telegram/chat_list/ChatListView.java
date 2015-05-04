@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
+import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatListView extends DrawerLayout {
@@ -117,7 +118,7 @@ public class ChatListView extends DrawerLayout {
     public void showMe(TdApi.User user) {
         drawerAvatar.loadAvatarFor(user);
         drawerName.setText(
-                user.lastName + " " + user.firstName);
+                uiName(user));
         drawerPhone.setText(
                 user.phoneNumber);
     }

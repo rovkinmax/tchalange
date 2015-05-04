@@ -5,7 +5,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.chat.adapter.view.GeoPointView;
 
-public class GeoPointVH extends BaseVH {
+public class GeoPointVH extends BaseAvatarVH {
 
     private final GeoPointView map;
 

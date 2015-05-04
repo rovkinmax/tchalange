@@ -5,7 +5,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.chat.adapter.view.AudioMessageView;
 
-public class AudioVH extends BaseVH {
+public class AudioVH extends BaseAvatarVH {
 
     private final AudioMessageView audioView;
 

@@ -5,7 +5,7 @@ import android.widget.ImageView;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 
-class StickerVH extends BaseVH {
+class StickerVH extends BaseAvatarVH {
     private Adapter adapter;
     final ImageView image;
     public StickerVH( View itemView, Adapter adapter) {

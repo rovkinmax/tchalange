@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import java.util.Date;
 
 import static junit.framework.Assert.assertNotNull;
+import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatView extends LinearLayout {
@@ -130,7 +131,7 @@ public class ChatView extends LinearLayout {
 
     public void setPrivateChatTitle(TdApi.User user) {
         toolbarTitle.setText(
-                user.firstName + " " + user.lastName);
+                uiName(user));
     }
 
     public void setwGroupChatSubtitle(int total, int online) {

@@ -5,7 +5,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.chat.adapter.view.VideoView;
 
-public class VideoVH extends BaseVH {
+public class VideoVH extends BaseAvatarVH {
     private final VideoView video;
 
 

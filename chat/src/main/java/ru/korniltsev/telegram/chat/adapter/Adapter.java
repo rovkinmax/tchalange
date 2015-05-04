@@ -13,7 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Adapter extends BaseAdapter<TdApi.Message, BaseVH> {
+// Message types left:
+//          MessageDocument extends MessageContent {
+//        MessageContact extends MessageContent {
+//        MessageChatChangePhoto extends MessageContent {
+//
+public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
 
     public static final int VIEW_TYPE_PHOTO = 0;
     public static final int VIEW_TYPE_TEXT = 1;
@@ -21,6 +26,7 @@ public class Adapter extends BaseAdapter<TdApi.Message, BaseVH> {
     public static final int VIEW_TYPE_AUDIO = 3;
     public static final int VIEW_TYPE_GEO = 4;
     public static final int VIEW_TYPE_VIDEO = 5;
+    public static final int VIEW_TYPE_SINGLE_TEXT_VIEW = 6;
     final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxPicasso picasso;
 
@@ -42,15 +48,19 @@ public class Adapter extends BaseAdapter<TdApi.Message, BaseVH> {
             return VIEW_TYPE_GEO;
         } else if (message instanceof TdApi.MessageVideo) {
             return VIEW_TYPE_VIDEO;
+        } else if (message instanceof TdApi.MessageText) {
+            return VIEW_TYPE_TEXT;
+        } else {
+            return VIEW_TYPE_SINGLE_TEXT_VIEW;
         }
-        return VIEW_TYPE_TEXT;
     }
 
     private View inflate(int id, ViewGroup parent) {
         return getViewFactory().inflate(id, parent, false);
     }
+
     @Override
-    public BaseVH onCreateViewHolder(ViewGroup p, int viewType) {
+    public RealBaseVH onCreateViewHolder(ViewGroup p, int viewType) {
         switch (viewType) {
             case VIEW_TYPE_PHOTO: {
                 View view = inflate(R.layout.item_photo, p);
@@ -68,18 +78,23 @@ public class Adapter extends BaseAdapter<TdApi.Message, BaseVH> {
                 View view = inflate(R.layout.item_geo, p);
                 return new GeoPointVH(view, this);
             }
-            case VIEW_TYPE_VIDEO:
+            case VIEW_TYPE_VIDEO: {
                 View view = inflate(R.layout.item_video, p);
                 return new VideoVH(view, this);
+            }
+            case VIEW_TYPE_TEXT: {
+                View view = inflate(R.layout.item_message, p);
+                return new TextMessageVH(view, this);
+            }
+            default: {
+                View view = inflate(R.layout.item_single_text_view, p);
+                return new SingleTextViewVH(view, this);
+            }
         }
-        View view = getViewFactory()
-                .inflate(R.layout.item_message, p, false);
-        return new TextMessageVH(view, this);
-
     }
 
     @Override
-    public void onBindViewHolder(BaseVH holder, int position) {
+    public void onBindViewHolder(RealBaseVH holder, int position) {
         TdApi.Message item = getItem(position);
         holder.bind(item);
     }
