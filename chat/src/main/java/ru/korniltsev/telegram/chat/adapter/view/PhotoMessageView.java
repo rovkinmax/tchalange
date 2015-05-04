@@ -14,6 +14,7 @@ import ru.korniltsev.telegram.core.rx.RxPicasso;
 
 import javax.inject.Inject;
 
+//todo draw only bitmap
 public class PhotoMessageView extends ImageView {
     public static final int ZERO_MEASURE_SPEC = MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY);
     private final int atmost;
@@ -62,7 +63,7 @@ public class PhotoMessageView extends ImageView {
     //    c	crop	640x640
     //    d	crop	1280x1280
 
-
+    //todo sort
     //null if there we try to display image with no sizes less then our max width
     @Nullable private TdApi.PhotoSize selectedSize;
     public void load(TdApi.MessagePhoto photo) {

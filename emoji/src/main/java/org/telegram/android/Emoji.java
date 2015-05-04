@@ -195,25 +195,24 @@ public class Emoji {
 
     private final Context ctx;
 
-    public Emoji(Context ctx) {
+    public Emoji(Context ctx, DpCalculator dpCalculator) {
         this.ctx = ctx;
-        float density = ctx.getResources().getDisplayMetrics().density;
-        this.dpCalculator = new DpCalculator(density);
+        this.dpCalculator = dpCalculator;
         int emojiFullSize;
-        if (dpCalculator.density <= 1.0f) {
+        if (this.dpCalculator.density <= 1.0f) {
             emojiFullSize = 30;
-        } else if (dpCalculator.density <= 1.5f) {
+        } else if (this.dpCalculator.density <= 1.5f) {
             emojiFullSize = 45;
-        } else if (dpCalculator.density <= 2.0f) {
+        } else if (this.dpCalculator.density <= 2.0f) {
             emojiFullSize = 60;
         } else {
             emojiFullSize = 90;
         }
-        drawImgSize = dpCalculator.dp(20);
+        drawImgSize = this.dpCalculator.dp(20);
         //        if (dpCalculator.isTablet()) {//todo tablets
         //            bigImgSize = AndroidUtilities.dp(40);
         //        } else {
-        bigImgSize = dpCalculator.dp(30);
+        bigImgSize = this.dpCalculator.dp(30);
         //        }
 
         for (int j = 1; j < data.length; j++) {

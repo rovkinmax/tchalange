@@ -18,6 +18,7 @@ package ru.korniltsev.telegram.core.app;
 import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
+import org.telegram.android.DpCalculator;
 import org.telegram.android.Emoji;
 import ru.korniltsev.telegram.core.audio.AudioPlayer;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
@@ -38,6 +39,7 @@ import javax.inject.Singleton;
                 Emoji.class,
                 RxDownloadManager.class,
                 AudioPlayer.class,
+                DpCalculator.class,
         },
         library = true)
 public class RootModule {
@@ -56,8 +58,14 @@ public class RootModule {
 
     @Singleton
     @Provides
-    Emoji provideEmoji() {
-        return new Emoji(ctx);
+    Emoji provideEmoji(DpCalculator dpCalculator) {
+        return new Emoji(ctx, dpCalculator);
     }
 
+    @Singleton
+    @Provides
+    DpCalculator provideDpCalc(){
+        float density = ctx.getResources().getDisplayMetrics().density;
+        return new DpCalculator(density);
+    }
 }

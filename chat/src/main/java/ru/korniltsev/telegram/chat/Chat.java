@@ -3,6 +3,7 @@ package ru.korniltsev.telegram.chat;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.view.AudioMessageView;
 import ru.korniltsev.telegram.chat.adapter.view.EmojiTextView;
+import ru.korniltsev.telegram.chat.adapter.view.GeoPointView;
 import ru.korniltsev.telegram.chat.adapter.view.PhotoMessageView;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
@@ -35,6 +36,7 @@ public class Chat extends BasePath implements Serializable {
                     PhotoMessageView.class,
                     EmojiTextView.class ,
                     AudioMessageView.class ,
+                    GeoPointView.class ,
             },
             addsTo = RootModule.class)
     public static class Module {

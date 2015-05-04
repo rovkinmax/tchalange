@@ -19,6 +19,7 @@ public class Adapter extends BaseAdapter<TdApi.Message, BaseVH> {
     public static final int VIEW_TYPE_TEXT = 1;
     public static final int VIEW_TYPE_STICKER = 2;
     public static final int VIEW_TYPE_AUDIO = 3;
+    public static final int VIEW_TYPE_GEO = 4;
     final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxPicasso picasso;
 
@@ -36,6 +37,8 @@ public class Adapter extends BaseAdapter<TdApi.Message, BaseVH> {
             return VIEW_TYPE_STICKER;
         } else if (message instanceof TdApi.MessageAudio) {
             return VIEW_TYPE_AUDIO;
+        } else if (message instanceof TdApi.MessageGeoPoint) {
+            return VIEW_TYPE_GEO;
         }
         return VIEW_TYPE_TEXT;
     }
@@ -54,6 +57,10 @@ public class Adapter extends BaseAdapter<TdApi.Message, BaseVH> {
             View view = getViewFactory()
                     .inflate(R.layout.item_audio, parent, false);
             return new AudioVH(view, this);
+        } else if (viewType == VIEW_TYPE_GEO){
+            View view = getViewFactory()
+                    .inflate(R.layout.item_geo, parent, false);
+            return new GeoPointVH(view, this);
         }
         View view = getViewFactory()
                 .inflate(R.layout.item_message, parent, false);
