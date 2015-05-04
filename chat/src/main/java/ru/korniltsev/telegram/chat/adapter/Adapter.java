@@ -20,6 +20,7 @@ public class Adapter extends BaseAdapter<TdApi.Message, BaseVH> {
     public static final int VIEW_TYPE_STICKER = 2;
     public static final int VIEW_TYPE_AUDIO = 3;
     public static final int VIEW_TYPE_GEO = 4;
+    public static final int VIEW_TYPE_VIDEO = 5;
     final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxPicasso picasso;
 
@@ -39,32 +40,42 @@ public class Adapter extends BaseAdapter<TdApi.Message, BaseVH> {
             return VIEW_TYPE_AUDIO;
         } else if (message instanceof TdApi.MessageGeoPoint) {
             return VIEW_TYPE_GEO;
+        } else if (message instanceof TdApi.MessageVideo) {
+            return VIEW_TYPE_VIDEO;
         }
         return VIEW_TYPE_TEXT;
     }
 
+    private View inflate(int id, ViewGroup parent) {
+        return getViewFactory().inflate(id, parent, false);
+    }
     @Override
-    public BaseVH onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_PHOTO) {
-            View view = getViewFactory()
-                    .inflate(R.layout.item_photo, parent, false);
-            return new PhotoMessageVH(view, this);
-        } else if (viewType == VIEW_TYPE_STICKER) {
-            View view = getViewFactory()
-                    .inflate(R.layout.item_sticker, parent, false);
-            return new StickerVH(view, this);
-        } else if (viewType == VIEW_TYPE_AUDIO){
-            View view = getViewFactory()
-                    .inflate(R.layout.item_audio, parent, false);
-            return new AudioVH(view, this);
-        } else if (viewType == VIEW_TYPE_GEO){
-            View view = getViewFactory()
-                    .inflate(R.layout.item_geo, parent, false);
-            return new GeoPointVH(view, this);
+    public BaseVH onCreateViewHolder(ViewGroup p, int viewType) {
+        switch (viewType) {
+            case VIEW_TYPE_PHOTO: {
+                View view = inflate(R.layout.item_photo, p);
+                return new PhotoMessageVH(view, this);
+            }
+            case VIEW_TYPE_STICKER: {
+                View view = inflate(R.layout.item_sticker, p);
+                return new StickerVH(view, this);
+            }
+            case VIEW_TYPE_AUDIO: {
+                View view = inflate(R.layout.item_audio, p);
+                return new AudioVH(view, this);
+            }
+            case VIEW_TYPE_GEO: {
+                View view = inflate(R.layout.item_geo, p);
+                return new GeoPointVH(view, this);
+            }
+            case VIEW_TYPE_VIDEO:
+                View view = inflate(R.layout.item_video, p);
+                return new VideoVH(view, this);
         }
         View view = getViewFactory()
-                .inflate(R.layout.item_message, parent, false);
+                .inflate(R.layout.item_message, p, false);
         return new TextMessageVH(view, this);
+
     }
 
     @Override

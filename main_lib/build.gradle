@@ -9,5 +9,11 @@ dependencies {
     compile project(":core")
 }
 
+android {
+    defaultConfig {
+        renderscriptTargetApi 18
+        renderscriptSupportModeEnabled true
+    }
+}
 
 

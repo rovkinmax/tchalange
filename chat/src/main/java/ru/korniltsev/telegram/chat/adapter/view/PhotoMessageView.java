@@ -13,6 +13,9 @@ import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxPicasso;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 //todo draw only bitmap
 public class PhotoMessageView extends ImageView {
@@ -63,7 +66,13 @@ public class PhotoMessageView extends ImageView {
     //    c	crop	640x640
     //    d	crop	1280x1280
 
-    //todo sort
+
+
+    //todo seems like the image is too big
+    public static final List<String> sizes = Collections.unmodifiableList(
+            Arrays.asList("w", "y", "x", "m", "s", "d", "c", "b", "a")
+    );
+
     //null if there we try to display image with no sizes less then our max width
     @Nullable private TdApi.PhotoSize selectedSize;
     public void load(TdApi.MessagePhoto photo) {
@@ -75,6 +84,12 @@ public class PhotoMessageView extends ImageView {
         TdApi.PhotoSize[] photos = photo.photo.photos;
         selectedSize = null;
         if (photos.length != 0) {
+            for (int i = 0; i < sizes.size(); i++) {
+                selectedSize = findSize(sizes.get(i), photos);
+                if (selectedSize != null){
+                    break;
+                }
+            }
             for (int i = photos.length - 1; i >= 0; i--) {
                 TdApi.PhotoSize it = photos[i];
                 if (it.width <= atmost) {
@@ -89,5 +104,15 @@ public class PhotoMessageView extends ImageView {
             picasso.loadPhoto(selectedSize.photo)
                     .into(this);
         }
+    }
+
+    @Nullable
+    private TdApi.PhotoSize findSize(String type, TdApi.PhotoSize[] photos) {
+        for (TdApi.PhotoSize ps : photos) {
+            if (ps.type.equals(type)){
+                return ps;
+            }
+        }
+        return null;
     }
 }

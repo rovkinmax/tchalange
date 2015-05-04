@@ -48,7 +48,7 @@ public class AudioMessageView extends LinearLayout {
         btnPlay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (audio.audio instanceof TdApi.FileLocal) {
+                if (downloader.isDownloaded(audio.audio)) {
                     play();
                 } else {
                     download();
@@ -82,6 +82,7 @@ public class AudioMessageView extends LinearLayout {
         } else {
             //show download Button
             btnPlay.setImageResource(R.drawable.ic_download);
+            btnPlay.setEnabled(true);
         }
     }
 
