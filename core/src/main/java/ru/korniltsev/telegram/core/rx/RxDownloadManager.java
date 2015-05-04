@@ -2,6 +2,7 @@ package ru.korniltsev.telegram.core.rx;
 
 import org.drinkless.td.libcore.telegram.TdApi;
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 @Singleton
 public class RxDownloadManager {
@@ -29,7 +31,7 @@ public class RxDownloadManager {
         assertTrue(file.id != 0);
         assertFalse(isDownloading(file));
 
-        BehaviorSubject<TdApi.UpdateFile> s = BehaviorSubject.create();
+        final BehaviorSubject<TdApi.UpdateFile> s = BehaviorSubject.create();
         client.filesUpdates()
                 .filter(new Func1<TdApi.UpdateFile, Boolean>() {
                     @Override
@@ -37,7 +39,13 @@ public class RxDownloadManager {
                         return updateFile.fileId == file.id;
                     }
                 }).first()
-                .subscribe(s);
+                .observeOn(mainThread())
+                .subscribe(new Action1<TdApi.UpdateFile>() {
+                    @Override
+                    public void call(TdApi.UpdateFile updateFile) {
+                        s.onNext(updateFile);
+                    }
+                });
         allRequests.put(file.id, s);
         client.sendSilently(new TdApi.DownloadFile(file.id));
     }

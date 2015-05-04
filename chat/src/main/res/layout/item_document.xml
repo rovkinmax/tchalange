@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              style="@style/Item.Root"
+        >
+
+    <include layout="@layout/item_avatar"/>
+
+    <include layout="@layout/item_nick_and_time"/>
+
+
+    <ru.korniltsev.telegram.chat.adapter.view.DocumentView
+            android:id="@+id/document_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/item_content"
+            >
+        <FrameLayout
+                android:id="@+id/thumb_and_btn_root"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+            <ImageView
+                    android:id="@+id/image_document_thumb"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:scaleType="centerCrop"
+                    />
+            <ImageView
+                    android:id="@+id/btn_play"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="#ffd4dade"
+                    />
+        </FrameLayout>
+        
+        <TextView
+                android:id="@+id/document_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+    </ru.korniltsev.telegram.chat.adapter.view.DocumentView>
+    <!--<ru.korniltsev.telegram.chat.adapter.view.EmojiTextView-->
+            <!--android:id="@+id/message"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+
+            <!--/>-->
+</RelativeLayout>

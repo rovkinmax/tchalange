@@ -70,7 +70,7 @@ public class PhotoMessageView extends ImageView {
 
     //todo seems like the image is too big
     public static final List<String> sizes = Collections.unmodifiableList(
-            Arrays.asList("w", "y", "x", "m", "s", "d", "c", "b", "a")
+            Arrays.asList("w", "y", "x", "m", "s" /*, "d", "c", "b", "a"*/)
     );
 
     //null if there we try to display image with no sizes less then our max width
@@ -99,10 +99,12 @@ public class PhotoMessageView extends ImageView {
             }
         }
         if (selectedSize != null) {
-
             //there is probably a chance that it w
             picasso.loadPhoto(selectedSize.photo)
                     .into(this);
+        } else {
+            picasso.getPicasso()
+                    .cancelRequest(this);
         }
     }
 

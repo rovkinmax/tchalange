@@ -25,7 +25,7 @@ public class ChatPhotoChangedVH extends RealBaseVH {
         TdApi.MessageChatChangePhoto changed = (TdApi.MessageChatChangePhoto) item.message;
         TdApi.PhotoSize smallSize = changed.photo.photos[0];
         for (TdApi.PhotoSize photo : changed.photo.photos) {
-            if (photo.type.equals("s")){
+            if (photo.type.equals("a")){
                 smallSize = photo;
             }
         }
