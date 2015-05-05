@@ -12,7 +12,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import org.telegram.android.DpCalculator;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
-import ru.korniltsev.telegram.core.rx.RxPicasso;
+import ru.korniltsev.telegram.core.rx.RxGlide;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
@@ -29,7 +29,7 @@ public class VideoView extends FrameLayout {
     private final int heightSpec;
     private final int width;
     private final int height;
-    @Inject RxPicasso picasso;
+    @Inject RxGlide picasso;
     @Inject DpCalculator calc;
     @Inject RxDownloadManager downloader;
 
@@ -134,7 +134,7 @@ public class VideoView extends FrameLayout {
     private void showLowQualityThumb() {
         //        Context applicationContext = getContext().getApplicationContext();
         picasso.loadPhoto(msg.thumb.photo)
-                .resize(width, height)
+                .override(width, height)
                         //                        .transform(
                         //                                new CropAndBlurTransformation(applicationContext, width, height))
                 .into(preview);

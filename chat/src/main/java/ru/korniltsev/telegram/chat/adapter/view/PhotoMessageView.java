@@ -7,10 +7,11 @@ import android.util.AttributeSet;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import junit.framework.Assert;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
-import ru.korniltsev.telegram.core.rx.RxPicasso;
+import ru.korniltsev.telegram.core.rx.RxGlide;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -21,7 +22,7 @@ import java.util.List;
 public class PhotoMessageView extends ImageView {
     public static final int ZERO_MEASURE_SPEC = MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY);
     private final int atmost;
-    @Inject RxPicasso picasso;
+    @Inject RxGlide picasso;
     private TdApi.MessagePhoto photo;
 
     public PhotoMessageView(Context context, AttributeSet attrs) {
@@ -103,8 +104,9 @@ public class PhotoMessageView extends ImageView {
             picasso.loadPhoto(selectedSize.photo)
                     .into(this);
         } else {
-            picasso.getPicasso()
-                    .cancelRequest(this);
+            Assert.fail("selected size == null");
+//            picasso.getPicasso()
+//                    .cancelRequest(this);
         }
     }
 

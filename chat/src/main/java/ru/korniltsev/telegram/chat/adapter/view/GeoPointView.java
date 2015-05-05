@@ -6,14 +6,14 @@ import android.widget.ImageView;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.telegram.android.DpCalculator;
-import ru.korniltsev.telegram.core.rx.RxPicasso;
+import ru.korniltsev.telegram.core.rx.RxGlide;
 
 import javax.inject.Inject;
 import java.util.Locale;
 
 public class GeoPointView extends ImageView {
     @Inject DpCalculator calc;
-    @Inject RxPicasso picasso;
+    @Inject RxGlide picasso;
 
     public GeoPointView(Context context, AttributeSet attrs) {
         super(context, attrs);

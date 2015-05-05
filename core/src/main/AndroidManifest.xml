@@ -2,4 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="ru.korniltsev.telegram.utils">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <application >
+        <meta-data
+                android:name="ru.korniltsev.telegram.core.glide.TDGlideModule"
+                android:value="GlideModule" />
+    </application>
 </manifest>

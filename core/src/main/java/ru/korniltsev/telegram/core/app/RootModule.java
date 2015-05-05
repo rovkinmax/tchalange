@@ -24,7 +24,7 @@ import ru.korniltsev.telegram.core.audio.AudioPlayer;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
-import ru.korniltsev.telegram.core.rx.RxPicasso;
+import ru.korniltsev.telegram.core.rx.RxGlide;
 
 import javax.inject.Singleton;
 
@@ -35,7 +35,7 @@ import javax.inject.Singleton;
         injects = {
                 RXClient.class,
                 RXAuthState.class,
-                RxPicasso.class,
+                RxGlide.class,
                 Emoji.class,
                 RxDownloadManager.class,
                 AudioPlayer.class,

@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
-import ru.korniltsev.telegram.core.rx.RxPicasso;
+import ru.korniltsev.telegram.core.rx.RxGlide;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,9 +31,9 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
     public static final int VIEW_TYPE_DOCUMENT = 8;
 
     final Map<Integer, TdApi.User> users = new HashMap<>();
-    final RxPicasso picasso;
+    final RxGlide picasso;
 
-    public Adapter(Context ctx, RxPicasso picasso) {
+    public Adapter(Context ctx, RxGlide picasso) {
         super(ctx);
         this.picasso = picasso;
     }

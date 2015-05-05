@@ -11,7 +11,7 @@ import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
-import ru.korniltsev.telegram.core.rx.RxPicasso;
+import ru.korniltsev.telegram.core.rx.RxGlide;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
@@ -26,7 +26,7 @@ public class DocumentView extends LinearLayout{
     private View clicker;
     private Subscription subscription = Subscriptions.empty();
     @Inject RxDownloadManager downloader;
-    @Inject RxPicasso picasso;
+    @Inject RxGlide picasso;
     private TdApi.Document document;
 
     public DocumentView(Context context, AttributeSet attrs) {

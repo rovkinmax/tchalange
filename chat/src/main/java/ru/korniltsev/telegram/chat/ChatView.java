@@ -9,15 +9,15 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.Target;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.adapters.TargetAdapter;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
-import ru.korniltsev.telegram.core.rx.RxPicasso;
+import ru.korniltsev.telegram.core.rx.RxGlide;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
@@ -30,7 +30,7 @@ import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatView extends LinearLayout {
     @Inject Presenter presenter;
-    @Inject RxPicasso picasso;
+    @Inject RxGlide picasso;
 
     private RecyclerView list;
     private MessagePanel messagePanel;
@@ -83,7 +83,8 @@ public class ChatView extends LinearLayout {
                 }));
         this.target = new TargetAdapter() {
             @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            public void onResourceReady(Object resource, GlideAnimation glideAnimation) {
+                Bitmap bitmap = (Bitmap) resource;
                 toolbar.setIcon(bitmap);
             }
         };
