@@ -31,6 +31,7 @@ import flow.path.PathContext;
 import flow.path.PathContextFactory;
 import ru.korniltsev.telegram.core.flow.utils.Utils;
 
+import static flow.Flow.Direction.FORWARD;
 import static flow.Flow.Direction.REPLACE;
 
 /**
@@ -38,7 +39,7 @@ import static flow.Flow.Direction.REPLACE;
  * Uses {@link PathContext} to allow customized sub-containers.
  */
 public class SimplePathContainer extends PathContainer {
-  public static final int ANIM_DURATION = 150;
+  public static final int ANIM_DURATION = 100;
   public static final DecelerateInterpolator INTERPOLATOR = new DecelerateInterpolator();
   private final PathContextFactory contextFactory;
 
@@ -120,19 +121,26 @@ public class SimplePathContainer extends PathContainer {
     int fromTranslation = backward ? from.getWidth() : -from.getWidth();
     int toTranslation = backward ? -to.getWidth() : to.getWidth();
 
-    AnimatorSet set = new AnimatorSet();
+//    AnimatorSet set = new AnimatorSet();
+    if (direction == FORWARD){
+      ObjectAnimator toAnimation = ObjectAnimator.ofFloat(to, View.TRANSLATION_X, toTranslation, 0)
+              .setDuration(ANIM_DURATION);
+      toAnimation.setInterpolator(INTERPOLATOR);
+      return toAnimation;
+    } else {
+      from.bringToFront();
+      ObjectAnimator fromAnimation = ObjectAnimator.ofFloat(from, View.TRANSLATION_X, 0,fromTranslation)
+              .setDuration(ANIM_DURATION);
 
-    ObjectAnimator fromAnimation = ObjectAnimator.ofFloat(from, View.TRANSLATION_X, fromTranslation)
-            .setDuration(ANIM_DURATION);
-    ObjectAnimator toAnimation = ObjectAnimator.ofFloat(to, View.TRANSLATION_X, toTranslation, 0)
-            .setDuration(ANIM_DURATION);
+      fromAnimation.setInterpolator(INTERPOLATOR);
+      return fromAnimation;
+    }
 
-    fromAnimation.setInterpolator(INTERPOLATOR);
-    toAnimation.setInterpolator(INTERPOLATOR);
 
-    set.play(fromAnimation);
-    set.play(toAnimation);
 
-    return set;
+//    set.play(fromAnimation);
+//    set.play(toAnimation);
+
+//    return set;
   }
 }
