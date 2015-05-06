@@ -79,12 +79,12 @@ public class VideoView extends FrameLayout {
     }
 
     private void subscribeForFileDownload(final TdApi.FileEmpty file) {
-        subscription = downloader.observableFor(file)
+        subscription = downloader.nonMainThreadObservableFor(file)
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.UpdateFile>() {
+                .subscribe(new Action1<TdApi.FileLocal>() {
                     @Override
-                    public void call(TdApi.UpdateFile update) {
-                        msg.video = new TdApi.FileLocal(update.fileId, update.size, update.path);
+                    public void call(TdApi.FileLocal update) {
+                        msg.video = update;//new TdApi.FileLocal(update.fileId, update.size, update.path);
                         set(msg);
                     }
                 });

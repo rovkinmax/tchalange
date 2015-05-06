@@ -18,6 +18,8 @@ import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
 
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
+
 public class DocumentView extends LinearLayout{
 
     private ImageView btnPlay;
@@ -91,13 +93,14 @@ public class DocumentView extends LinearLayout{
     }
 
     private void subscribeForFileDownload(TdApi.FileEmpty d) {
-        subscription = downloader.observableFor(d)
-                .subscribe(new Action1<TdApi.UpdateFile>() {
-            @Override
-            public void call(TdApi.UpdateFile updateFile) {
-                document.document = new TdApi.FileLocal(updateFile.fileId, updateFile.size, updateFile.path);
-                set(document);
-            }
-        });
+        subscription = downloader.nonMainThreadObservableFor(d)
+                .observeOn(mainThread())
+                .subscribe(new Action1<TdApi.FileLocal>() {
+                    @Override
+                    public void call(TdApi.FileLocal updateFile) {
+                        document.document = updateFile;//new TdApi.FileLocal(updateFile.fileId, updateFile.size, updateFile.path);
+                        set(document);
+                    }
+                });
     }
 }

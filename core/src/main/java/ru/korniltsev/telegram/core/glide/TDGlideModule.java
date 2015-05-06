@@ -13,6 +13,7 @@ import dagger.ObjectGraph;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.rx.RXClient;
+import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 
 import java.io.InputStream;
 
@@ -31,14 +32,14 @@ public class TDGlideModule implements GlideModule {
     @Override
     public void registerComponents(Context context, Glide glide) {
         ObjectGraph graph = ObjectGraphService.getObjectGraph(context);
-        final RXClient client = graph.get(RXClient.class);
+        final RxDownloadManager downloader = graph.get(RxDownloadManager.class);
 
         glide.register(TdApi.File.class,
                 InputStream.class,
                 new ModelLoaderFactory<TdApi.File, InputStream>() {
                     @Override
                     public ModelLoader<TdApi.File, InputStream> build(Context context, GenericLoaderFactory factories) {
-                        return new FileModelLoader(client);
+                        return new FileModelLoader(downloader);
                     }
 
                     @Override

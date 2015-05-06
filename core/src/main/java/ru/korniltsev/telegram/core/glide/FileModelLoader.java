@@ -5,15 +5,16 @@ import com.bumptech.glide.load.model.ModelLoader;
 import junit.framework.Assert;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.rx.RXClient;
+import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 
 import java.io.InputStream;
 
 //can load any file except if file.id == 0 in this case it fails
 public class FileModelLoader implements ModelLoader<TdApi.File, InputStream> {
-    final RXClient client;
+    final RxDownloadManager downloader;
 
-    public FileModelLoader(RXClient client) {
-        this.client = client;
+    public FileModelLoader(RxDownloadManager downloader) {
+        this.downloader = downloader;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class FileModelLoader implements ModelLoader<TdApi.File, InputStream> {
                 Assert.fail();
                 return null;
             } else {
-                return new EmptyFileDataFetcher(photoSmall, client);
+                return new EmptyFileDataFetcher(photoSmall, downloader);
             }
         }
     }

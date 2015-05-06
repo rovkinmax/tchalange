@@ -86,7 +86,6 @@ public class RXClient {
     private final Client client;
     private final PublishSubject<TdApi.TLObject> globalSubject = PublishSubject.create();
 
-    private final ConcurrentMap<Integer, TdApi.UpdateFile> allDownloadedFiles = new ConcurrentHashMap<>();
 
 
     @Inject
@@ -109,12 +108,7 @@ public class RXClient {
             }
         });
 
-        filesUpdates().subscribe(new Action1<TdApi.UpdateFile>() {
-            @Override
-            public void call(TdApi.UpdateFile updateFile) {
-                allDownloadedFiles.put(updateFile.fileId, updateFile);
-            }
-        });
+
 
     }
 
@@ -240,8 +234,5 @@ public class RXClient {
                 .map(CAST_TO_MESSAGE);
     }
 
-    @Nullable
-    public TdApi.UpdateFile getDownloadedFile(Integer id) {
-        return allDownloadedFiles.get(id);
-    }
+
 }

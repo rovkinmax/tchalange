@@ -98,12 +98,12 @@ public class AudioMessageView extends LinearLayout {
     }
 
     private void subscribeForFileDownload(final TdApi.FileEmpty file) {
-        subscription = downloader.observableFor(file)
+        subscription = downloader.nonMainThreadObservableFor(file)
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.UpdateFile>() {
+                .subscribe(new Action1<TdApi.FileLocal>() {
                     @Override
-                    public void call(TdApi.UpdateFile update) {
-                        audio.audio = new TdApi.FileLocal(update.fileId, update.size, update.path);
+                    public void call(TdApi.FileLocal update) {
+                        audio.audio = update;//new TdApi.FileLocal(update.fileId, update.size, update.path);
                         setAudio(audio);
                     }
                 });
