@@ -65,7 +65,7 @@ public class DocumentView extends LinearLayout{
         boolean image = document.mimeType.startsWith("image");
         if (image) {
             documentThumb.setVisibility(View.VISIBLE);
-            picasso.loadPhoto(document.thumb.photo)
+            picasso.loadPhoto(document.thumb.photo, false)
                     .into(documentThumb);
         } else {
             documentThumb.setVisibility(View.GONE);

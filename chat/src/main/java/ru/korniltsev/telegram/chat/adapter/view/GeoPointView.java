@@ -3,6 +3,7 @@ package ru.korniltsev.telegram.chat.adapter.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+import com.bumptech.glide.Glide;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.telegram.android.DpCalculator;
@@ -25,7 +26,7 @@ public class GeoPointView extends ImageView {
                 msg.geoPoint.latitude,
                 msg.geoPoint.longitude
         );
-        picasso.getPicasso()
+        Glide.with(getContext())
                 .load(url)
                 .into(this);
     }

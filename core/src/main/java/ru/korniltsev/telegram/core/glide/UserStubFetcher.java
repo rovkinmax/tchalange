@@ -18,7 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-public class UserStubFetcher implements DataFetcher<InputStream> {
+public class UserStubFetcher implements DataFetcher<Bitmap> {
 
     private static final ThreadLocal<RectF> rects = new ThreadLocal<RectF>() {
         @Override
@@ -60,7 +60,7 @@ public class UserStubFetcher implements DataFetcher<InputStream> {
     }
 
     @Override
-    public InputStream loadData(Priority priority) throws Exception {
+    public Bitmap loadData(Priority priority) throws Exception {
         int size = width;
         int colorFor = AvatarStubColors.getColorFor(stub.id);
 
@@ -83,9 +83,9 @@ public class UserStubFetcher implements DataFetcher<InputStream> {
         staticLayout.draw(canvas);
         canvas.restore();
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-        return new ByteArrayInputStream(out.toByteArray());
+//        ByteArrayOutputStream out = new ByteArrayOutputStream();
+//        bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+        return bmp;//new ByteArrayInputStream(out.toByteArray());
     }
 
     @Override

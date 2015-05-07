@@ -34,30 +34,30 @@ public class TDGlideModule implements GlideModule {
         ObjectGraph graph = ObjectGraphService.getObjectGraph(context);
         final RxDownloadManager downloader = graph.get(RxDownloadManager.class);
 
-        glide.register(TdApi.File.class,
-                InputStream.class,
-                new ModelLoaderFactory<TdApi.File, InputStream>() {
-                    @Override
-                    public ModelLoader<TdApi.File, InputStream> build(Context context, GenericLoaderFactory factories) {
-                        return new FileModelLoader(downloader);
-                    }
-
-                    @Override
-                    public void teardown() {
-
-                    }
-                });
-        glide.register(Stub.class,
-                InputStream.class, new ModelLoaderFactory<Stub, InputStream>() {
-                    @Override
-                    public ModelLoader<Stub, InputStream> build(Context context, GenericLoaderFactory factories) {
-                        return new StubModelLoader(context);
-                    }
-
-                    @Override
-                    public void teardown() {
-
-                    }
-                });
+//        glide.register(TdApi.File.class,
+//                InputStream.class,
+//                new ModelLoaderFactory<TdApi.File, InputStream>() {
+//                    @Override
+//                    public ModelLoader<TdApi.File, InputStream> build(Context context, GenericLoaderFactory factories) {
+//                        return new FileModelLoader(downloader);
+//                    }
+//
+//                    @Override
+//                    public void teardown() {
+//
+//                    }
+//                });
+//        glide.register(Stub.class,
+//                InputStream.class, new ModelLoaderFactory<Stub, InputStream>() {
+//                    @Override
+//                    public ModelLoader<Stub, InputStream> build(Context context, GenericLoaderFactory factories) {
+//                        return new StubModelLoader(context);
+//                    }
+//
+//                    @Override
+//                    public void teardown() {
+//
+//                    }
+//                });
     }
 }

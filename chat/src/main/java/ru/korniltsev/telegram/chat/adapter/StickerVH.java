@@ -19,7 +19,7 @@ class StickerVH extends BaseAvatarVH {
         super.bind(item);
         TdApi.MessageSticker sticker = (TdApi.MessageSticker) item.message;
         //todo thumb
-        adapter.picasso.loadPhoto(sticker.sticker.sticker)
+        adapter.picasso.loadPhoto(sticker.sticker.sticker, true)
                 .into(image);
     }
 }

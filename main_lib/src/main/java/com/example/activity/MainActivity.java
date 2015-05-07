@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
         getBundleServiceRunner(activityScope).onCreate(savedInstanceState);
 
 
-        getWindow().getDecorView().setBackgroundDrawable(null);
+//        getWindow().getDecorView().setBackgroundDrawable(null);
     }
 
     private Object getScreenForAuthState(RXAuthState.AuthState state) {

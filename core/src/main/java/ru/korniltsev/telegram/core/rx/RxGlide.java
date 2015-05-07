@@ -1,26 +1,77 @@
 package ru.korniltsev.telegram.core.rx;
 
 import android.content.Context;
-import com.bumptech.glide.DrawableRequestBuilder;
-import com.bumptech.glide.DrawableTypeRequest;
+import android.graphics.Bitmap;
+import com.bumptech.glide.GenericRequestBuilder;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.ResourceDecoder;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.Resource;
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
+import com.bumptech.glide.load.resource.bitmap.BitmapResource;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.glide.FileModelLoader;
+import ru.korniltsev.telegram.core.glide.FilePathDecoder;
 import ru.korniltsev.telegram.core.glide.Stub;
+import ru.korniltsev.telegram.core.glide.StubModelLoader;
+import ru.korniltsev.telegram.core.glide.stub.FilePath;
+import ru.korniltsev.telegram.core.glide.stub.FileReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.IOException;
 
 @Singleton
 public class RxGlide {
 
     public static final String TELEGRAM_FILE = "telegram.file.";
+    private final GenericRequestBuilder<FileReference, FilePath, Bitmap, Bitmap> fileRequestBuilder;
+    private final GenericRequestBuilder<Stub, Bitmap, Bitmap, Bitmap> stubRequestBuilder;
 
     private Context ctx;
 
     @Inject
-    public RxGlide(Context ctx) {
+    public RxGlide(Context ctx, RxDownloadManager downlaoder) {
         this.ctx = ctx;
+//        equestBuilder = Glide.with(this)
+//                .using(Glide.buildStreamModelLoader(Uri.class, this), InputStream.class)
+//                .from(Uri.class)
+//                .as(SVG.class)
+//                .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
+//                .sourceEncoder(new StreamEncoder())
+//                .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
+//                .decoder(new SvgDecoder())
+//                .placeholder(R.drawable.image_loading)
+//                .error(R.drawable.image_error)
+//                .animate(android.R.anim.fade_in)
+//                .listener(new SvgSoftwareLayerSetter<Uri>());
+        fileRequestBuilder = Glide.with(ctx)
+                .using(new FileModelLoader(downlaoder), FilePath.class)
+                .from(FileReference.class)
+                .as(Bitmap.class)
+                .decoder(new FilePathDecoder(ctx))
+                .diskCacheStrategy(DiskCacheStrategy.NONE);
+
+        final BitmapPool bitmapPool = Glide.get(ctx).getBitmapPool();
+        stubRequestBuilder = Glide.with(ctx)
+                .using(new StubModelLoader(ctx), Bitmap.class)
+                .from(Stub.class)
+            .as(Bitmap.class)
+                .decoder(new ResourceDecoder<Bitmap, Bitmap>() {
+                    @Override
+                    public Resource<Bitmap> decode(Bitmap source, int width, int height) throws IOException {
+                        return BitmapResource.obtain(source, bitmapPool);
+                    }
+
+                    @Override
+                    public String getId() {
+                        return "stub decoder";
+                    }
+                })
+//        .transcode(new UnitTranscoder<Bitmap>(), Bitmap.class)
+                .diskCacheStrategy(DiskCacheStrategy.NONE);;
+        //        .transcoder();
+        //                .
     }
 
 
@@ -56,7 +107,7 @@ public class RxGlide {
         }
     };
 
-    public DrawableRequestBuilder loadAvatarForUser(TdApi.User u, int size) {
+    public GenericRequestBuilder<?,?,Bitmap, Bitmap> loadAvatarForUser(TdApi.User u, int size) {
         TdApi.File file = u.photoSmall;
         if (file instanceof TdApi.FileEmpty) {
             boolean stub = ((TdApi.FileEmpty) file).id == 0;
@@ -64,24 +115,24 @@ public class RxGlide {
                 return loadStub(u, size);
             }
         }
-        return Glide.with(ctx)
-                .load(file)
+        return loadPhoto(file, false)
                 .override(size, size);
     }
 
-    private DrawableRequestBuilder loadStub(TdApi.User u, int size) {
-        return Glide.with(ctx)
+    private GenericRequestBuilder<?, ?, Bitmap, Bitmap> loadStub(TdApi.User u, int size) {
+        return stubRequestBuilder
+                .clone()
                 .load(new Stub(STUB_AWARE_USER.needStub(u), u.id))
                 .override(size, size);
     }
 
-    private DrawableRequestBuilder loadStub(TdApi.GroupChatInfo info, int size) {
-        return Glide.with(ctx)
+    private GenericRequestBuilder<?,?, Bitmap, Bitmap> loadStub(TdApi.GroupChatInfo info, int size) {
+        return stubRequestBuilder
                 .load(new Stub(STUB_AWARE_GROUP_CHAT.needStub(info.groupChat), info.groupChat.id))
                 .override(size, size);
     }
 
-    public DrawableRequestBuilder loadAvatarForChat(TdApi.Chat chat, int size) {
+    public GenericRequestBuilder<?,?,Bitmap, Bitmap> loadAvatarForChat(TdApi.Chat chat, int size) {
         if (chat.type instanceof TdApi.PrivateChatInfo) {
             TdApi.User user = ((TdApi.PrivateChatInfo) chat.type).user;
             return loadAvatarForUser(user, size);
@@ -90,7 +141,7 @@ public class RxGlide {
         }
     }
 
-    private DrawableRequestBuilder loadAvatarForGroup(TdApi.Chat chat, int size) {
+    private GenericRequestBuilder<?, ?, Bitmap, Bitmap> loadAvatarForGroup(TdApi.Chat chat, int size) {
         TdApi.GroupChatInfo info = (TdApi.GroupChatInfo) chat.type;
         TdApi.File file = info.groupChat.photoSmall;
         if (file instanceof TdApi.FileEmpty) {
@@ -99,16 +150,15 @@ public class RxGlide {
                 return loadStub(info, size);
             }
         }
-        return Glide.with(ctx)
-                .load(file)
+        return loadPhoto(file, false)
                 .override(size, size);
     }
 
 
 
-    public DrawableTypeRequest<TdApi.File> loadPhoto(TdApi.File f) {
-        return Glide.with(ctx)
-                .load(f);
+    public GenericRequestBuilder<FileReference, FilePath, Bitmap, Bitmap> loadPhoto(TdApi.File f, boolean webp) {
+        return fileRequestBuilder.clone()
+                .load(new FileReference(f, webp));
 
     }
 
@@ -116,8 +166,8 @@ public class RxGlide {
     public static final int TIMEOUT = 30000;
 
 
-    public RequestManager getPicasso() {
-        return Glide.with(ctx);
+    public GenericRequestBuilder<FileReference, FilePath, Bitmap, Bitmap> getPicasso() {
+        return fileRequestBuilder.clone();
     }
 
     //    public void cancelRequest(AvatarView avatarView) {

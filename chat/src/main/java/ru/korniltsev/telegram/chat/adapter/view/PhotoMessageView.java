@@ -101,7 +101,7 @@ public class PhotoMessageView extends ImageView {
         }
         if (selectedSize != null) {
             //there is probably a chance that it w
-            picasso.loadPhoto(selectedSize.photo)
+            picasso.loadPhoto(selectedSize.photo, false)
                     .into(this);
         } else {
             Assert.fail("selected size == null");

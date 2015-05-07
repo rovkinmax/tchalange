@@ -3,23 +3,25 @@ package ru.korniltsev.telegram.core.glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.data.DataFetcher;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.glide.stub.FilePath;
+import ru.korniltsev.telegram.core.glide.stub.FileReference;
 import ru.korniltsev.telegram.core.rx.RxGlide;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-
-public class LocalFileFetcher implements DataFetcher<InputStream> {
-    final TdApi.FileLocal file;
+public class LocalFileFetcher implements DataFetcher<FilePath> {
+//    final TdApi.FileLocal file;
     private final String id;
+    private final FileReference model;
+    private final TdApi.FileLocal file;
 
-    public LocalFileFetcher(TdApi.FileLocal file) {
-        this.file = file;
-        id = RxGlide.id(file);
+    public LocalFileFetcher(FileReference file) {
+        this.model = file;
+        this.file = (TdApi.FileLocal) file.file;
+        id = RxGlide.id(this.file);
     }
 
     @Override
-    public InputStream loadData(Priority priority) throws Exception {
-        return new FileInputStream(file.path);
+    public FilePath loadData(Priority priority) throws Exception {
+        return new FilePath(file.path, model.webp);//FileInputStream(file.path);
     }
 
     @Override

@@ -133,7 +133,7 @@ public class VideoView extends FrameLayout {
 
     private void showLowQualityThumb() {
         //        Context applicationContext = getContext().getApplicationContext();
-        picasso.loadPhoto(msg.thumb.photo)
+        picasso.loadPhoto(msg.thumb.photo, false)
                 .override(width, height)
                         //                        .transform(
                         //                                new CropAndBlurTransformation(applicationContext, width, height))
