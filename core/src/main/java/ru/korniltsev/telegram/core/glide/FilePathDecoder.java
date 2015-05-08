@@ -56,7 +56,7 @@ public class FilePathDecoder implements ResourceDecoder<FilePath, Bitmap> {
 //            file = new RandomAccessFile(f, "r");
 //            ByteBuffer buffer = file.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, f.length());
 
-            Bitmap bitmap = SupportBitmapFactory.nativeDecodeBitmap(source.path);//WebPFactory.loadWebpImage(buffer, buffer.limit(), null);
+            Bitmap bitmap = SupportBitmapFactory.decodeWebPBitmap(source.path);//WebPFactory.loadWebpImage(buffer, buffer.limit(), null);
             return BitmapResource.obtain(bitmap, bitmapPool);
 //        } finally {
 //            if (file != null){
