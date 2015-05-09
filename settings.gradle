@@ -1,4 +1,4 @@
-include 'libtd', ':libwebp'
+include 'libtd', 'libwebp', 'libopus'
 include 'core'
 include 'main_lib'
 include 'provided_res'
