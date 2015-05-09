@@ -3,6 +3,7 @@ package ru.korniltsev.telegram.chat.adapter.view;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -11,6 +12,7 @@ import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.telegram.android.DpCalculator;
 import ru.korniltsev.telegram.chat.R;
+import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.rx.RxGlide;
 import rx.Subscription;
@@ -20,6 +22,7 @@ import rx.subscriptions.Subscriptions;
 import javax.inject.Inject;
 
 import java.io.File;
+import java.io.IOException;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
@@ -68,8 +71,13 @@ public class VideoView extends FrameLayout {
 
     private void play() {
         TdApi.FileLocal f = (TdApi.FileLocal) msg.video;
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(new File(f.path)), "video/mp4");
+        File src = new File(f.path);
+
+        File exposed = downloader.exposeFile(src, Environment.DIRECTORY_MOVIES);
+
+        Uri uri = Uri.fromFile(exposed);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        intent.setDataAndType(uri, "video/*");
         getContext().startActivity(intent);
     }
 
@@ -84,7 +92,7 @@ public class VideoView extends FrameLayout {
                 .subscribe(new Action1<TdApi.FileLocal>() {
                     @Override
                     public void call(TdApi.FileLocal update) {
-                        msg.video = update;//new TdApi.FileLocal(update.fileId, update.size, update.path);
+                        msg.video = update;
                         set(msg);
                     }
                 });
@@ -132,11 +140,8 @@ public class VideoView extends FrameLayout {
     }
 
     private void showLowQualityThumb() {
-        //        Context applicationContext = getContext().getApplicationContext();
         picasso.loadPhoto(msg.thumb.photo, false)
                 .override(width, height)
-                        //                        .transform(
-                        //                                new CropAndBlurTransformation(applicationContext, width, height))
                 .into(preview);
     }
 }

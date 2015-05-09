@@ -1,16 +1,22 @@
 package ru.korniltsev.telegram.core.rx;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.Utils;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
@@ -18,6 +24,7 @@ import static junit.framework.Assert.assertTrue;
 
 @Singleton
 public class RxDownloadManager {
+    private Context ctx;
     final RXClient client;
 
     //guarded by lock
@@ -27,8 +34,12 @@ public class RxDownloadManager {
 
     final Object lock = new Object();
 
+    //keep in memory names of files which we have copied to the external storage
+    final Set<String> exposedFiles = new HashSet<>();
+
     @Inject
-    public RxDownloadManager(RXClient client) {
+    public RxDownloadManager(Context ctx, RXClient client) {
+        this.ctx = ctx;
         this.client = client;
         client.filesUpdates()
                 .subscribe(new Action1<TdApi.UpdateFile>() {
@@ -104,5 +115,21 @@ public class RxDownloadManager {
         synchronized (lock) {
             return allDownloadedFiles.get(id);
         }
+    }
+
+    public File exposeFile(File src, String type) {
+        File dstDir = ctx.getExternalFilesDir(type);
+        String name = src.getName();
+        File dst = new File(dstDir, name);
+        if (exposedFiles.contains(name)) {
+        } else {
+            try {
+                Utils.copyFile(src, dst);
+            } catch (IOException e) {
+                return dst;
+            }
+        }
+        return dst;
+
     }
 }

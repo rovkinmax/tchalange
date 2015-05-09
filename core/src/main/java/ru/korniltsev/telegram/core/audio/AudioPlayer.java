@@ -2,9 +2,11 @@ package ru.korniltsev.telegram.core.audio;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import junit.framework.Assert;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.Utils;
+import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -15,9 +17,12 @@ import java.io.IOException;
 public class AudioPlayer {
     private final MediaPlayer mPlayer;
     private final Context ctx;
+    private RxDownloadManager downloader;
+
     @Inject
-    public AudioPlayer(Context ctx) {
+    public AudioPlayer(Context ctx, RxDownloadManager downloader) {
         this.ctx = ctx;
+        this.downloader = downloader;
         mPlayer = new MediaPlayer();
         mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -56,12 +61,13 @@ public class AudioPlayer {
 
             File src = new File(file.path);
 
-            File externalFilesDir = ctx.getExternalFilesDir("telegram audio");
-            externalFilesDir.mkdirs();
-            File dst = new File(externalFilesDir, src.getName());
-            Utils.copyFile(src, dst);
+            File exposed = downloader.exposeFile(src, Environment.DIRECTORY_MUSIC);
+//            File externalFilesDir = ctx.getExternalFilesDir("telegram audio");
+//            externalFilesDir.mkdirs();
+//            File dst = new File(externalFilesDir, src.getName());
+//            Utils.copyFile(src, dst);
 
-            mPlayer.setDataSource(dst.getAbsolutePath());
+            mPlayer.setDataSource(exposed.getAbsolutePath());
 
             mPlayer.prepare();
             mPlayer.start();
