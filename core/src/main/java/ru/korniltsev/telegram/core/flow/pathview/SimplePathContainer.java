@@ -23,6 +23,7 @@ import android.animation.ObjectAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.DecelerateInterpolator;
 import flow.Flow;
 import flow.path.Path;
@@ -31,6 +32,7 @@ import flow.path.PathContext;
 import flow.path.PathContextFactory;
 import ru.korniltsev.telegram.core.flow.utils.Utils;
 
+import static flow.Flow.Direction.FORWARD;
 import static flow.Flow.Direction.REPLACE;
 
 /**
@@ -38,7 +40,7 @@ import static flow.Flow.Direction.REPLACE;
  * Uses {@link PathContext} to allow customized sub-containers.
  */
 public class SimplePathContainer extends PathContainer {
-  public static final int ANIM_DURATION = 150;
+  public static final int ANIM_DURATION = 1000;
   public static final DecelerateInterpolator INTERPOLATOR = new DecelerateInterpolator();
   private final PathContextFactory contextFactory;
 
@@ -105,34 +107,32 @@ public class SimplePathContainer extends PathContainer {
 
   private void runAnimation(final ViewGroup container, final View from, final View to,
       Flow.Direction direction, final Flow.TraversalCallback callback) {
-    Animator animator = createSegue(from, to, direction);
-    animator.addListener(new AnimatorListenerAdapter() {
-      @Override public void onAnimationEnd(Animator animation) {
+
+    AnimatorListenerAdapter listener = new AnimatorListenerAdapter() {
+      @Override
+      public void onAnimationEnd(Animator animation) {
         container.removeView(from);
         callback.onTraversalCompleted();
       }
-    });
-    animator.start();
+    };
+    ViewPropertyAnimator anim;
+    if (Flow.Direction.BACKWARD == direction) {
+      from.bringToFront();
+      anim = from.animate()
+              .alpha(0)
+              .translationX(from.getWidth());
+
+
+    } else {
+      to.setTranslationX(to.getWidth());
+      anim = to.animate()
+              .alpha(1)
+              .translationX(0);
+    }
+
+    anim.setDuration(ANIM_DURATION)
+            .setInterpolator(INTERPOLATOR)
+            .setListener(listener);
   }
 
-  private Animator createSegue(View from, View to, Flow.Direction direction) {
-    boolean backward = direction == Flow.Direction.BACKWARD;
-    int fromTranslation = backward ? from.getWidth() : -from.getWidth();
-    int toTranslation = backward ? -to.getWidth() : to.getWidth();
-
-    AnimatorSet set = new AnimatorSet();
-
-    ObjectAnimator fromAnimation = ObjectAnimator.ofFloat(from, View.TRANSLATION_X, fromTranslation)
-            .setDuration(ANIM_DURATION);
-    ObjectAnimator toAnimation = ObjectAnimator.ofFloat(to, View.TRANSLATION_X, toTranslation, 0)
-            .setDuration(ANIM_DURATION);
-
-    fromAnimation.setInterpolator(INTERPOLATOR);
-    toAnimation.setInterpolator(INTERPOLATOR);
-
-    set.play(fromAnimation);
-    set.play(toAnimation);
-
-    return set;
-  }
 }

@@ -32,7 +32,7 @@ subprojects {
             buildToolsVersion "22.0.1"
 
             defaultConfig {
-                minSdkVersion 11
+                minSdkVersion 14
                 targetSdkVersion 22
             }
             compileOptions {
