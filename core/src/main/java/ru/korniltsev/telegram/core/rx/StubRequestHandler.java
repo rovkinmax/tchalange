@@ -1,4 +1,4 @@
-package ru.korniltsev.telegram.core.glide;
+package ru.korniltsev.telegram.core.rx;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,21 +6,23 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
-import com.bumptech.glide.Priority;
-import com.bumptech.glide.load.data.DataFetcher;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Request;
+import com.squareup.picasso.RequestHandler;
 import ru.korniltsev.telegram.core.views.AvatarStubColors;
 import ru.korniltsev.telegram.utils.R;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.IOException;
 
-public class UserStubFetcher implements DataFetcher<Bitmap> {
-
-    private static final ThreadLocal<RectF> rects = new ThreadLocal<RectF>() {
+public class StubRequestHandler extends RequestHandler {
+    public static final String SIZE = "size";
+    public static final String ID = "id";
+    public static final String CHARS = "chars";
+    private  final ThreadLocal<RectF> rects = new ThreadLocal<RectF>() {
         @Override
         protected RectF initialValue() {
             return new RectF();
@@ -43,26 +45,38 @@ public class UserStubFetcher implements DataFetcher<Bitmap> {
         }
     };
 
-    final int width;
-    final int height;
-    final Stub stub;
-    private final String id;
-    final Context ctx;
+    public static final String TELEGRAM_STUB = "telegram.stub";
     private final int stubTextSize;
 
-    public UserStubFetcher(Stub stub, int height, int width, Context ctx) {
-        this.stub = stub;
+    public static Uri create(String chars, int id, int size) {
+        return new Uri.Builder()
+                .scheme(TELEGRAM_STUB)
+                .appendQueryParameter(CHARS, chars)
+                .appendQueryParameter(ID, String.valueOf(id))
+                .appendQueryParameter(SIZE, String.valueOf(size))
+                .build();
+    }
+
+    final Context ctx;
+
+    public StubRequestHandler(Context ctx) {
         this.ctx = ctx;
-        this.id = "user.stub." + stub.id + "." + stub.chars;
-        this.height = height;
-        this.width = width;
         stubTextSize = this.ctx.getResources().getDimensionPixelSize(R.dimen.avatar_text_size);//todo wrong size!!
+
     }
 
     @Override
-    public Bitmap loadData(Priority priority) throws Exception {
-        int size = width;
-        int colorFor = AvatarStubColors.getColorFor(stub.id);
+    public boolean canHandleRequest(Request data) {
+        return data.uri.getScheme().equals(TELEGRAM_STUB);
+    }
+
+    @Override
+    public Result load(Request request, int networkPolicy) throws IOException {
+        Uri uri = request.uri;
+        int size = Integer.parseInt(uri.getQueryParameter(SIZE));
+        int id = Integer.parseInt(uri.getQueryParameter(ID));
+        String chars = uri.getQueryParameter(CHARS);
+        int colorFor = AvatarStubColors.getColorFor(id);
 
         TextPaint stubTextPaint = textPaints.get();
         stubTextPaint.setTextSize(stubTextSize);
@@ -70,7 +84,7 @@ public class UserStubFetcher implements DataFetcher<Bitmap> {
         Paint paint = paints.get();
         paint.setColor(colorFor);
 
-        StaticLayout staticLayout = new StaticLayout(stub.chars, stubTextPaint, size, Layout.Alignment.ALIGN_CENTER, 1, 0, false);
+        StaticLayout staticLayout = new StaticLayout(chars, stubTextPaint, size, Layout.Alignment.ALIGN_CENTER, 1, 0, false);
         Bitmap bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);//todo mb less?
         Canvas canvas = new Canvas(bmp);
         RectF r = rects.get();
@@ -82,24 +96,6 @@ public class UserStubFetcher implements DataFetcher<Bitmap> {
         canvas.translate(0, p);
         staticLayout.draw(canvas);
         canvas.restore();
-
-//        ByteArrayOutputStream out = new ByteArrayOutputStream();
-//        bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-        return bmp;//new ByteArrayInputStream(out.toByteArray());
-    }
-
-    @Override
-    public void cleanup() {
-
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public void cancel() {
-
+        return new Result(bmp, Picasso.LoadedFrom.NETWORK);
     }
 }

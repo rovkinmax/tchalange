@@ -141,7 +141,7 @@ public class VideoView extends FrameLayout {
 
     private void showLowQualityThumb() {
         picasso.loadPhoto(msg.thumb.photo, false)
-                .override(width, height)
+                .resize(width, height)
                 .into(preview);
     }
 }

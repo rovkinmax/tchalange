@@ -40,7 +40,7 @@ import static flow.Flow.Direction.REPLACE;
  * Uses {@link PathContext} to allow customized sub-containers.
  */
 public class SimplePathContainer extends PathContainer {
-  public static final int ANIM_DURATION = 1000;
+  public static final int ANIM_DURATION = 100;
   public static final DecelerateInterpolator INTERPOLATOR = new DecelerateInterpolator();
   private final PathContextFactory contextFactory;
 

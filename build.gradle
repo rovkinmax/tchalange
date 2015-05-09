@@ -27,6 +27,7 @@ subprojects {
     }
 
     afterEvaluate {
+        println project.name
         android {
             compileSdkVersion 22
             buildToolsVersion "22.0.1"
@@ -52,8 +53,8 @@ subprojects {
         recycler_v7 = "com.android.support:recyclerview-v7:21.0.3"
         rx_java = "io.reactivex:rxjava:1.0.9"
         rx_android = "io.reactivex:rxandroid:0.24.0"
-//        picasso = 'com.squareup.picasso:picasso:2.5.2'
-        glide = 'com.github.bumptech.glide:glide:3.6.0'
+        picasso = 'com.squareup.picasso:picasso:2.5.2'
+//        glide = 'com.github.bumptech.glide:glide:3.6.0'
 
         flow_and_mortar = rootProject.flow_and_mortar
 

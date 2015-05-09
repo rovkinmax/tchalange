@@ -9,8 +9,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.Target;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
@@ -83,9 +83,8 @@ public class ChatView extends LinearLayout {
                 }));
         this.target = new TargetAdapter() {
             @Override
-            public void onResourceReady(Object resource, GlideAnimation glideAnimation) {
-                Bitmap bitmap = (Bitmap) resource;
-                toolbar.setIcon(bitmap);
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                 toolbar.setIcon(bitmap);
             }
         };
     }

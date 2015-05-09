@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.core.rx;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -68,26 +69,36 @@ public class RxDownloadManager {
     }
 
     public Observable<TdApi.FileLocal> download(final TdApi.FileEmpty file) {
+        int id = file.id;
+        return download(id);
+    }
+
+    /**
+     *
+     * @param id of EmptyFile
+     * @return
+     */
+    @NonNull public Observable<TdApi.FileLocal> download(int id) {
         synchronized (lock) {
-            log("download " + file.id);
-            assertTrue(file.id != 0);
+            log("download " + id);
+            assertTrue(id != 0);
 //            assertFalse(isDownloading(file));
-            BehaviorSubject<TdApi.FileLocal> prevRequest = allRequests.get(file.id);
+            BehaviorSubject<TdApi.FileLocal> prevRequest = allRequests.get(id);
             if (prevRequest != null) {
                 log("return prev request");
                 return prevRequest;
             }
-            TdApi.FileLocal fileLocal = allDownloadedFiles.get(file.id);
+            TdApi.FileLocal fileLocal = allDownloadedFiles.get(id);
             if (fileLocal != null) {
                 log("already downloaded");
                 BehaviorSubject<TdApi.FileLocal> newRequest = BehaviorSubject.create(fileLocal);
-                allRequests.put(file.id, newRequest);
+                allRequests.put(id, newRequest);
                 return newRequest;
             }
             log("create new request");
             final BehaviorSubject<TdApi.FileLocal> s = BehaviorSubject.create();
-            allRequests.put(file.id, s);
-            client.sendSilently(new TdApi.DownloadFile(file.id));
+            allRequests.put(id, s);
+            client.sendSilently(new TdApi.DownloadFile(id));
             return s;
         }
     }
