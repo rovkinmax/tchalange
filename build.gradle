@@ -7,7 +7,7 @@ buildscript {
     }
 }
 ext {
-    flow_and_mortar = fileTree(dir: 'libs', include: ['*.jar'])
+//    flow_and_mortar = fileTree(dir: 'libs', include: ['*.jar'])
 }
 subprojects {
 
@@ -29,12 +29,12 @@ subprojects {
     afterEvaluate {
         println project.name
         android {
-            compileSdkVersion 22
+            compileSdkVersion 21
             buildToolsVersion "22.0.1"
 
             defaultConfig {
                 minSdkVersion 14
-                targetSdkVersion 22
+                targetSdkVersion 21
             }
             compileOptions {
                 sourceCompatibility JavaVersion.VERSION_1_7
@@ -54,9 +54,14 @@ subprojects {
         rx_java = "io.reactivex:rxjava:1.0.9"
         rx_android = "io.reactivex:rxandroid:0.24.0"
         picasso = 'com.squareup.picasso:picasso:2.5.2'
+        flow = 'com.squareup.flow:flow:0.10'
+        flow_path = 'com.squareup.flow:flow-path:0.10'
+        mortar = 'com.squareup.mortar:mortar:0.17'
+        mortar_dagger1support = 'com.squareup.mortar:dagger1support:0.17'
+
 //        glide = 'com.github.bumptech.glide:glide:3.6.0'
 
-        flow_and_mortar = rootProject.flow_and_mortar
+//        flow_and_mortar = rootProject.flow_and_mortar
 
         dagger = 'com.squareup.dagger:dagger:1.2.2'
         dagger_compiler = 'com.squareup.dagger:dagger-compiler:1.2.2'

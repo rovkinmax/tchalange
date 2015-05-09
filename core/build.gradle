@@ -7,7 +7,10 @@ dependencies {
     compile project.appcompat_v7
     compile project.recycler_v7
     compile project.picasso
-    compile project.flow_and_mortar
+    compile project.flow
+    compile project.flow_path
+    compile project.mortar
+    compile project.mortar_dagger1support
     compile project.dagger
     provided project.dagger_compiler
 
