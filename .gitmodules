@@ -1,0 +1,3 @@
+[submodule "picasso2/picasso"]
+	path = picasso2/picasso
+	url = git@github.com:kurganec/picasso.git
