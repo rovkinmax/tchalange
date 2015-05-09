@@ -169,7 +169,8 @@ public class RXClient {
                     public Boolean call(TdApi.UpdateMessageId updateMessageId) {
                         return updateMessageId.chatId == chatId;
                     }
-                });
+                })
+                .observeOn(mainThread());
     }
 
     static class RxClientException extends Exception {
