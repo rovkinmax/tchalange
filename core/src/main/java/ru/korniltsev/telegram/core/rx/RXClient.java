@@ -101,12 +101,12 @@ public class RXClient {
         this.client = TG.getClientInstance();
 
         globalSubject
-                .filter(ONLY_UPDATE_MESSAGE_ID).subscribe(new Action1<TLObject>() {
-            @Override
-            public void call(TLObject tlObject) {
-                System.out.println(tlObject);
-            }
-        });
+                .subscribe(new Action1<TLObject>() {
+                    @Override
+                    public void call(TLObject tlObject) {
+                        Log.e("Update", "probably unhandled update\n" + tlObject);
+                    }
+                });
 
 
 

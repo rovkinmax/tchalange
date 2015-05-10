@@ -38,7 +38,7 @@ public final class TG {
         synchronized (TG.class) {
             TG.updatesHandler = updatesHandler;
             if (instance != null) {
-                instance.send(null, TG.updatesHandler);
+                instance.setUpdatesHandler(TG.updatesHandler);
             }
         }
     }

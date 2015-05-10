@@ -1,11 +1,9 @@
 package org.drinkless.td.libcore.telegram;
 
-import java.io.Serializable;
-
 public class TdApi {
     private static final char[] HEX_CHARACTERS = "0123456789ABCDEF".toCharArray();
 
-    public abstract static class TLObject implements Serializable {
+    public abstract static class TLObject {
 
         public abstract int getConstructor();
 
@@ -22,8 +20,6 @@ public class TdApi {
     }
 
     public static class Audio extends TLObject {
-        public int userId;
-        public int date;
         public int duration;
         public String mimeType;
         public File audio;
@@ -31,27 +27,23 @@ public class TdApi {
         public Audio() {
         }
 
-        public Audio(int userId, int date, int duration, String mimeType, File audio) {
-            this.userId = userId;
-            this.date = date;
+        public Audio(int duration, String mimeType, File audio) {
             this.duration = duration;
             this.mimeType = mimeType;
             this.audio = audio;
         }
 
-        public static final int CONSTRUCTOR = -230218119;
+        public static final int CONSTRUCTOR = 1821318307;
 
         @Override
         public int getConstructor() {
-            return -230218119;
+            return 1821318307;
         }
 
         @Override
         protected void toStringBuilder(int shift, StringBuilder s) {
             s.append("Audio").append(" {\n");
             shift += 2;
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("userId").append(" = ").append(userId).append('\n');
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("date").append(" = ").append(date).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("duration").append(" = ").append(duration).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("mimeType").append(" = ").append(mimeType).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("audio").append(" = "); audio.toStringBuilder(shift, s);
@@ -304,8 +296,6 @@ public class TdApi {
     }
 
     public static class Document extends TLObject {
-        public int userId;
-        public int date;
         public String fileName;
         public String mimeType;
         public PhotoSize thumb;
@@ -314,28 +304,24 @@ public class TdApi {
         public Document() {
         }
 
-        public Document(int userId, int date, String fileName, String mimeType, PhotoSize thumb, File document) {
-            this.userId = userId;
-            this.date = date;
+        public Document(String fileName, String mimeType, PhotoSize thumb, File document) {
             this.fileName = fileName;
             this.mimeType = mimeType;
             this.thumb = thumb;
             this.document = document;
         }
 
-        public static final int CONSTRUCTOR = 82677708;
+        public static final int CONSTRUCTOR = -1534690654;
 
         @Override
         public int getConstructor() {
-            return 82677708;
+            return -1534690654;
         }
 
         @Override
         protected void toStringBuilder(int shift, StringBuilder s) {
             s.append("Document").append(" {\n");
             shift += 2;
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("userId").append(" = ").append(userId).append('\n');
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("date").append(" = ").append(date).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("fileName").append(" = ").append(fileName).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("mimeType").append(" = ").append(mimeType).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("thumb").append(" = "); thumb.toStringBuilder(shift, s);
@@ -903,13 +889,13 @@ public class TdApi {
         protected void toStringBuilder(int shift, StringBuilder s) {
             s.append("Message").append(" {\n");
             shift += 2;
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("message").append(" = "); message.toStringBuilder(shift, s);
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("id").append(" = ").append(id).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("forwardFromId").append(" = ").append(forwardFromId).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("forwardDate").append(" = ").append(forwardDate).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("fromId").append(" = ").append(fromId).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("chatId").append(" = ").append(chatId).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("date").append(" = ").append(date).append('\n');
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("message").append(" = "); message.toStringBuilder(shift, s);
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
         }
@@ -1521,6 +1507,111 @@ public class TdApi {
         }
     }
 
+    public abstract static class OptionValue extends TLObject {
+    }
+
+    public static class OptionBoolean extends OptionValue {
+        public boolean value;
+
+        public OptionBoolean() {
+        }
+
+        public OptionBoolean(boolean value) {
+            this.value = value;
+        }
+
+        public static final int CONSTRUCTOR = 280624660;
+
+        @Override
+        public int getConstructor() {
+            return 280624660;
+        }
+
+        @Override
+        protected void toStringBuilder(int shift, StringBuilder s) {
+            s.append("OptionBoolean").append(" {\n");
+            shift += 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("value").append(" = ").append(value).append('\n');
+            shift -= 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+    }
+
+    public static class OptionEmpty extends OptionValue {
+
+        public OptionEmpty() {
+        }
+
+        public static final int CONSTRUCTOR = 1025799436;
+
+        @Override
+        public int getConstructor() {
+            return 1025799436;
+        }
+
+        @Override
+        protected void toStringBuilder(int shift, StringBuilder s) {
+            s.append("OptionEmpty").append(" {\n");
+            shift += 2;
+            shift -= 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+    }
+
+    public static class OptionInteger extends OptionValue {
+        public int value;
+
+        public OptionInteger() {
+        }
+
+        public OptionInteger(int value) {
+            this.value = value;
+        }
+
+        public static final int CONSTRUCTOR = 1383938450;
+
+        @Override
+        public int getConstructor() {
+            return 1383938450;
+        }
+
+        @Override
+        protected void toStringBuilder(int shift, StringBuilder s) {
+            s.append("OptionInteger").append(" {\n");
+            shift += 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("value").append(" = ").append(value).append('\n');
+            shift -= 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+    }
+
+    public static class OptionString extends OptionValue {
+        public String value;
+
+        public OptionString() {
+        }
+
+        public OptionString(String value) {
+            this.value = value;
+        }
+
+        public static final int CONSTRUCTOR = -841614037;
+
+        @Override
+        public int getConstructor() {
+            return -841614037;
+        }
+
+        @Override
+        protected void toStringBuilder(int shift, StringBuilder s) {
+            s.append("OptionString").append(" {\n");
+            shift += 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("value").append(" = ").append(value).append('\n');
+            shift -= 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+    }
+
     public static class Photo extends TLObject {
         public int userId;
         public int date;
@@ -2070,11 +2161,11 @@ public class TdApi {
             this.notificationSettings = notificationSettings;
         }
 
-        public static final int CONSTRUCTOR = 1078531382;
+        public static final int CONSTRUCTOR = -1767306883;
 
         @Override
         public int getConstructor() {
-            return 1078531382;
+            return -1767306883;
         }
 
         @Override
@@ -2344,22 +2435,22 @@ public class TdApi {
     }
 
     public static class UpdateChatTitle extends Update {
-        public int chatId;
+        public long chatId;
         public String title;
 
         public UpdateChatTitle() {
         }
 
-        public UpdateChatTitle(int chatId, String title) {
+        public UpdateChatTitle(long chatId, String title) {
             this.chatId = chatId;
             this.title = title;
         }
 
-        public static final int CONSTRUCTOR = -926390061;
+        public static final int CONSTRUCTOR = 1931125386;
 
         @Override
         public int getConstructor() {
-            return -926390061;
+            return 1931125386;
         }
 
         @Override
@@ -2374,22 +2465,22 @@ public class TdApi {
     }
 
     public static class UpdateChatParticipantsCount extends Update {
-        public int chatId;
+        public long chatId;
         public int participantsCount;
 
         public UpdateChatParticipantsCount() {
         }
 
-        public UpdateChatParticipantsCount(int chatId, int participantsCount) {
+        public UpdateChatParticipantsCount(long chatId, int participantsCount) {
             this.chatId = chatId;
             this.participantsCount = participantsCount;
         }
 
-        public static final int CONSTRUCTOR = 559248869;
+        public static final int CONSTRUCTOR = 1188647993;
 
         @Override
         public int getConstructor() {
-            return 559248869;
+            return 1188647993;
         }
 
         @Override
@@ -2504,21 +2595,21 @@ public class TdApi {
 
     public static class UpdateOption extends Update {
         public String name;
-        public String value;
+        public OptionValue value;
 
         public UpdateOption() {
         }
 
-        public UpdateOption(String name, String value) {
+        public UpdateOption(String name, OptionValue value) {
             this.name = name;
             this.value = value;
         }
 
-        public static final int CONSTRUCTOR = 1873396678;
+        public static final int CONSTRUCTOR = 900822020;
 
         @Override
         public int getConstructor() {
-            return 1873396678;
+            return 900822020;
         }
 
         @Override
@@ -2526,7 +2617,7 @@ public class TdApi {
             s.append("UpdateOption").append(" {\n");
             shift += 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("name").append(" = ").append(name).append('\n');
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("value").append(" = ").append(value).append('\n');
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("value").append(" = "); value.toStringBuilder(shift, s);
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
         }
@@ -2785,8 +2876,6 @@ public class TdApi {
     }
 
     public static class Video extends TLObject {
-        public int userId;
-        public int date;
         public int duration;
         public String mimeType;
         public String caption;
@@ -2798,9 +2887,7 @@ public class TdApi {
         public Video() {
         }
 
-        public Video(int userId, int date, int duration, String mimeType, String caption, PhotoSize thumb, int width, int height, File video) {
-            this.userId = userId;
-            this.date = date;
+        public Video(int duration, String mimeType, String caption, PhotoSize thumb, int width, int height, File video) {
             this.duration = duration;
             this.mimeType = mimeType;
             this.caption = caption;
@@ -2810,19 +2897,17 @@ public class TdApi {
             this.video = video;
         }
 
-        public static final int CONSTRUCTOR = -192592193;
+        public static final int CONSTRUCTOR = -1103202708;
 
         @Override
         public int getConstructor() {
-            return -192592193;
+            return -1103202708;
         }
 
         @Override
         protected void toStringBuilder(int shift, StringBuilder s) {
             s.append("Video").append(" {\n");
             shift += 2;
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("userId").append(" = ").append(userId).append('\n');
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("date").append(" = ").append(date).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("duration").append(" = ").append(duration).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("mimeType").append(" = ").append(mimeType).append('\n');
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("caption").append(" = ").append(caption).append('\n');
@@ -2853,27 +2938,6 @@ public class TdApi {
         @Override
         protected void toStringBuilder(int shift, StringBuilder s) {
             s.append("AuthStateWaitSetPhoneNumber").append(" {\n");
-            shift += 2;
-            shift -= 2;
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
-        }
-    }
-
-    public static class AuthStateWaitSendSms extends AuthState {
-
-        public AuthStateWaitSendSms() {
-        }
-
-        public static final int CONSTRUCTOR = 445980381;
-
-        @Override
-        public int getConstructor() {
-            return 445980381;
-        }
-
-        @Override
-        protected void toStringBuilder(int shift, StringBuilder s) {
-            s.append("AuthStateWaitSendSms").append(" {\n");
             shift += 2;
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
@@ -2937,6 +3001,27 @@ public class TdApi {
         @Override
         protected void toStringBuilder(int shift, StringBuilder s) {
             s.append("AuthStateOk").append(" {\n");
+            shift += 2;
+            shift -= 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+    }
+
+    public static class AuthStateLoggingOut extends AuthState {
+
+        public AuthStateLoggingOut() {
+        }
+
+        public static final int CONSTRUCTOR = -1773524779;
+
+        @Override
+        public int getConstructor() {
+            return -1773524779;
+        }
+
+        @Override
+        protected void toStringBuilder(int shift, StringBuilder s) {
+            s.append("AuthStateLoggingOut").append(" {\n");
             shift += 2;
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
@@ -3208,42 +3293,27 @@ public class TdApi {
     }
 
     public static class AuthReset extends TLFunction {
+        public boolean force;
 
         public AuthReset() {
         }
 
-        public static final int CONSTRUCTOR = 2038596138;
+        public AuthReset(boolean force) {
+            this.force = force;
+        }
+
+        public static final int CONSTRUCTOR = 377134467;
 
         @Override
         public int getConstructor() {
-            return 2038596138;
+            return 377134467;
         }
 
         @Override
         protected void toStringBuilder(int shift, StringBuilder s) {
             s.append("AuthReset").append(" {\n");
             shift += 2;
-            shift -= 2;
-            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
-        }
-    }
-
-    public static class AuthSendSms extends TLFunction {
-
-        public AuthSendSms() {
-        }
-
-        public static final int CONSTRUCTOR = -2118592274;
-
-        @Override
-        public int getConstructor() {
-            return -2118592274;
-        }
-
-        @Override
-        protected void toStringBuilder(int shift, StringBuilder s) {
-            s.append("AuthSendSms").append(" {\n");
-            shift += 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("force").append(" = ").append(force).append('\n');
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
         }
@@ -3415,6 +3485,33 @@ public class TdApi {
             shift += 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("participantIds").append(" = ").append("int[]").append(" {\n"); { for (int j : participantIds) { for (int i = 0; i < shift + 2; i++) { s.append(' '); } s.append(j).append('\n'); } } for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("title").append(" = ").append(title).append('\n');
+            shift -= 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+    }
+
+    public static class CreatePrivateChat extends TLFunction {
+        public int userId;
+
+        public CreatePrivateChat() {
+        }
+
+        public CreatePrivateChat(int userId) {
+            this.userId = userId;
+        }
+
+        public static final int CONSTRUCTOR = 1204324690;
+
+        @Override
+        public int getConstructor() {
+            return 1204324690;
+        }
+
+        @Override
+        protected void toStringBuilder(int shift, StringBuilder s) {
+            s.append("CreatePrivateChat").append(" {\n");
+            shift += 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("userId").append(" = ").append(userId).append('\n');
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
         }
@@ -3783,6 +3880,33 @@ public class TdApi {
         }
     }
 
+    public static class GetOption extends TLFunction {
+        public String name;
+
+        public GetOption() {
+        }
+
+        public GetOption(String name) {
+            this.name = name;
+        }
+
+        public static final int CONSTRUCTOR = -1572495746;
+
+        @Override
+        public int getConstructor() {
+            return -1572495746;
+        }
+
+        @Override
+        protected void toStringBuilder(int shift, StringBuilder s) {
+            s.append("GetOption").append(" {\n");
+            shift += 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("name").append(" = ").append(name).append('\n');
+            shift -= 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+    }
+
     public static class GetStickers extends TLFunction {
         public String emoji;
 
@@ -3919,6 +4043,36 @@ public class TdApi {
             shift += 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("scope").append(" = "); scope.toStringBuilder(shift, s);
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("notificationSettings").append(" = "); notificationSettings.toStringBuilder(shift, s);
+            shift -= 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+    }
+
+    public static class SetOption extends TLFunction {
+        public String name;
+        public OptionValue value;
+
+        public SetOption() {
+        }
+
+        public SetOption(String name, OptionValue value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public static final int CONSTRUCTOR = 2114670322;
+
+        @Override
+        public int getConstructor() {
+            return 2114670322;
+        }
+
+        @Override
+        protected void toStringBuilder(int shift, StringBuilder s) {
+            s.append("SetOption").append(" {\n");
+            shift += 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("name").append(" = ").append(name).append('\n');
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("value").append(" = "); value.toStringBuilder(shift, s);
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
         }
