@@ -124,15 +124,20 @@ public class RxGlide {
             TdApi.FileEmpty e = (TdApi.FileEmpty) f;
             assertTrue(e.id != 0);
         }
-        return picasso.load(TDFileRequestHandler.load(f, webp));
+        return picasso.load(TDFileRequestHandler.load(f, webp))
+                .stableKey(stableKeyForTdApiFile(f, webp));
 
     }
 
-
-
-
-
-
+    private String stableKeyForTdApiFile(TdApi.File f, boolean webp) {
+        int id;
+        if (f instanceof TdApi.FileLocal){
+            id = ((TdApi.FileLocal) f).id;
+        } else {
+            id = ((TdApi.FileEmpty) f).id;
+        }
+        return String.format("id=%d&webp=%b", id, webp);
+    }
 
     public interface StubAware<T> {
         String needStub(T o);

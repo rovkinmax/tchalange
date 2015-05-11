@@ -3,6 +3,7 @@ package ru.korniltsev.telegram.core.recycler;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import org.drinkless.td.libcore.telegram.TdApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,5 +76,11 @@ public abstract class BaseAdapter<T, VH extends RecyclerView.ViewHolder> extends
 
     public T getLast() {
         return ts.get(ts.size() - 1);
+    }
+
+    public void setData(List<T> chats) {
+        ts.clear();
+        ts.addAll(chats);
+        notifyDataSetChanged();
     }
 }

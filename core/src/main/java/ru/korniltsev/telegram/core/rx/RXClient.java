@@ -81,12 +81,71 @@ public class RXClient {
             return (TdApi.UpdateMessageId) tlObject;
         }
     };
+    public static final Func1<TLObject, Boolean> ONLY_DELETE_MESSAGES = new Func1<TLObject, Boolean>() {
+        @Override
+        public Boolean call(TLObject tlObject) {
+            return tlObject instanceof TdApi.UpdateDeleteMessages;
+        }
+    };
+    public static final Func1<TLObject, TdApi.UpdateDeleteMessages> CAST_TO_DELETE_MESSAGES = new Func1<TLObject, TdApi.UpdateDeleteMessages>() {
+        @Override
+        public TdApi.UpdateDeleteMessages call(TLObject tlObject) {
+            return (TdApi.UpdateDeleteMessages) tlObject;
+        }
+    };
+    public static final Func1<TLObject, Boolean> ONLY_UPDATE_MESSAGE_DATE = new Func1<TLObject, Boolean>() {
+        @Override
+        public Boolean call(TLObject tlObject) {
+            return tlObject instanceof TdApi.UpdateMessageDate;
+        }
+    };
+    public static final Func1<TLObject, TdApi.UpdateMessageDate> CAST_TO_UPDATE_MESSAGE_DATE = new Func1<TLObject, TdApi.UpdateMessageDate>() {
+        @Override
+        public TdApi.UpdateMessageDate call(TLObject tlObject) {
+            return (TdApi.UpdateMessageDate) tlObject;
+        }
+    };
+    public static final Func1<TLObject, Boolean> ONLY_UPDATE_CHAT_READ_INBOX = new Func1<TLObject, Boolean>() {
+        @Override
+        public Boolean call(TLObject tlObject) {
+            return tlObject instanceof TdApi.UpdateChatReadInbox;
+        }
+    };
+    public static final Func1<TLObject, TdApi.UpdateChatReadInbox> CAST_UPDATE_CHAT_READ_INBOX = new Func1<TLObject, TdApi.UpdateChatReadInbox>() {
+        @Override
+        public TdApi.UpdateChatReadInbox call(TLObject tlObject) {
+            return (TdApi.UpdateChatReadInbox) tlObject;
+        }
+    };
+
+    public static final Func1<TLObject, Boolean> ONLY_UPDATE_CHAT_READ_OUTBOX = new Func1<TLObject, Boolean>() {
+        @Override
+        public Boolean call(TLObject tlObject) {
+            return tlObject instanceof TdApi.UpdateChatReadOutbox;
+        }
+    };
+    public static final Func1<TLObject, TdApi.UpdateChatReadOutbox> CAST_UPDATE_CHAT_READ_OUTBOX = new Func1<TLObject, TdApi.UpdateChatReadOutbox>() {
+        @Override
+        public TdApi.UpdateChatReadOutbox call(TLObject tlObject) {
+            return (TdApi.UpdateChatReadOutbox) tlObject;
+        }
+    };
+    public static final Func1<TLObject, TdApi.UpdateMessageContent> CAST_TO_UPDATE_MESSAGE_CONTENT = new Func1<TLObject, TdApi.UpdateMessageContent>() {
+        @Override
+        public TdApi.UpdateMessageContent call(TLObject tlObject) {
+            return (TdApi.UpdateMessageContent) tlObject;
+        }
+    };
+    public static final Func1<TLObject, Boolean> ONLY_UPDATE_MESSAGE_CONTENT = new Func1<TLObject, Boolean>() {
+        @Override
+        public Boolean call(TLObject tlObject) {
+            return tlObject instanceof TdApi.UpdateMessageContent;
+        }
+    };
     private Context ctx;
 
     private final Client client;
     private final PublishSubject<TdApi.TLObject> globalSubject = PublishSubject.create();
-
-
 
     @Inject
     public RXClient(Context ctx) {
@@ -107,11 +166,7 @@ public class RXClient {
                         Log.e("Update", "probably unhandled update\n" + tlObject);
                     }
                 });
-
-
-
     }
-
 
     //observe function on ui thread
     public Observable<TLObject> sendRXUI(final TdApi.TLFunction function) {
@@ -173,6 +228,38 @@ public class RXClient {
                 .observeOn(mainThread());
     }
 
+    public Observable<TdApi.UpdateMessageId> updateMessageId() {
+        return globalSubject.filter(ONLY_UPDATE_MESSAGE_ID)
+                .map(CAST_TO_UPDATE_MESSAGE_ID);
+    }
+
+    public Observable<TdApi.UpdateMessageDate> updateMessageDate() {
+        return globalSubject.filter(ONLY_UPDATE_MESSAGE_DATE)
+                .map(CAST_TO_UPDATE_MESSAGE_DATE);
+    }
+
+    public Observable<TdApi.UpdateChatReadInbox> updateChatReadInbox() {
+        return globalSubject.filter(ONLY_UPDATE_CHAT_READ_INBOX)
+                .map(CAST_UPDATE_CHAT_READ_INBOX);
+    }
+
+    public Observable<TdApi.UpdateChatReadOutbox> updateChatReadOutbox() {
+        return globalSubject.filter(ONLY_UPDATE_CHAT_READ_OUTBOX)
+                .map(CAST_UPDATE_CHAT_READ_OUTBOX);
+    }
+
+    public Observable<TdApi.UpdateDeleteMessages> updateDeleteMessages() {
+        return globalSubject.filter(ONLY_DELETE_MESSAGES)
+                .map(CAST_TO_DELETE_MESSAGES);
+    }
+
+    public Observable<TdApi.UpdateMessageContent> updateMessageContent() {
+        return globalSubject.filter(ONLY_UPDATE_MESSAGE_CONTENT)
+                .map(CAST_TO_UPDATE_MESSAGE_CONTENT);
+    }
+
+
+
     static class RxClientException extends Exception {
         public final TdApi.Error error;
 
@@ -202,17 +289,12 @@ public class RXClient {
                 });
     }
 
-
-
-    public Observable<TdApi.UpdateFile> fileUpdate(final TdApi.FileEmpty file) {
-        return filesUpdates()
-                .filter(new Func1<TdApi.UpdateFile, Boolean>() {
-                    @Override
-                    public Boolean call(TdApi.UpdateFile updateFile) {
-                        return file.id == updateFile.fileId;
-                    }
-                });
+    public Observable<TdApi.UpdateNewMessage> updateNewMessages() {
+        return globalSubject
+                .filter(ONLY_NEW_MESSAGE_UPDATES)
+                .map(CAST_TO_NEW_MESSAGE_UPDATE);
     }
+
 
     public Client getClient() {
         return client;
@@ -234,6 +316,4 @@ public class RXClient {
         return sendRX(new TdApi.GetChatHistory(chatId, fromId, offset, limit))
                 .map(CAST_TO_MESSAGE);
     }
-
-
 }

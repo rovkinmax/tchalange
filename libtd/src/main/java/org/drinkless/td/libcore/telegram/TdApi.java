@@ -1,9 +1,11 @@
 package org.drinkless.td.libcore.telegram;
 
+import java.io.Serializable;
+
 public class TdApi {
     private static final char[] HEX_CHARACTERS = "0123456789ABCDEF".toCharArray();
 
-    public abstract static class TLObject {
+    public abstract static class TLObject implements Serializable {
 
         public abstract int getConstructor();
 

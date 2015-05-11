@@ -115,6 +115,10 @@ public class ChatListView extends DrawerLayout {
 
     }
 
+    public Adapter getAdapter() {
+        return adapter;
+    }
+
     public void showMe(TdApi.User user) {
         drawerAvatar.loadAvatarFor(user);
         drawerName.setText(
