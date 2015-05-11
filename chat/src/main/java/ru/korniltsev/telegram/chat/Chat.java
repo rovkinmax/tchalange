@@ -1,9 +1,9 @@
 package ru.korniltsev.telegram.chat;
 
+import dagger.Provides;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.view.AudioMessageView;
 import ru.korniltsev.telegram.chat.adapter.view.DocumentView;
-import ru.korniltsev.telegram.chat.adapter.view.EmojiTextView;
 import ru.korniltsev.telegram.chat.adapter.view.GeoPointView;
 import ru.korniltsev.telegram.chat.adapter.view.PhotoMessageView;
 import ru.korniltsev.telegram.chat.adapter.view.VideoView;
@@ -36,7 +36,6 @@ public class Chat extends BasePath implements Serializable {
             injects = {
                     ChatView.class,
                     PhotoMessageView.class,
-                    EmojiTextView.class ,
                     AudioMessageView.class ,
                     GeoPointView.class ,
                     VideoView.class ,
@@ -44,6 +43,14 @@ public class Chat extends BasePath implements Serializable {
             },
             addsTo = RootModule.class)
     public static class Module {
+        final Chat chat;
 
+        public Module(Chat chat) {
+            this.chat = chat;
+        }
+
+        @Provides Chat provideChat() {
+            return chat;
+        }
     }
 }

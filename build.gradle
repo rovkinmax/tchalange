@@ -49,6 +49,7 @@ subprojects {
     ext {
 
 
+//        support_v4 = "com.android.support:support-v4:21.0.3"
         appcompat_v7 = "com.android.support:appcompat-v7:21.0.3"
         recycler_v7 = "com.android.support:recyclerview-v7:21.0.3"
         rx_java = "io.reactivex:rxjava:1.0.9"

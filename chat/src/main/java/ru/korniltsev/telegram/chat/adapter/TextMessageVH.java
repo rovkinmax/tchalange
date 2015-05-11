@@ -21,12 +21,8 @@ class TextMessageVH extends BaseAvatarVH {
     public void bind(TdApi.Message item) {
         super.bind(item);
         TdApi.MessageContent msg = item.message;
-        if (msg instanceof TdApi.MessageText) {//todo get rid of this "if"
-            String text = ((TdApi.MessageText) msg).text;
-            message.setText(text);
-        } else {
-            message.setText("");
-        }
+        TdApi.MessageText text = (TdApi.MessageText) msg;
+        message.setText(text.textWithSmilesAndUserRefs);
 
 
     }

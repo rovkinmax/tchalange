@@ -106,9 +106,6 @@ public class ChatView extends LinearLayout {
         return adapter;
     }
 
-    public void addHistory(Adapter.Portion messages) {
-        adapter.addHistory(messages);
-    }
 
     public void initMenu(boolean groupChat) {
         if (!groupChat) {
@@ -161,17 +158,17 @@ public class ChatView extends LinearLayout {
         }
     }
 
-    public void addNewMessage(Adapter.Portion portion) {
-        int lastVisible = layout.findFirstCompletelyVisibleItemPosition();
-        boolean scrollToBottom = false;
-        if (lastVisible == 0) {
-            scrollToBottom = true;
-        }
-        adapter.insertNewMessage(portion);
-        if (scrollToBottom) {
-            layout.scrollToPosition(0);
-        }
-    }
+//    public void addNewMessage(Adapter.Portion portion) {
+//        int lastVisible = layout.findFirstCompletelyVisibleItemPosition();
+//        boolean scrollToBottom = false;
+//        if (lastVisible == 0) {
+//            scrollToBottom = true;
+//        }
+//        adapter.insertNewMessage(portion);
+//        if (scrollToBottom) {
+//            layout.scrollToPosition(0);
+//        }
+//    }
 
 
 

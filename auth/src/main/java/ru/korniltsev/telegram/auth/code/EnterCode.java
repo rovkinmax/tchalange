@@ -50,7 +50,7 @@ public class EnterCode extends BasePath implements Serializable{
 
         public void checkCode(String code) {
             TdApi.AuthSetCode f = new TdApi.AuthSetCode(code);
-            client.sendRXUI(f)
+            client.sendCachedRXUI(f)
                     .subscribe(new Action1<TdApi.TLObject>() {
                         @Override
                         public void call(TdApi.TLObject r) {

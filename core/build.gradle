@@ -4,6 +4,7 @@ apply plugin: 'com.android.library'
 dependencies {
     compile project.rx_java
     compile project.rx_android
+//    compile project.support_v4
     compile project.appcompat_v7
     compile project.recycler_v7
     compile project.picasso

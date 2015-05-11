@@ -371,9 +371,9 @@ public class Emoji {
             info = i;
         }
 
-        public DrawableInfo getDrawableInfo() {
-            return info;
-        }
+//        public DrawableInfo getDrawableInfo() {
+//            return info;
+//        }
 
         public Rect getDrawRect() {
             Rect b = copyBounds();

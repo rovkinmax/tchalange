@@ -1,7 +1,6 @@
 package ru.korniltsev.telegram.core.rx;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import org.drinkless.td.libcore.telegram.Client;
 import org.drinkless.td.libcore.telegram.TG;
@@ -16,8 +15,6 @@ import rx.subjects.PublishSubject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
@@ -169,13 +166,18 @@ public class RXClient {
     }
 
     //observe function on ui thread
-    public Observable<TLObject> sendRXUI(final TdApi.TLFunction function) {
-        return sendRX(function)
+    public Observable<TLObject> sendCachedRXUI(final TdApi.TLFunction function) {
+        return sendCachedRX(function)
                 .observeOn(mainThread());
     }
 
     //observe function
-    public Observable<TLObject> sendRX(final TdApi.TLFunction function) {
+    public Observable<TLObject> sendCachedRX(final TdApi.TLFunction function) {
+        return sendRx(function)
+                .cache();
+    }
+
+    public Observable<TLObject> sendRx(final TdApi.TLFunction function) {
         return Observable.create(new Observable.OnSubscribe<TLObject>() {
             @Override
             public void call(final Subscriber<? super TLObject> s) {
@@ -192,7 +194,7 @@ public class RXClient {
                     }
                 });
             }
-        }).cache();
+        });
     }
 
     public void sendSilently(final TdApi.TLFunction function) {
@@ -201,12 +203,12 @@ public class RXClient {
 
     public Observable<TdApi.User> getUser(int id) {
 
-        return sendRXUI(new TdApi.GetUser(id))
+        return sendCachedRXUI(new TdApi.GetUser(id))
                 .map(CAST_TO_USER);
     }
 
     public Observable<TdApi.GroupChatFull> getGroupChatInfo(int id) {
-        return sendRXUI(new TdApi.GetGroupChatFull(id))
+        return sendCachedRXUI(new TdApi.GetGroupChatFull(id))
                 .map(new Func1<TLObject, TdApi.GroupChatFull>() {
                     @Override
                     public TdApi.GroupChatFull call(TLObject o) {
@@ -276,18 +278,7 @@ public class RXClient {
                 .map(CAST_TO_FILE_UPDATE);
     }
 
-    //not ui thread
-    public Observable<TdApi.UpdateNewMessage> newMessageUpdate(final long chatId) {
-        return globalSubject
-                .filter(ONLY_NEW_MESSAGE_UPDATES)
-                .map(CAST_TO_NEW_MESSAGE_UPDATE)
-                .filter(new Func1<TdApi.UpdateNewMessage, Boolean>() {
-                    @Override
-                    public Boolean call(TdApi.UpdateNewMessage updateNewMessage) {
-                        return updateNewMessage.message.chatId == chatId;
-                    }
-                });
-    }
+
 
     public Observable<TdApi.UpdateNewMessage> updateNewMessages() {
         return globalSubject
@@ -303,17 +294,17 @@ public class RXClient {
     ////////////
 
     public Observable<TdApi.Chats> getChats(int offset, int limit) {
-        return sendRXUI(new TdApi.GetChats(offset, limit))
+        return sendRx(new TdApi.GetChats(offset, limit))
                 .map(CAST_TO_CHATS);
     }
 
     public Observable<TdApi.User> getMe() {
-        return sendRXUI(new TdApi.GetMe())
+        return sendCachedRXUI(new TdApi.GetMe())
                 .map(CAST_TO_USER);
     }
 
     public Observable<TdApi.Messages> getMessages(final long chatId, final int fromId, final int offset, final int limit) {
-        return sendRX(new TdApi.GetChatHistory(chatId, fromId, offset, limit))
+        return sendRx(new TdApi.GetChatHistory(chatId, fromId, offset, limit))
                 .map(CAST_TO_MESSAGE);
     }
 }

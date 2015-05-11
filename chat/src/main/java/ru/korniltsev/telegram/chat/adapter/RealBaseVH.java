@@ -19,7 +19,7 @@ public abstract class RealBaseVH extends RecyclerView.ViewHolder {
     public String getNameForSenderOf(TdApi.Message item) {
         int fromId = item.fromId;
         assertTrue(fromId != 0);
-        TdApi.User user = adapter.getUsers().get(fromId);
+        TdApi.User user = adapter.getUserHolder().getUser(fromId);
         return Utils.uiName(user);
     }
 }

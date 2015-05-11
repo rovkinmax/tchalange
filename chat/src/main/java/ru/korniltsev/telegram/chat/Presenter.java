@@ -1,8 +1,8 @@
 package ru.korniltsev.telegram.chat;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import flow.Flow;
 import mortar.ViewPresenter;
@@ -10,13 +10,17 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.rx.RXClient;
+import ru.korniltsev.telegram.core.rx.RxChat;
+import ru.korniltsev.telegram.core.rx.RxChatDB;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Map;
+
+import java.util.HashSet;
+import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -25,106 +29,62 @@ public class Presenter extends ViewPresenter<ChatView>
         implements Toolbar.OnMenuItemClickListener,
         MessagePanel.OnSendListener {
 
-    final RXClient client;
+    private final Chat path;
+    private final RXClient client;
+    private final RxChat rxChat;
 
-    @Nullable private Observable<TdApi.GroupChatFull> fullChatInfoRequest;
-    CompositeSubscription subscription;
-    private Chat chatPath;
-//    private Observable<TdApi.UpdateNewMessage> newMessageUpdates;
+    private final Observable<TdApi.GroupChatFull> fullChatInfoRequest;
+    private final boolean isGroupChat;
+    private CompositeSubscription subscription;
 
     @Inject
-    public Presenter(RXClient client) {
+    public Presenter(Chat c, RXClient client, RxChatDB chatDB) {
+        path = c;
         this.client = client;
+        rxChat = chatDB.getRxChat(path.chat.id);
 
+        if (path.chat.type instanceof TdApi.GroupChatInfo) {
+            TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) path.chat.type).groupChat;
+            fullChatInfoRequest = client.getGroupChatInfo(groupChat.id);
+            isGroupChat = true;
+        } else {
+            fullChatInfoRequest = Observable.empty();
+            isGroupChat = false;
+        }
     }
-
-    private  MessagesHolder ms;
-    private Adapter.Portion savedDataFromAdapter;
-
 
     @Override
     protected void onLoad(Bundle savedInstanceState) {
         ChatView view = getView();
-        chatPath = Chat.get(view.getContext());
-        if (ms == null){
-            ms = new MessagesHolder(client, chatPath.chat, new MessagesHolder.AddListener() {
-                @Override
-                public void historyAdded(Adapter.Portion portion) {
-                    getView()
-                            .addHistory(portion);
-                }
 
-                @Override
-                public void newMessageAdded(Adapter.Portion portion) {
-                    getView()
-                            .addNewMessage(portion);
-                }
-
-                @Override
-                public boolean hasUser(Integer id) {
-                    Map<Integer, TdApi.User> users;
-                    ChatView view = getView();
-                    if (view == null) {
-                        users = savedDataFromAdapter.us;
-                    } else {
-                        users = view.getAdapter()
-                                .getUsers();
-                    }
-                    return users.containsKey(id);
-                }
-            });
-        }
-
-
-        boolean isGroupChat = isGroupChat(chatPath.chat);
-        if (!ms.atLeastOneRequestCompleted()) {
-            if (!ms.isRequestInProgress()) {
-                ms.request2(chatPath.chat.topMessage, chatPath.chat.topMessage);
-            }
-            if (fullChatInfoRequest == null) {
-                if (isGroupChat) {
-                    TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) chatPath.chat.type).groupChat;
-                    fullChatInfoRequest = client.getGroupChatInfo(groupChat.id);
-                }
+        if (!rxChat.atLeastOneRequestCompleted()) {
+            if (!rxChat.isRequestInProgress()) {
+                rxChat.request2(path.chat.topMessage, path.chat.topMessage);
+                //todo move first request to constructor
             }
         }
-        view.loadToolBarImage(chatPath.chat);
+        view.loadToolBarImage(path.chat);
         view.initMenu(isGroupChat);
-        if (savedDataFromAdapter != null){
-            view.addHistory(savedDataFromAdapter);
-        }
         setViewSubtitle();
 
-        if (!isGroupChat) {
-            TdApi.User user = ((TdApi.PrivateChatInfo) chatPath.chat.type).user;
-            view.setPirvateChatSubtitle(user.status);
-        }
-
+        Adapter a = view.getAdapter();
+        a.setChat(rxChat);
+        a.setData(rxChat.getMessages());
         subscribe();
     }
 
     private void setViewSubtitle() {
-        TdApi.ChatInfo t = chatPath.chat.type;
+        TdApi.ChatInfo t = path.chat.type;
         if (t instanceof TdApi.PrivateChatInfo) {
             TdApi.User user = ((TdApi.PrivateChatInfo) t).user;
             getView().setPrivateChatTitle(user);
+            getView().setPirvateChatSubtitle(user.status);
         } else {
             TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) t).groupChat;
             getView().setGroupChatTitle(groupChat);
         }
     }
 
-    private boolean isGroupChat(TdApi.Chat chat) {
-        return chat.type instanceof TdApi.GroupChatInfo;
-    }
-
-    @Override
-    protected void onSave(Bundle outState) {
-        super.onSave(outState);
-        savedDataFromAdapter = getView()
-                .getAdapter()
-                .getPortion();
-    }
 
     @Override
     public void dropView(ChatView view) {
@@ -132,56 +92,34 @@ public class Presenter extends ViewPresenter<ChatView>
         subscription.unsubscribe();
     }
 
-
     private void subscribe() {
-        if (subscription != null){
+        if (subscription != null) {
             assertTrue(subscription.isUnsubscribed());
         }
         subscription = new CompositeSubscription();
 
-        subscribeForMessageHistory();
-        if (fullChatInfoRequest != null) {
-            subscription.add(
-                    fullChatInfoRequest.subscribe(
-                            new Action1<TdApi.GroupChatFull>() {
-                                @Override
-                                public void call(TdApi.GroupChatFull groupChatFull) {
-                                    updateOnlineStatus(groupChatFull);
-                                }
-                            }
-                    ));
-        }
+        //todo show progressBar
         subscription.add(
-                ms.subscribeNewMessages());
-
-        subscription.add(client.messageIdsUpdates(chatPath.chat.id)
-                .subscribe(new Action1<TdApi.UpdateMessageId>() {
+                rxChat.messageList().subscribe(new Action1<List<TdApi.Message>>() {
                     @Override
-                    public void call(TdApi.UpdateMessageId upd) {
-//                        ms.updateMessageId(upd);
+                    public void call(List<TdApi.Message> messages) {
                         getView()
                                 .getAdapter()
-                                .updateMessageId(upd);
-
+                                .setData(messages);
                     }
                 }));
-//        subscription.add(
-//                newMessageUpdates.subscribe(new Action1<TdApi.UpdateNewMessage>() {
-//                    @Override
-//                    public void call(TdApi.UpdateNewMessage updateNewMessage) {
-//                        ms
-//                    }
-//                }));
+
+        subscription.add(
+                fullChatInfoRequest.subscribe(
+                        new Action1<TdApi.GroupChatFull>() {
+                            @Override
+                            public void call(TdApi.GroupChatFull groupChatFull) {
+                                updateOnlineStatus(groupChatFull);
+                            }
+                        }
+                ));
     }
 
-
-    private void subscribeForMessageHistory() {
-        //todo show progressBar
-        if (ms.isRequestInProgress()) {
-            subscription.add(
-                    ms.subscribe());
-        }
-    }
 
     private void updateOnlineStatus(TdApi.GroupChatFull info) {
         int online = 0;
@@ -197,15 +135,14 @@ public class Presenter extends ViewPresenter<ChatView>
         TdApi.Message lastMessage = getView()
                 .getAdapter()
                 .getLast();
-        ms.request2(lastMessage, null);
-        subscribeForMessageHistory();
+        rxChat.request2(lastMessage, null);
     }
 
     public void listScrolledToEnd() {
-        if (ms.isDownloadedAll()) {
+        if (rxChat.isDownloadedAll()) {
             return;
         }
-        if (ms.isRequestInProgress()) {
+        if (rxChat.isRequestInProgress()) {
             return;
         }
         requestNewPortion();
@@ -224,27 +161,16 @@ public class Presenter extends ViewPresenter<ChatView>
     }
 
     private void clearHistory() {
-        //todo mb progress?!
-        //todo config changes
-        subscription.add(
-                client.sendRXUI(
-                        new TdApi.DeleteChatHistory(chatPath.chat.id))
-                        .subscribe(new Action1<TdApi.TLObject>() {
-                            @Override
-                            public void call(TdApi.TLObject o) {
-                                getView()
-                                        .clearAdapter();
-                            }
-                        }));
-        ;
+        rxChat.deleteHistory();
     }
 
     private void leaveGroup() {
+//        rxChat.
         //todo mb progress?!
         //todo config changes
         subscription.add(
-                client.sendRXUI(
-                        new TdApi.DeleteChatParticipant(chatPath.chat.id, chatPath.me.id)
+                client.sendCachedRXUI(
+                        new TdApi.DeleteChatParticipant(path.chat.id, path.me.id)
                 ).subscribe(new Action1<TdApi.TLObject>() {
                     @Override
                     public void call(TdApi.TLObject o) {
@@ -257,23 +183,7 @@ public class Presenter extends ViewPresenter<ChatView>
 
     @Override
     public void sendText(String text) {
-        TdApi.InputMessageText content = new TdApi.InputMessageText(text);
-        client.sendRXUI(new TdApi.SendMessage(chatPath.chat.id, content))
-        //todo manage subscription
-        .subscribe(new Action1<TdApi.TLObject>() {
-            @Override
-            public void call(TdApi.TLObject tlObject) {
-                System.out.println(tlObject);
-                TdApi.Message msg = (TdApi.Message) tlObject;
-                Adapter.Portion p = new Adapter.Portion(msg);
-                //                ms.add(p, false);
-                getView().addNewMessage(p);
-            }
-        });
-
+        rxChat.sendMessage(text);
     }
 
-//    public void saveLoadedPortion(Adapter.Portion portion) {
-//        savedDataFromAdapter = portion;
-//    }
 }

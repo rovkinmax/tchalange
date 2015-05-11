@@ -86,7 +86,7 @@ public class EnterPhoneFragment extends BasePath implements Serializable{
         }
 
         public void sendCode(String phoneNumber) {
-                    client.sendRXUI(new TdApi.AuthSetPhoneNumber(phoneNumber))
+                    client.sendCachedRXUI(new TdApi.AuthSetPhoneNumber(phoneNumber))
                     .subscribe(new Action1<TdApi.TLObject>() {
                         @Override
                         public void call(TdApi.TLObject response) {

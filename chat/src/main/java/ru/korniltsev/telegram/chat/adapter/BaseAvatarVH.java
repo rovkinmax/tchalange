@@ -29,7 +29,7 @@ abstract class BaseAvatarVH extends RealBaseVH {
     }
 
     public void bind(TdApi.Message item){
-        TdApi.User user = adapter.users.get(item.fromId);
+        TdApi.User user = adapter.getUserHolder().getUser(item.fromId);
         avatar.loadAvatarFor(user);
         String name = Utils.uiName(user);
         nick.setText(name);

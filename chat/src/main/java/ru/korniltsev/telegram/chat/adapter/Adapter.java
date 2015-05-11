@@ -6,7 +6,9 @@ import android.view.ViewGroup;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
+import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.RxGlide;
+import ru.korniltsev.telegram.core.rx.UserHolder;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,12 +32,25 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
     public static final int VIEW_TYPE_CHAT_PHOTO_CHANGED = 7;
     public static final int VIEW_TYPE_DOCUMENT = 8;
 
-    final Map<Integer, TdApi.User> users = new HashMap<>();
+//    final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxGlide picasso;
+
+    RxChat chat;
 
     public Adapter(Context ctx, RxGlide picasso) {
         super(ctx);
         this.picasso = picasso;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        TdApi.Message item = getItem(position);
+        TdApi.UpdateMessageId upd = chat.get(item.id);
+        if (upd != null) {
+            return upd.oldId;
+        }
+        return item.id;
     }
 
     @Override
@@ -114,56 +129,64 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
         holder.bind(item);
     }
 
-    public void addHistory(Portion ms) {
-        addAll(ms.ms);
-        users.putAll(ms.us);
+//    public void addHistory(Portion ms) {
+//        addAll(ms.ms);
+//        users.putAll(ms.us);
+//    }
+//
+//    public void insertNewMessage(Portion portion) {
+//        addFirst(portion.ms);
+//        users.putAll(portion.us);
+//    }
+
+//    public void updateMessageId(TdApi.UpdateMessageId upd) {
+//        List<TdApi.Message> ts = getTs();
+//        for (int i = 0; i < ts.size(); i++) {
+//            TdApi.Message message = ts.get(i);
+//            if (message.id == upd.oldId) {
+//                message.id = upd.newId;
+//                notifyItemChanged(i);
+//                return;
+//            }
+//        }
+//    }
+
+//    public Map<Integer, TdApi.User> getUsers() {
+//        return users;
+//    }
+
+    public void setChat(RxChat chat) {
+        this.chat = chat;
     }
 
-    public void insertNewMessage(Portion portion) {
-        addFirst(portion.ms);
-        users.putAll(portion.us);
+    public UserHolder getUserHolder() {
+        return chat;
     }
 
-    public void updateMessageId(TdApi.UpdateMessageId upd) {
-        List<TdApi.Message> ts = getTs();
-        for (int i = 0; i < ts.size(); i++) {
-            TdApi.Message message = ts.get(i);
-            if (message.id == upd.oldId) {
-                message.id = upd.newId;
-                notifyItemChanged(i);
-                return;
-            }
-        }
-    }
+    //    public Portion getPortion() {
+//        return new Portion(getData(), users);
+//    }
 
-    public Map<Integer, TdApi.User> getUsers() {
-        return users;
-    }
-
-    public Portion getPortion() {
-        return new Portion(getData(), users);
-    }
-
-    public static class Portion {
-        public final List<TdApi.Message> ms;
-        public final Map<Integer, TdApi.User> us;
-
-        public Portion(List<TdApi.Message> ms, List<TdApi.User> us) {
-            this.ms = ms;
-            this.us = new HashMap<>();
-            for (TdApi.User u : us) {
-                this.us.put(u.id, u);
-            }
-        }
-
-        public Portion(List<TdApi.Message> ms, Map<Integer, TdApi.User> us) {
-            this.ms = ms;
-            this.us = us;
-        }
-
-        public Portion(TdApi.Message msg) {
-            this.ms = Collections.singletonList(msg);
-            this.us = Collections.emptyMap();
-        }
-    }
+//    public static class Portion {
+//        public final List<TdApi.Message> ms;
+//        public final Map<Integer, TdApi.User> us;
+//
+//        public Portion(List<TdApi.Message> ms, List<TdApi.User> us) {
+//            this.ms = ms;
+//            this.us = new HashMap<>();
+//            for (TdApi.User u : us) {
+//                this.us.put(u.id, u);
+//            }
+//        }
+//
+//        public Portion(List<TdApi.Message> ms, Map<Integer, TdApi.User> us) {
+//            this.ms = ms;
+//            this.us = us;
+//        }
+//
+//        public Portion(TdApi.Message msg) {
+//            this.ms = Collections.singletonList(msg);
+//            this.us = Collections.emptyMap();
+//        }
+//    }
 }

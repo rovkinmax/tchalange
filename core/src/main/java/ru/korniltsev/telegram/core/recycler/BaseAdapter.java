@@ -4,9 +4,12 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.utils.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.korniltsev.telegram.core.utils.Preconditions.checkMainThread;
 
 public abstract class BaseAdapter<T, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
     private Context ctx;
@@ -79,6 +82,7 @@ public abstract class BaseAdapter<T, VH extends RecyclerView.ViewHolder> extends
     }
 
     public void setData(List<T> chats) {
+        checkMainThread();
         ts.clear();
         ts.addAll(chats);
         notifyDataSetChanged();
