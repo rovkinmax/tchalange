@@ -34,7 +34,7 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
         TdApi.MessageContent message = chat.topMessage.message;
         if (message instanceof TdApi.MessageText) {
             TdApi.MessageText text = (TdApi.MessageText) message;
-            holder.message.setText(text.text);
+            holder.message.setText(text.textWithSmilesAndUserRefs);
         } else {
             holder.message.setText(null);
         }

@@ -173,6 +173,7 @@ public class RxChat implements UserHolder {
             if (newMessage) {
                 offset--;
                 size++;
+                size++;
             }
             requestImpl(messages.get(0), null, false, size, offset);
         } else {
