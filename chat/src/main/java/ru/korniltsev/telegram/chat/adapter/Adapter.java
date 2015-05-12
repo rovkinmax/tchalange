@@ -7,13 +7,8 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 import ru.korniltsev.telegram.core.rx.RxChat;
-import ru.korniltsev.telegram.core.rx.RxGlide;
+import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.core.rx.UserHolder;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 // Message types left:
 

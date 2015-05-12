@@ -1,4 +1,4 @@
-package ru.korniltsev.telegram.core.rx;
+package ru.korniltsev.telegram.core.picasso;
 
 import android.content.Context;
 import android.graphics.Bitmap;

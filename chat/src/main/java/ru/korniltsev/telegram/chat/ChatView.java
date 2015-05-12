@@ -2,24 +2,20 @@ package ru.korniltsev.telegram.chat;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
-import ru.korniltsev.telegram.core.adapters.TargetAdapter;
 import ru.korniltsev.telegram.core.recycler.CheckRecyclerViewSpan;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
 import ru.korniltsev.telegram.core.rx.RxChat;
-import ru.korniltsev.telegram.core.rx.RxGlide;
+import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 

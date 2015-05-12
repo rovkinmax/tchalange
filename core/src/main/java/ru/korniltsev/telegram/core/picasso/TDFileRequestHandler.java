@@ -1,4 +1,4 @@
-package ru.korniltsev.telegram.core.rx;
+package ru.korniltsev.telegram.core.picasso;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -8,6 +8,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Request;
 import com.squareup.picasso.RequestHandler;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import webp.SupportBitmapFactory;
 
 import java.io.FileInputStream;

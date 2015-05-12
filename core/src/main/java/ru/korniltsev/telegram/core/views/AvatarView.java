@@ -8,16 +8,18 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.ImageView;
 import com.squareup.picasso.Transformation;
 import junit.framework.Assert;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.core.rx.RxGlide;
+import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.utils.R;
 
 public class AvatarView extends ImageView {
 
+    private final int spec;
     private int size;
 
     public final RxGlide picasso2;
@@ -32,13 +34,12 @@ public class AvatarView extends ImageView {
         a.recycle();
         Assert.assertTrue(size != -1 && size > 0);
 
-
+        spec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int spec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY);
-        super.onMeasure(spec, spec);
+        setMeasuredDimension(size, size);
     }
 
 
@@ -57,10 +58,14 @@ public class AvatarView extends ImageView {
                     .transform(new RoundTransformation())
                     .into(this);
         }
-        ;
     }
 
-
+    @Override
+    public void requestLayout() {
+        if (getMeasuredWidth() == 0){
+            super.requestLayout();
+        }
+    }
 
     private static class RoundTransformation implements Transformation {
 

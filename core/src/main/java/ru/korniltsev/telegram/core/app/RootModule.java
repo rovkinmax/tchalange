@@ -26,7 +26,7 @@ import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.ChatDB;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
-import ru.korniltsev.telegram.core.rx.RxGlide;
+import ru.korniltsev.telegram.core.picasso.RxGlide;
 
 import javax.inject.Singleton;
 

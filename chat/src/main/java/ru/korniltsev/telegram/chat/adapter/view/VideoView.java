@@ -12,9 +12,8 @@ import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.telegram.android.DpCalculator;
 import ru.korniltsev.telegram.chat.R;
-import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
-import ru.korniltsev.telegram.core.rx.RxGlide;
+import ru.korniltsev.telegram.core.picasso.RxGlide;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
@@ -22,7 +21,6 @@ import rx.subscriptions.Subscriptions;
 import javax.inject.Inject;
 
 import java.io.File;
-import java.io.IOException;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 

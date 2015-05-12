@@ -11,7 +11,7 @@ import junit.framework.Assert;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
-import ru.korniltsev.telegram.core.rx.RxGlide;
+import ru.korniltsev.telegram.core.picasso.RxGlide;
 
 import javax.inject.Inject;
 import java.util.Arrays;

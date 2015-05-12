@@ -11,7 +11,7 @@ import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
-import ru.korniltsev.telegram.core.rx.RxGlide;
+import ru.korniltsev.telegram.core.picasso.RxGlide;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
