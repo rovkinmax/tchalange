@@ -17,6 +17,7 @@ import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.ChatDB;
 import rx.Observable;
 import rx.android.content.ContentObservable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -27,6 +28,7 @@ import java.util.List;
 
 import static android.net.NetworkInfo.State.CONNECTED;
 import static junit.framework.Assert.assertTrue;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 @WithModule(ChatList.Module.class)
 public class ChatList extends BasePath implements Serializable {
@@ -38,11 +40,12 @@ public class ChatList extends BasePath implements Serializable {
 
     @Singleton
     public static class Presenter extends ViewPresenter<ChatListView> {
+        private RXClient client;
         private RXAuthState authState;
         private ChatDB chatDB;
         final Observable<TdApi.User> meRequest;
         private TdApi.User me;
-        private Observable<Intent> networkState;
+        private Observable<TdApi.UpdateOption> networkState;
 
         private CompositeSubscription subscription;
 
@@ -51,10 +54,13 @@ public class ChatList extends BasePath implements Serializable {
 
         @Inject
         public Presenter(RXClient client, RXAuthState authState, ChatDB chatDB) {
+            this.client = client;
             this.authState = authState;
             this.chatDB = chatDB;
             checkTlObjectIsSerializable();
             meRequest = client.getMe();
+            networkState = client.getConnectedState()
+                .observeOn(mainThread());
         }
 
         private void checkTlObjectIsSerializable() {
@@ -75,7 +81,7 @@ public class ChatList extends BasePath implements Serializable {
 
             //todo use libtd
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-            networkState = ContentObservable.fromBroadcast(getView().getContext(), filter);
+            ContentObservable.fromBroadcast(getView().getContext(), filter);
 
             getView()
                     .setData(chatDB.getAllChats());
@@ -108,14 +114,22 @@ public class ChatList extends BasePath implements Serializable {
                         }
                     }));
             subscription.add(
-                    networkState.subscribe(new Action1<Intent>() {
+                    networkState.subscribe(new Action1<TdApi.UpdateOption>() {
                         @Override
-                        public void call(Intent i) {
-                            NetworkInfo networkInfo = i.getExtras()
-                                    .getParcelable(ConnectivityManager.EXTRA_NETWORK_INFO);
-                            NetworkInfo.State state = networkInfo.getState();
+                        public void call(TdApi.UpdateOption o) {
+                            TdApi.OptionString b = (TdApi.OptionString) o.value;
+                            boolean connected ;
+                            switch (b.value){
+                                case "Waiting for network":
+                                case "Connecting":
+                                    connected = false;
+                                 break;
+                                default:
+                                    connected = true;
+                                    break;
+                            }
                             Presenter.this.getView()
-                                    .updateNetworkStatus(state == CONNECTED);
+                                    .updateNetworkStatus(connected);
                         }
                     }));
         }

@@ -11,7 +11,9 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -139,10 +141,31 @@ public class RXClient {
             return tlObject instanceof TdApi.UpdateMessageContent;
         }
     };
+    public static final String OPTION_CONNECTION_STATE = "connection_state";
+    public static final Func1<TdApi.UpdateOption, Boolean> ONLY_CONNECTED_STATE_OPTION = new Func1<TdApi.UpdateOption, Boolean>() {
+        @Override
+        public Boolean call(TdApi.UpdateOption updateOption) {
+            return updateOption.value instanceof TdApi.OptionString
+                && updateOption.name.equals(OPTION_CONNECTION_STATE);
+        }
+    };
+    public static final Func1<TLObject, Boolean> ONLY_UPDATE_OPTION = new Func1<TLObject, Boolean>() {
+        @Override
+        public Boolean call(TLObject tlObject) {
+            return tlObject instanceof TdApi.UpdateOption;
+        }
+    };
+    public static final Func1<TLObject, TdApi.UpdateOption> CAST_TO_UPDATE_OBJECT = new Func1<TLObject, TdApi.UpdateOption>() {
+        @Override
+        public TdApi.UpdateOption call(TLObject tlObject) {
+            return (TdApi.UpdateOption) tlObject;
+        }
+    };
     private Context ctx;
 
     private final Client client;
     private final PublishSubject<TdApi.TLObject> globalSubject = PublishSubject.create();
+    private final BehaviorSubject<TdApi.UpdateOption> connectedState = BehaviorSubject.create(new TdApi.UpdateOption(OPTION_CONNECTION_STATE, new TdApi.OptionBoolean(false)));
 
     @Inject
     public RXClient(Context ctx) {
@@ -150,12 +173,16 @@ public class RXClient {
         TG.setUpdatesHandler(new Client.ResultHandler() {
             @Override
             public void onResult(TLObject object) {
-//                globalSubject.onBackpressureBlock()
                 globalSubject.onNext(object);
             }
         });
         TG.setDir(ctx.getFilesDir().getAbsolutePath() + "/");
-        this.client = TG.getClientInstance();
+
+        globalSubject.filter(ONLY_UPDATE_OPTION)
+                .map(CAST_TO_UPDATE_OBJECT)
+                .filter(ONLY_CONNECTED_STATE_OPTION)
+                .subscribe(connectedState)
+        ;
 
         globalSubject
                 .subscribe(new Action1<TLObject>() {
@@ -164,6 +191,12 @@ public class RXClient {
                         Log.e("Update", "probably unhandled update\n" + tlObject);
                     }
                 });
+
+        this.client = TG.getClientInstance();
+    }
+
+    public Observable<TdApi.UpdateOption> getConnectedState() {
+        return connectedState;
     }
 
     //observe function on ui thread
@@ -261,7 +294,10 @@ public class RXClient {
                 .map(CAST_TO_UPDATE_MESSAGE_CONTENT);
     }
 
-
+    public void setConnected(boolean connected) {
+        boolean unreachable = !connected;
+        sendSilently(new TdApi.SetOption("network_unreachable", new TdApi.OptionBoolean(unreachable)));
+    }
 
     static class RxClientException extends Exception {
         public final TdApi.Error error;
@@ -279,14 +315,11 @@ public class RXClient {
                 .map(CAST_TO_FILE_UPDATE);
     }
 
-
-
     public Observable<TdApi.UpdateNewMessage> updateNewMessages() {
         return globalSubject
                 .filter(ONLY_NEW_MESSAGE_UPDATES)
                 .map(CAST_TO_NEW_MESSAGE_UPDATE);
     }
-
 
     public Client getClient() {
         return client;

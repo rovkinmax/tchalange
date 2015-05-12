@@ -76,6 +76,7 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
         return getViewFactory().inflate(id, parent, false);
     }
 
+
     @Override
     public RealBaseVH onCreateViewHolder(ViewGroup p, int viewType) {
         switch (viewType) {
@@ -157,6 +158,7 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
     public UserHolder getUserHolder() {
         return chat;
     }
+
 
     //    public Portion getPortion() {
 //        return new Portion(getData(), users);

@@ -190,12 +190,22 @@ public class RxChat implements UserHolder {
                     }
                 })
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.TLObject>() {
+                .subscribe(new Action1<TdApi.Message>() {
                     @Override
-                    public void call(TdApi.TLObject tlObject) {
-                        updateCurrentMessageList(true);
+                    public void call(TdApi.Message tlObject) {
+                        handleNewMessage(tlObject);
                     }
                 });
+    }
+
+    public void handleNewMessage(TdApi.Message tlObject) {
+        messages.add(0, tlObject);
+        newMessage.onNext(tlObject);
+    }
+
+    private PublishSubject<TdApi.Message> newMessage = PublishSubject.create();
+    public Observable<TdApi.Message> newMessage() {
+        return newMessage;
     }
 
     public void deleteHistory() {

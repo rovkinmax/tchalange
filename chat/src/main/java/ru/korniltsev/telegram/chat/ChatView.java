@@ -96,11 +96,9 @@ public class ChatView extends LinearLayout {
         presenter.dropView(this);
     }
 
-
     public Adapter getAdapter() {
         return adapter;
     }
-
 
     public void initMenu(boolean groupChat) {
         if (!groupChat) {
@@ -161,6 +159,11 @@ public class ChatView extends LinearLayout {
         CheckRecyclerViewSpan.check(list, viewSpanNotFilledAction);
     }
 
-
-
+    public void addNewMessage(TdApi.Message message) {
+        boolean scrollDown = layout.findFirstCompletelyVisibleItemPosition() == 0;
+        adapter.addFirst(message);
+        if (scrollDown){
+            layout.scrollToPosition(0);
+        }
+    }
 }

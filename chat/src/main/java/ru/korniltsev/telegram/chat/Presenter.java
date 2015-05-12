@@ -64,7 +64,6 @@ public class Presenter extends ViewPresenter<ChatView>
         view.initMenu(isGroupChat);
         setViewSubtitle();
 
-
         getView().updateData(rxChat);
         subscribe();
     }
@@ -81,7 +80,6 @@ public class Presenter extends ViewPresenter<ChatView>
         }
     }
 
-
     @Override
     public void dropView(ChatView view) {
         super.dropView(view);
@@ -96,14 +94,26 @@ public class Presenter extends ViewPresenter<ChatView>
 
         //todo show progressBar
         subscription.add(
-                rxChat.messageList().subscribe(new Action1<List<TdApi.Message>>() {
-                    @Override
-                    public void call(List<TdApi.Message> messages) {
-                        getView()
-                                .getAdapter()
-                                .setData(messages);
-                    }
-                }));
+                rxChat.messageList()
+                        .subscribe(new Action1<List<TdApi.Message>>() {
+                            @Override
+                            public void call(List<TdApi.Message> messages) {
+                                getView()
+                                        .getAdapter()
+                                        .setData(messages);
+                            }
+                        }));
+
+        subscription.add(
+                rxChat.newMessage()
+                        .subscribe(new Action1<TdApi.Message>() {
+                                       @Override
+                                       public void call(TdApi.Message message) {
+                                           getView()
+                                                   .addNewMessage(message);
+                                       }
+                                   }
+                        ));
 
         subscription.add(
                 fullChatInfoRequest.subscribe(
@@ -115,7 +125,6 @@ public class Presenter extends ViewPresenter<ChatView>
                         }
                 ));
     }
-
 
     private void updateOnlineStatus(TdApi.GroupChatFull info) {
         int online = 0;
@@ -161,7 +170,7 @@ public class Presenter extends ViewPresenter<ChatView>
     }
 
     private void leaveGroup() {
-//        rxChat.
+        //        rxChat.
         //todo mb progress?!
         //todo config changes
         subscription.add(
@@ -181,5 +190,4 @@ public class Presenter extends ViewPresenter<ChatView>
     public void sendText(String text) {
         rxChat.sendMessage(text);
     }
-
 }

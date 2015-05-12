@@ -73,6 +73,11 @@ public abstract class BaseAdapter<T, VH extends RecyclerView.ViewHolder> extends
         notifyItemRangeInserted(0, ms.size());
     }
 
+    public void addFirst(T m) {
+        ts.add(0, m);
+        notifyItemInserted(0);
+    }
+
     public List<T> getTs() {
         return ts;
     }
