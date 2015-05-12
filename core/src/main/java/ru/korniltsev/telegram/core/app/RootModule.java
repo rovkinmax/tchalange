@@ -24,7 +24,7 @@ import ru.korniltsev.telegram.core.audio.AudioPlayer;
 import ru.korniltsev.telegram.core.rx.EmojiParser;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
-import ru.korniltsev.telegram.core.rx.RxChatDB;
+import ru.korniltsev.telegram.core.rx.ChatDB;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.rx.RxGlide;
 
@@ -42,7 +42,7 @@ import javax.inject.Singleton;
                 RxDownloadManager.class,
                 AudioPlayer.class,
                 DpCalculator.class,
-                RxChatDB.class,
+                ChatDB.class,
                 EmojiParser.class,
         },
         library = true)

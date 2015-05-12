@@ -2,16 +2,14 @@ package ru.korniltsev.telegram.chat;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxChat;
-import ru.korniltsev.telegram.core.rx.RxChatDB;
+import ru.korniltsev.telegram.core.rx.ChatDB;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
@@ -19,7 +17,6 @@ import rx.subscriptions.CompositeSubscription;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import java.util.HashSet;
 import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
@@ -38,7 +35,7 @@ public class Presenter extends ViewPresenter<ChatView>
     private CompositeSubscription subscription;
 
     @Inject
-    public Presenter(Chat c, RXClient client, RxChatDB chatDB) {
+    public Presenter(Chat c, RXClient client, ChatDB chatDB) {
         path = c;
         this.client = client;
         rxChat = chatDB.getRxChat(path.chat.id);
@@ -67,9 +64,8 @@ public class Presenter extends ViewPresenter<ChatView>
         view.initMenu(isGroupChat);
         setViewSubtitle();
 
-        Adapter a = view.getAdapter();
-        a.setChat(rxChat);
-        a.setData(rxChat.getMessages());
+
+        getView().updateData(rxChat);
         subscribe();
     }
 

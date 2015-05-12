@@ -1,7 +1,6 @@
 package ru.korniltsev.telegram.core.rx;
 
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 import org.drinkless.td.libcore.telegram.TdApi;
 import rx.Observable;
 import rx.functions.Action1;
@@ -24,17 +23,17 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 public class RxChat implements UserHolder {
     final long id;
     final RXClient client;
-    final RxChatDB holder;
+    final ChatDB holder;
 
     private final List<TdApi.Message> messages = new ArrayList<>();
     private final PublishSubject<List<TdApi.Message>> subject = PublishSubject.create();
-    private Observable<RxChatDB.Portion> request;
+    private Observable<ChatDB.Portion> request;
     private Set<Integer> tmpUIDs = new HashSet<>();
 
     private boolean atLeastOneRequestCompleted = false;
     private boolean downloadedAll;
 
-    public RxChat(long id, RXClient client, RxChatDB holder) {
+    public RxChat(long id, RXClient client, ChatDB holder) {
         this.id = id;
         this.client = client;
         this.holder = holder;
@@ -49,16 +48,16 @@ public class RxChat implements UserHolder {
     }
 
     public void request2(TdApi.Message lastMessage, final TdApi.Message initMessage) {
-        requestImpl(lastMessage, initMessage, true, RxChatDB.LIMIT, 0);
+        requestImpl(lastMessage, initMessage, true, holder.getMessageLimit(), 0);
     }
 
     private void requestImpl(TdApi.Message lastMessage, final TdApi.Message initMessage, final boolean historyRequest, int limit, int offset) {
         assertNull(request);
         //        Log.e("RxChat", "request", new Throwable());
         request = client.getMessages(id, lastMessage.id, offset, limit)
-                .flatMap(new Func1<TdApi.Messages, Observable<? extends RxChatDB.Portion>>() {
+                .flatMap(new Func1<TdApi.Messages, Observable<? extends ChatDB.Portion>>() {
                     @Override
-                    public Observable<? extends RxChatDB.Portion> call(TdApi.Messages portion) {
+                    public Observable<? extends ChatDB.Portion> call(TdApi.Messages portion) {
                         checkNotMainThread();
                         TdApi.Message[] messages = portion.messages;
                         tmpUIDs.clear();//todo boxing
@@ -79,7 +78,7 @@ public class RxChat implements UserHolder {
                         }
 
                         if (tmpUIDs.isEmpty()) {
-                            RxChatDB.Portion res = new RxChatDB.Portion(messageList, Collections.<TdApi.User>emptyList());
+                            ChatDB.Portion res = new ChatDB.Portion(messageList, Collections.<TdApi.User>emptyList());
                             return Observable.just(res);
                         } else {
                             List<Observable<TdApi.User>> os = new ArrayList<>();
@@ -91,15 +90,15 @@ public class RxChat implements UserHolder {
                                     .toList();
 
                             Observable<List<TdApi.Message>> messagesCopy = Observable.just(messageList);
-                            return allUsers.zipWith(messagesCopy, RxChatDB.ZIPPER);
+                            return allUsers.zipWith(messagesCopy, ChatDB.ZIPPER);
                         }
                     }
                 })
                 .observeOn(mainThread());
 
-        request.subscribe(new Action1<RxChatDB.Portion>() {
+        request.subscribe(new Action1<ChatDB.Portion>() {
             @Override
-            public void call(RxChatDB.Portion portion) {
+            public void call(ChatDB.Portion portion) {
                 checkMainThread();
                 request = null;
                 atLeastOneRequestCompleted = true;

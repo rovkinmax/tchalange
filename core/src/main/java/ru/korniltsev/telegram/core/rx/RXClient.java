@@ -150,6 +150,7 @@ public class RXClient {
         TG.setUpdatesHandler(new Client.ResultHandler() {
             @Override
             public void onResult(TLObject object) {
+//                globalSubject.onBackpressureBlock()
                 globalSubject.onNext(object);
             }
         });

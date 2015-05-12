@@ -1,25 +1,25 @@
 package ru.korniltsev.telegram.core.rx;
 
+import android.content.Context;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.SparseArrayCompat;
+import android.util.DisplayMetrics;
 import android.util.SparseArray;
+import android.view.WindowManager;
 import junit.framework.Assert;
 import org.drinkless.td.libcore.telegram.TdApi;
+import org.telegram.android.DpCalculator;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -28,7 +28,7 @@ import static ru.korniltsev.telegram.core.utils.Preconditions.checkNotMainThread
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 @Singleton
-public class RxChatDB implements UserHolder {
+public class ChatDB implements UserHolder {
 
     public static final Func2<List<TdApi.User>, List<TdApi.Message>, Portion> ZIPPER = new Func2<List<TdApi.User>, List<TdApi.Message>, Portion>() {
         @Override
@@ -37,7 +37,8 @@ public class RxChatDB implements UserHolder {
         }
     };
 
-    static final int LIMIT = 10;
+    private final int chatLimit;
+    private final int messageLimit;
     //guarded by ui thread
     final List<TdApi.Chat> chatsList = new ArrayList<>();
     //guarded by ui thread
@@ -71,11 +72,31 @@ public class RxChatDB implements UserHolder {
     private boolean atLeastOneResponseReturned;
 
     @Inject
-    public RxChatDB(final RXClient client, EmojiParser parser) {
+    public ChatDB(final Context ctx, final RXClient client, EmojiParser parser, DpCalculator calc) {
         this.client = client;
         this.parser = parser;
         prepareForUpdates();
+
+
+
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay()
+                .getMetrics(displaymetrics);
+        int height = displaymetrics.heightPixels;
+        int width = displaymetrics.widthPixels;
+        int maxSize = Math.max(width, height);
+
+        int aproxRowHeight = calc.dp(72);
+        int limit = (int) (1.5 * maxSize / aproxRowHeight);
+        chatLimit = Math.max(15, limit);
+
+        int aproxMessageHeight = calc.dp(41);
+        limit = (int) (1.5 * maxSize / aproxMessageHeight);
+        messageLimit = Math.max(limit, 20);
     }
+
+
 
     private void prepareForUpdates() {
         prepareForUpdateNewMessage();
@@ -196,7 +217,7 @@ public class RxChatDB implements UserHolder {
 
     //request new portion
     public void requestPortion() {
-        requestImpl(chatsList.size(), LIMIT, true);
+        requestImpl(chatsList.size(), chatLimit, true);
     }
 
     private void requestImpl(int offset, int limit, final boolean historyRequest) {
@@ -307,5 +328,9 @@ public class RxChatDB implements UserHolder {
     public boolean isAtLeastOneResponseReturned() {
         checkMainThread();
         return atLeastOneResponseReturned;
+    }
+
+    public int getMessageLimit() {
+        return messageLimit;
     }
 }

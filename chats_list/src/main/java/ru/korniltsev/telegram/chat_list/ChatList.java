@@ -14,7 +14,7 @@ import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
-import ru.korniltsev.telegram.core.rx.RxChatDB;
+import ru.korniltsev.telegram.core.rx.ChatDB;
 import rx.Observable;
 import rx.android.content.ContentObservable;
 import rx.functions.Action1;
@@ -39,7 +39,7 @@ public class ChatList extends BasePath implements Serializable {
     @Singleton
     public static class Presenter extends ViewPresenter<ChatListView> {
         private RXAuthState authState;
-        private RxChatDB chatDB;
+        private ChatDB chatDB;
         final Observable<TdApi.User> meRequest;
         private TdApi.User me;
         private Observable<Intent> networkState;
@@ -50,7 +50,7 @@ public class ChatList extends BasePath implements Serializable {
         //        boolean atLeastOneResponseReturned = false;
 
         @Inject
-        public Presenter(RXClient client, RXAuthState authState, RxChatDB chatDB) {
+        public Presenter(RXClient client, RXAuthState authState, ChatDB chatDB) {
             this.authState = authState;
             this.chatDB = chatDB;
             checkTlObjectIsSerializable();
@@ -78,8 +78,8 @@ public class ChatList extends BasePath implements Serializable {
             networkState = ContentObservable.fromBroadcast(getView().getContext(), filter);
 
             getView()
-                    .getAdapter()
                     .setData(chatDB.getAllChats());
+
             subscribe();
         }
 
@@ -93,8 +93,7 @@ public class ChatList extends BasePath implements Serializable {
                     chatDB.chatList().subscribe(new Action1<List<TdApi.Chat>>() {
                         @Override
                         public void call(List<TdApi.Chat> chats) {
-                            Presenter.this.getView()
-                                    .getAdapter()
+                            getView()
                                     .setData(chats);
                         }
                     }));

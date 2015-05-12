@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.recycler.CheckRecyclerViewSpan;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
@@ -109,11 +110,6 @@ public class ChatListView extends DrawerLayout {
         btnLogout = this.findViewById(R.id.btn_logout);
     }
 
-    public void addChats(List<TdApi.Chat> chats) {
-        adapter.addAll(chats);
-
-
-    }
 
     public Adapter getAdapter() {
         return adapter;
@@ -129,5 +125,16 @@ public class ChatListView extends DrawerLayout {
 
     public void updateNetworkStatus(boolean connected) {
         toolbar.setTitle(connected ? R.string.messages : R.string.waiting_for_connection);
+    }
+
+    public void setData(List<TdApi.Chat> allChats) {
+        getAdapter()
+                .setData(allChats);
+        CheckRecyclerViewSpan.check(list, new Runnable() {
+            @Override
+            public void run() {
+                presenter.listScrolledToEnd();
+            }
+        });
     }
 }

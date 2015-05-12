@@ -16,7 +16,9 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.adapters.TargetAdapter;
+import ru.korniltsev.telegram.core.recycler.CheckRecyclerViewSpan;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
+import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.RxGlide;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
@@ -43,8 +45,12 @@ public class ChatView extends LinearLayout {
     private Adapter adapter;
     private final int toolbarAvatarSize;
 
-    private Target target;
-
+    private Runnable viewSpanNotFilledAction = new Runnable() {
+        @Override
+        public void run() {
+            presenter.listScrolledToEnd();
+        }
+    };
 
     public ChatView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -70,7 +76,6 @@ public class ChatView extends LinearLayout {
         messagePanel.setListener(presenter);
 
         layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
-//        layout.setStackFromEnd(true);
         adapter = new Adapter(getContext(), picasso);
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
@@ -81,12 +86,6 @@ public class ChatView extends LinearLayout {
                         presenter.listScrolledToEnd();
                     }
                 }));
-        this.target = new TargetAdapter() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                 toolbar.setIcon(bitmap);
-            }
-        };
     }
 
     @Override
@@ -158,20 +157,13 @@ public class ChatView extends LinearLayout {
         }
     }
 
-//    public void addNewMessage(Adapter.Portion portion) {
-//        int lastVisible = layout.findFirstCompletelyVisibleItemPosition();
-//        boolean scrollToBottom = false;
-//        if (lastVisible == 0) {
-//            scrollToBottom = true;
-//        }
-//        adapter.insertNewMessage(portion);
-//        if (scrollToBottom) {
-//            layout.scrollToPosition(0);
-//        }
-//    }
+    public void updateData(RxChat rxChat) {
+        Adapter a = getAdapter();
+        a.setChat(rxChat);
+        a.setData(rxChat.getMessages());
 
-
-
+        CheckRecyclerViewSpan.check(list, viewSpanNotFilledAction);
+    }
 
 
 
