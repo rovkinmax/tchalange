@@ -21,6 +21,9 @@
         <item name="color">@android:color/white</item>
     </style>
 
+    <!--<style name="PopupMenuStyle" parent="Theme.AppCompat.Light">-->
+        <!--<item name="android:background">@android:color/white</item>-->
+    <!--</style>-->
     <!--ThemeOverlay.AppCompat.ActionBar-->
     <style name="ToolBarStyle" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:textColorPrimary">@android:color/white</item>

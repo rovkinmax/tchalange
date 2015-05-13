@@ -20,6 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:theme="@style/ToolBarStyle"
+            app:popupTheme="@style/Theme.AppCompat.Light"
             android:background="@null"
             />
 </ru.korniltsev.telegram.photoview.PhotoViewerView>
