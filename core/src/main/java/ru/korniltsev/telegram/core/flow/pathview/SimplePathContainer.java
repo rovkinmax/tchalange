@@ -25,11 +25,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.DecelerateInterpolator;
+import dagger.ObjectGraph;
 import flow.Flow;
 import flow.path.Path;
 import flow.path.PathContainer;
 import flow.path.PathContext;
 import flow.path.PathContextFactory;
+import mortar.dagger1support.ObjectGraphService;
+import org.telegram.android.DpCalculator;
 import ru.korniltsev.telegram.core.flow.utils.Utils;
 
 import static flow.Flow.Direction.FORWARD;
@@ -40,8 +43,6 @@ import static flow.Flow.Direction.REPLACE;
  * Uses {@link PathContext} to allow customized sub-containers.
  */
 public class SimplePathContainer extends PathContainer {
-  public static final int ANIM_DURATION = 100;
-  public static final DecelerateInterpolator INTERPOLATOR = new DecelerateInterpolator();
   private final PathContextFactory contextFactory;
 
   public SimplePathContainer(int tagKey, PathContextFactory contextFactory) {
@@ -115,24 +116,32 @@ public class SimplePathContainer extends PathContainer {
         callback.onTraversalCompleted();
       }
     };
-    ViewPropertyAnimator anim;
+
+    ObjectGraph graph = ObjectGraphService.getObjectGraph(container.getContext());
+    DpCalculator calc = graph.get(DpCalculator.class);
+    int dp48 = calc.dp(48);
+    AnimatorSet set = new AnimatorSet();
     if (Flow.Direction.BACKWARD == direction) {
       from.bringToFront();
-      anim = from.animate()
-              .alpha(0)
-              .translationX(from.getWidth());
 
 
+      set.playTogether(
+              ObjectAnimator.ofFloat(from, "alpha", 1.0f, 0.0f),
+              ObjectAnimator.ofFloat(from, "translationX", 0, dp48));
     } else {
-      to.setTranslationX(to.getWidth());
-      anim = to.animate()
-              .alpha(1)
-              .translationX(0);
+//      to.setTranslationX(dp48);
+//      to.setAlpha(0f);
+      set.playTogether(
+              ObjectAnimator.ofFloat(to, "alpha", 0.0f, 1.0f),
+              ObjectAnimator.ofFloat(to, "translationX",  dp48, 0));
     }
 
-    anim.setDuration(ANIM_DURATION)
-            .setInterpolator(INTERPOLATOR)
-            .setListener(listener);
+    set.setInterpolator(new DecelerateInterpolator(1.5f));
+    set.setDuration(200);
+    set.addListener(listener);
+    set.start();
+
+
   }
 
 }

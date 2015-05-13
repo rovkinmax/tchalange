@@ -68,6 +68,14 @@ public class RxDownloadManager {
         return Log.d("RxDownloadManager", msg);
     }
 
+
+    public Observable<TdApi.FileLocal> download(final TdApi.File f){
+        if (f instanceof TdApi.FileEmpty) {
+            return download(((TdApi.FileEmpty) f));
+        } else {
+            return Observable.just(((TdApi.FileLocal) f));
+        }
+    }
     public Observable<TdApi.FileLocal> download(final TdApi.FileEmpty file) {
         int id = file.id;
         return download(id);

@@ -20,7 +20,7 @@ import ru.korniltsev.telegram.utils.R;
  * Created by korniltsev on 22/04/15.
  */
 public class ToolbarUtils {
-    final Toolbar toolbar;
+    public final Toolbar toolbar;
     final Context ctx;
     @Nullable private View customView;
 
@@ -112,4 +112,8 @@ public class ToolbarUtils {
     public View getCustomView() {
         return customView;
     }
+
+
+
+
 }

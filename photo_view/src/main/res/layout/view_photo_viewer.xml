@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ru.korniltsev.telegram.photoview.PhotoViewerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000"
+        >
+
+    <uk.co.senab.photoview.PhotoView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+    <android.support.v7.widget.Toolbar
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:theme="@style/ToolBarStyle"
+            android:background="@null"
+            />
+</ru.korniltsev.telegram.photoview.PhotoViewerView>

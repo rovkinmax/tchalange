@@ -2,20 +2,31 @@ package ru.korniltsev.telegram.chat.adapter;
 
 import android.view.View;
 import android.widget.TextView;
+import flow.Flow;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import ru.korniltsev.telegram.photoview.PhotoViewer;
 
 public class ChatPhotoChangedVH extends RealBaseVH {
 
     private final TextView text;
     private final AvatarView image;
 
-    public ChatPhotoChangedVH(View itemView, Adapter adapter) {
+    public ChatPhotoChangedVH(View itemView, final Adapter adapter) {
         super(itemView, adapter);
         text = ((TextView) itemView.findViewById(R.id.text));
         image = ((AvatarView) itemView.findViewById(R.id.image));
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RxChat.MessageItem item = (RxChat.MessageItem) adapter.getItem(getPosition());
+                TdApi.MessageChatChangePhoto change = (TdApi.MessageChatChangePhoto) item.msg.message;
+                Flow.get(v.getContext())
+                        .set(new PhotoViewer(change.photo));
+            }
+        });
     }
 
     @Override

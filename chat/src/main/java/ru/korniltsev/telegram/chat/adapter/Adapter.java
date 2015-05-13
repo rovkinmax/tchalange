@@ -187,7 +187,7 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
 //    public void updateMessageId(TdApi.UpdateMessageId upd) {
 //        List<TdApi.Message> ts = getTs();
 //        for (int i = 0; i < ts.size(); i++) {
-//            TdApi.Message message = ts.get(i);
+//            TdApi.Message message = ts.findSmallestBiggerThan(i);
 //            if (message.id == upd.oldId) {
 //                message.id = upd.newId;
 //                notifyItemChanged(i);

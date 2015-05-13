@@ -250,6 +250,39 @@ public class RxChat implements UserHolder {
         return newIdToUpdate.get(newId);
     }
 
+    public Observable<TdApi.TLObject> deleteMessage(final int messageId) {
+        return client.sendCachedRXUI(new TdApi.DeleteMessages(id, new int[]{messageId}))
+                .map(new Func1<TdApi.TLObject, TdApi.TLObject>() {
+                    @Override
+                    public TdApi.TLObject call(TdApi.TLObject tlObject) {
+                        checkMainThread();
+                        deleteMessageImpl(messageId);
+                        return tlObject;
+                    }
+                });
+    }
+
+    private void deleteMessageImpl(int messageId) {
+        for (TdApi.Message message : messages) {
+            if (message.id == messageId) {
+                messages.remove(message);
+                break;
+            }
+        }
+
+        for (int i = 0; i < chatListItems.size(); i++) {
+            ChatListItem chatListItem = chatListItems.get(i);
+            if (chatListItem instanceof MessageItem) {
+                TdApi.Message msg = ((MessageItem) chatListItem).msg;
+                if (msg.id == messageId) {
+                    chatListItems.remove(i);
+                    break;//todo delete day separator too
+                }
+            }
+        }
+        subject.onNext(chatListItems);
+    }
+
     public static abstract class ChatListItem {
 
     }

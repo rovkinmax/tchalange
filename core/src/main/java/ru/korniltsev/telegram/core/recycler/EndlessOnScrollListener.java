@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 
 public class EndlessOnScrollListener extends RecyclerView.OnScrollListener {
     public static final int DO_NOT_WAIT_FOR_FULL_SCROLL = 5;
-    final boolean waitForLastItem = true;
     final LinearLayoutManager lm;
     final RecyclerView.Adapter a;
     final Runnable run;
