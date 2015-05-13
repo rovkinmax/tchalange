@@ -1,5 +1,6 @@
 package ru.korniltsev.telegram.core.recycler;
 
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 

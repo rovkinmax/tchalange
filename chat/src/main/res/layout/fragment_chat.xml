@@ -7,14 +7,28 @@
         >
 
     <include layout="@layout/toolbar"/>
-
-    <android.support.v7.widget.RecyclerView
-            android:id="@+id/list"
-            android:scrollbars="vertical"
+    <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            />
+            >
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/list"
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+
+        <View
+                android:id="@+id/scroll_down"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="bottom|right"
+                android:layout_margin="8dp"
+                android:background="@drawable/ic_scroll"
+                />
+    </FrameLayout>
+
 
     <include layout="@layout/message_panel"/>
 

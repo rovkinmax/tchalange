@@ -29,6 +29,7 @@ import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatView extends LinearLayout {
+    public static final int SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT = 10;
     @Inject Presenter presenter;
     @Inject RxGlide picasso;
 
@@ -49,6 +50,7 @@ public class ChatView extends LinearLayout {
             presenter.listScrolledToEnd();
         }
     };
+    private View btnScrollDown;
 
     public ChatView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -71,19 +73,43 @@ public class ChatView extends LinearLayout {
         toolbarSubtitle = ((TextView) customView.findViewById(R.id.subtitle));
         list = (RecyclerView) findViewById(R.id.list);
         messagePanel = (MessagePanel) findViewById(R.id.message_panel);
+        btnScrollDown = findViewById(R.id.scroll_down);
         messagePanel.setListener(presenter);
 
         layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
         adapter = new Adapter(getContext(), picasso);
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
+        btnScrollDown.setVisibility(View.INVISIBLE);
         list.setOnScrollListener(
                 new EndlessOnScrollListener(layout, adapter, /*waitForLastItem*/ true, new Runnable() {
                     @Override
                     public void run() {
                         presenter.listScrolledToEnd();
                     }
-                }));
+                }){
+                    @Override
+                    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                        super.onScrolled(recyclerView, dx, dy);
+                        updateBtnScrollDown();
+                    }
+                });
+
+        btnScrollDown.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layout.scrollToPosition(0);
+                btnScrollDown.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    private void updateBtnScrollDown() {
+        if (layout.findFirstVisibleItemPosition() >= SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT){
+            btnScrollDown.setVisibility(View.VISIBLE);
+        } else {
+            btnScrollDown.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
