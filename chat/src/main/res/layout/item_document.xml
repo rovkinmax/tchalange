@@ -12,7 +12,7 @@
             android:id="@+id/document_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/item_content"
+            style="@style/item_content_with_margins"
             >
         <FrameLayout
                 android:id="@+id/thumb_and_btn_root"

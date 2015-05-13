@@ -11,6 +11,6 @@
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/item_content"
+            style="@style/item_content_with_margins"
             />
 </RelativeLayout>

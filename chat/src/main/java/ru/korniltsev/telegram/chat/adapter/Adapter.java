@@ -27,6 +27,8 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
     public static final int VIEW_TYPE_CHAT_PHOTO_CHANGED = 7;
     public static final int VIEW_TYPE_DOCUMENT = 8;
     public static final int VIEW_TYPE_DAY_SEPARATOR = 9;
+    public static final int VIEW_TYPE_TEXT_FORWARD = 10;
+    public static final int VIEW_TYPE_TEXT_FORWARD2 = 11;
 
 //    final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxGlide picasso;
@@ -60,7 +62,8 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
     public int getItemViewType(int position) {
         RxChat.ChatListItem item = getItem(position);
         if (item instanceof RxChat.MessageItem){
-            TdApi.MessageContent message = ((RxChat.MessageItem) item).msg.message;
+            RxChat.MessageItem rawMsg = (RxChat.MessageItem) item;
+            TdApi.MessageContent message = rawMsg.msg.message;
             if (message instanceof TdApi.MessagePhoto) {
                 return VIEW_TYPE_PHOTO;
             } else if (message instanceof TdApi.MessageSticker) {
@@ -72,7 +75,26 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
             } else if (message instanceof TdApi.MessageVideo) {
                 return VIEW_TYPE_VIDEO;
             } else if (message instanceof TdApi.MessageText) {
-                return VIEW_TYPE_TEXT;
+                if (rawMsg.msg.forwardFromId == 0){
+                    return VIEW_TYPE_TEXT;
+                } else {
+                    if (position == getItemCount() -1){
+                        return VIEW_TYPE_TEXT_FORWARD;
+                    }
+                    RxChat.ChatListItem nextItem = getItem(position + 1);
+                    if (!(nextItem instanceof RxChat.MessageItem)){
+                        return VIEW_TYPE_TEXT_FORWARD;
+                    }
+                    TdApi.Message nextMessage = ((RxChat.MessageItem) nextItem).msg;
+                    if (nextMessage.message instanceof TdApi.MessageText){
+                        if (nextMessage.fromId == rawMsg.msg.fromId
+                                && nextMessage.forwardFromId != 0
+                                && nextMessage.date == rawMsg.msg.date) {
+                            return VIEW_TYPE_TEXT_FORWARD2;
+                        }
+                    }
+                    return VIEW_TYPE_TEXT_FORWARD;
+                }
             } else if (message instanceof TdApi.MessageChatChangePhoto){
                 return VIEW_TYPE_CHAT_PHOTO_CHANGED;
             } else if (message instanceof TdApi.MessageDocument){
@@ -117,6 +139,14 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
             case VIEW_TYPE_TEXT: {
                 View view = inflate(R.layout.item_message, p);
                 return new TextMessageVH(view, this);
+            }
+            case VIEW_TYPE_TEXT_FORWARD: {
+                View view = inflate(R.layout.item_message_forward, p);
+                return new ForwardedTextMessageVH(view, this);
+            }
+            case VIEW_TYPE_TEXT_FORWARD2: {
+                View view = inflate(R.layout.item_message_forward2, p);
+                return new ForwardedTextMessage2VH(view, this);
             }
             case VIEW_TYPE_CHAT_PHOTO_CHANGED: {
                 View view = inflate(R.layout.item_chat_photo_changed, p);

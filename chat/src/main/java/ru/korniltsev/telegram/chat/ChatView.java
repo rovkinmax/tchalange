@@ -99,6 +99,7 @@ public class ChatView extends LinearLayout {
             @Override
             public void onClick(View v) {
                 layout.scrollToPosition(0);
+                list.stopScroll();
                 btnScrollDown.setVisibility(View.INVISIBLE);
             }
         });

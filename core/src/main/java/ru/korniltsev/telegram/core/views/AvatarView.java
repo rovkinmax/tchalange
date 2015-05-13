@@ -17,6 +17,8 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.utils.R;
 
+import static junit.framework.Assert.assertNotNull;
+
 public class AvatarView extends ImageView {
 
     private final int spec;
@@ -48,6 +50,7 @@ public class AvatarView extends ImageView {
      * @param o can be TdApi.User or TdApi.Chat
      */
     public void loadAvatarFor(TdApi.TLObject o) {
+        assertNotNull(o);
         setImageBitmap(null);
         if (o instanceof TdApi.User) {
             picasso2.loadAvatarForUser((TdApi.User) o, size)

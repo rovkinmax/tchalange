@@ -11,7 +11,7 @@
             android:id="@+id/video"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/item_content"
+            style="@style/item_content_with_margins"
             >
         <ImageView
                 android:id="@+id/preview"
