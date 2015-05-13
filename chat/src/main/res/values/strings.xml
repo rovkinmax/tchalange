@@ -28,5 +28,6 @@
     <string name="message_renamed_group">%1$s renamed group "%2$s"</string>
     <string name="message_ivited">%1$s invited "%2$s"</string>
     <string name="message_kicked">%1$s kicked "%2$s"</string>
+    <string name="empty_chat">No messages here yet...</string>
 
 </resources>

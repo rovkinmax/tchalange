@@ -51,6 +51,7 @@ public class ChatView extends LinearLayout {
         }
     };
     private View btnScrollDown;
+    private View emptyView;
 
     public ChatView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -87,7 +88,7 @@ public class ChatView extends LinearLayout {
                     public void run() {
                         presenter.listScrolledToEnd();
                     }
-                }){
+                }) {
                     @Override
                     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                         super.onScrolled(recyclerView, dx, dy);
@@ -101,6 +102,22 @@ public class ChatView extends LinearLayout {
                 layout.scrollToPosition(0);
                 list.stopScroll();
                 btnScrollDown.setVisibility(View.INVISIBLE);
+            }
+        });
+        emptyView = findViewById(R.id.empty_view);
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                if (adapter.getItemCount() == 0){
+                    if (emptyView.getVisibility() == INVISIBLE){
+                        emptyView.setVisibility(View.VISIBLE);
+                        emptyView.setAlpha(0f);
+                        emptyView.animate()
+                                .alpha(1);
+                    }
+                } else {
+                    emptyView.setVisibility(View.INVISIBLE);
+                }
             }
         });
     }
