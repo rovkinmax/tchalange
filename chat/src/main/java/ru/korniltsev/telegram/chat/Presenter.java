@@ -95,9 +95,9 @@ public class Presenter extends ViewPresenter<ChatView>
         //todo show progressBar
         subscription.add(
                 rxChat.messageList()
-                        .subscribe(new Action1<List<TdApi.Message>>() {
+                        .subscribe(new Action1<List<RxChat.ChatListItem>>() {
                             @Override
-                            public void call(List<TdApi.Message> messages) {
+                            public void call(List<RxChat.ChatListItem> messages) {
                                 getView()
                                         .getAdapter()
                                         .setData(messages);
@@ -106,11 +106,10 @@ public class Presenter extends ViewPresenter<ChatView>
 
         subscription.add(
                 rxChat.newMessage()
-                        .subscribe(new Action1<TdApi.Message>() {
+                        .subscribe(new Action1<List<RxChat.ChatListItem>>() {
                                        @Override
-                                       public void call(TdApi.Message message) {
-                                           getView()
-                                                   .addNewMessage(message);
+                                       public void call(List<RxChat.ChatListItem> chatListItems) {
+                                           getView().addNewMessage(chatListItems);
                                        }
                                    }
                         ));
@@ -137,10 +136,7 @@ public class Presenter extends ViewPresenter<ChatView>
     }
 
     public void requestNewPortion() {
-        TdApi.Message lastMessage = getView()
-                .getAdapter()
-                .getLast();
-        rxChat.request2(lastMessage, null);
+        rxChat.requestNewPotion();
     }
 
     public void listScrolledToEnd() {

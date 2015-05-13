@@ -4,6 +4,7 @@ import android.view.View;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.chat.adapter.view.PhotoMessageView;
+import ru.korniltsev.telegram.core.rx.RxChat;
 
 class PhotoMessageVH extends BaseAvatarVH {
     private final PhotoMessageView image;
@@ -15,10 +16,10 @@ class PhotoMessageVH extends BaseAvatarVH {
     }
 
     @Override
-    public void bind(TdApi.Message item) {
+    public void bind(RxChat.ChatListItem item) {
         super.bind(item);
-
-        TdApi.MessagePhoto photo = (TdApi.MessagePhoto) item.message;
+        TdApi.Message msg = ((RxChat.MessageItem) item).msg;
+        TdApi.MessagePhoto photo = (TdApi.MessagePhoto) msg.message;
         image.load(photo);
     }
 }

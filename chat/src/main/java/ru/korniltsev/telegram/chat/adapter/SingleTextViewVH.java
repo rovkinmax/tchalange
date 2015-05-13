@@ -6,6 +6,7 @@ import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.Utils;
+import ru.korniltsev.telegram.core.rx.RxChat;
 
 //something we can draw as a single textView
 
@@ -30,20 +31,21 @@ public class SingleTextViewVH extends RealBaseVH {
     }
 
     @Override
-    public void bind(TdApi.Message item) {
-        TdApi.MessageContent msg = item.message;
+    public void bind(RxChat.ChatListItem item) {
+        TdApi.Message msgRaw = ((RxChat.MessageItem) item).msg;
+        TdApi.MessageContent msg = msgRaw.message;
         if (msg instanceof TdApi.MessageChatChangeTitle) {
-            bindChatChangedTitle(item);
+            bindChatChangedTitle(msgRaw);
         } else if (msg instanceof TdApi.MessageGroupChatCreate) {
-            bindChatCreated(item);
+            bindChatCreated(msgRaw);
         } else if (msg instanceof TdApi.MessageChatDeleteParticipant) {
-            bindChatDeleteParticipant(item);
+            bindChatDeleteParticipant(msgRaw);
         } else if (msg instanceof TdApi.MessageChatAddParticipant) {
-            bindChatAddParticipant(item);
+            bindChatAddParticipant(msgRaw);
         } else if (msg instanceof TdApi.MessageDeleted){
             bindDeleteMessage();
         }  else if (msg instanceof TdApi.MessageChatDeletePhoto) {
-            bindChatDeletePhoto(item);
+            bindChatDeletePhoto(msgRaw);
         } else {
             bindUnsupported();
         }

@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.Utils;
+import ru.korniltsev.telegram.core.rx.RxChat;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -14,7 +15,7 @@ public abstract class RealBaseVH extends RecyclerView.ViewHolder {
         this.adapter = adapter;
     }
 
-    public abstract void bind(TdApi.Message item);
+    public abstract void bind(RxChat.ChatListItem item);
 
     public String getNameForSenderOf(TdApi.Message item) {
         int fromId = item.fromId;

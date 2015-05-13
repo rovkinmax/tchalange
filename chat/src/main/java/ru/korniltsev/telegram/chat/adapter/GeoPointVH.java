@@ -4,6 +4,7 @@ import android.view.View;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.chat.adapter.view.GeoPointView;
+import ru.korniltsev.telegram.core.rx.RxChat;
 
 public class GeoPointVH extends BaseAvatarVH {
 
@@ -15,8 +16,9 @@ public class GeoPointVH extends BaseAvatarVH {
     }
 
     @Override
-    public void bind(TdApi.Message item) {
+    public void bind(RxChat.ChatListItem item) {
         super.bind(item);
-        map.set((TdApi.MessageGeoPoint) item.message);
+        TdApi.Message msg = ((RxChat.MessageItem) item).msg;
+        map.set((TdApi.MessageGeoPoint) msg.message);
     }
 }

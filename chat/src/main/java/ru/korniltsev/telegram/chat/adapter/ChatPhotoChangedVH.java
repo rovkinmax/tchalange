@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
+import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
 public class ChatPhotoChangedVH extends RealBaseVH {
@@ -18,11 +19,12 @@ public class ChatPhotoChangedVH extends RealBaseVH {
     }
 
     @Override
-    public void bind(TdApi.Message item) {
-        String userName = getNameForSenderOf(item);
+    public void bind(RxChat.ChatListItem item) {
+        TdApi.Message msg = ((RxChat.MessageItem) item).msg;
+        String userName = getNameForSenderOf(msg);
         String text =  this.text.getResources().getString(R.string.message_changed_group_photo, userName);
         this.text.setText(text);
-        TdApi.MessageChatChangePhoto changed = (TdApi.MessageChatChangePhoto) item.message;
+        TdApi.MessageChatChangePhoto changed = (TdApi.MessageChatChangePhoto) msg.message;
         TdApi.PhotoSize smallSize = changed.photo.photos[0];
         for (TdApi.PhotoSize photo : changed.photo.photos) {
             if (photo.type.equals("a")){

@@ -15,7 +15,7 @@ import ru.korniltsev.telegram.core.rx.UserHolder;
 //        MessageContact extends MessageContent {
 
 //
-public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
+public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
 
     public static final int VIEW_TYPE_PHOTO = 0;
     public static final int VIEW_TYPE_TEXT = 1;
@@ -26,6 +26,7 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
     public static final int VIEW_TYPE_SINGLE_TEXT_VIEW = 6;
     public static final int VIEW_TYPE_CHAT_PHOTO_CHANGED = 7;
     public static final int VIEW_TYPE_DOCUMENT = 8;
+    public static final int VIEW_TYPE_DAY_SEPARATOR = 9;
 
 //    final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxGlide picasso;
@@ -40,36 +41,49 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
 
     @Override
     public long getItemId(int position) {
-        TdApi.Message item = getItem(position);
-        TdApi.UpdateMessageId upd = chat.get(item.id);
-        if (upd != null) {
-            return upd.oldId;
+        RxChat.ChatListItem item = getItem(position);
+        if (item instanceof RxChat.MessageItem){
+            TdApi.Message msg = ((RxChat.MessageItem) item).msg;
+            TdApi.UpdateMessageId upd = chat.get(msg.id);
+            if (upd != null) {
+                return upd.oldId;
+            }
+            return msg.id;
+        } else if (item instanceof RxChat.DaySeparatorItem) {
+            return ((RxChat.DaySeparatorItem) item).id;
+        } else {
+            throw new IllegalArgumentException();
         }
-        return item.id;
     }
 
     @Override
     public int getItemViewType(int position) {
-        TdApi.MessageContent message = getItem(position).message;
-        if (message instanceof TdApi.MessagePhoto) {
-            return VIEW_TYPE_PHOTO;
-        } else if (message instanceof TdApi.MessageSticker) {
-            return VIEW_TYPE_STICKER;
-        } else if (message instanceof TdApi.MessageAudio) {
-            return VIEW_TYPE_AUDIO;
-        } else if (message instanceof TdApi.MessageGeoPoint) {
-            return VIEW_TYPE_GEO;
-        } else if (message instanceof TdApi.MessageVideo) {
-            return VIEW_TYPE_VIDEO;
-        } else if (message instanceof TdApi.MessageText) {
-            return VIEW_TYPE_TEXT;
-        } else if (message instanceof TdApi.MessageChatChangePhoto){
-            return VIEW_TYPE_CHAT_PHOTO_CHANGED;
-        } else if (message instanceof TdApi.MessageDocument){
-            return VIEW_TYPE_DOCUMENT;
-        }else{
-            return VIEW_TYPE_SINGLE_TEXT_VIEW;
+        RxChat.ChatListItem item = getItem(position);
+        if (item instanceof RxChat.MessageItem){
+            TdApi.MessageContent message = ((RxChat.MessageItem) item).msg.message;
+            if (message instanceof TdApi.MessagePhoto) {
+                return VIEW_TYPE_PHOTO;
+            } else if (message instanceof TdApi.MessageSticker) {
+                return VIEW_TYPE_STICKER;
+            } else if (message instanceof TdApi.MessageAudio) {
+                return VIEW_TYPE_AUDIO;
+            } else if (message instanceof TdApi.MessageGeoPoint) {
+                return VIEW_TYPE_GEO;
+            } else if (message instanceof TdApi.MessageVideo) {
+                return VIEW_TYPE_VIDEO;
+            } else if (message instanceof TdApi.MessageText) {
+                return VIEW_TYPE_TEXT;
+            } else if (message instanceof TdApi.MessageChatChangePhoto){
+                return VIEW_TYPE_CHAT_PHOTO_CHANGED;
+            } else if (message instanceof TdApi.MessageDocument){
+                return VIEW_TYPE_DOCUMENT;
+            }else{
+                return VIEW_TYPE_SINGLE_TEXT_VIEW;
+            }
+        } else {
+            return VIEW_TYPE_DAY_SEPARATOR;
         }
+
     }
 
     private View inflate(int id, ViewGroup parent) {
@@ -112,6 +126,10 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
                 View view = inflate(R.layout.item_document, p);
                 return new DocumentVH(view, this);
             }
+            case VIEW_TYPE_DAY_SEPARATOR:{
+                View view = inflate(R.layout.item_day_separator, p);
+                return new DaySeparatorVH(view, this);
+            }
             default: {
                 View view = inflate(R.layout.item_single_text_view, p);
                 return new SingleTextViewVH(view, this);
@@ -121,8 +139,9 @@ public class Adapter extends BaseAdapter<TdApi.Message, RealBaseVH> {
 
     @Override
     public void onBindViewHolder(RealBaseVH holder, int position) {
-        TdApi.Message item = getItem(position);
-        holder.bind(item);
+        RxChat.ChatListItem item1 = getItem(position);
+//        TdApi.Message item = (TdApi.Message) item1;
+        holder.bind(item1);
     }
 
 //    public void addHistory(Portion ms) {

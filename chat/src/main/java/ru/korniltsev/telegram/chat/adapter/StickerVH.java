@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
+import ru.korniltsev.telegram.core.rx.RxChat;
 
 class StickerVH extends BaseAvatarVH {
     private Adapter adapter;
@@ -15,9 +16,10 @@ class StickerVH extends BaseAvatarVH {
     }
 
     @Override
-    public void bind(TdApi.Message item) {
+    public void bind(RxChat.ChatListItem item) {
         super.bind(item);
-        TdApi.MessageSticker sticker = (TdApi.MessageSticker) item.message;
+        TdApi.Message msg = ((RxChat.MessageItem) item).msg;
+        TdApi.MessageSticker sticker = (TdApi.MessageSticker) msg.message;
         //todo thumb
         adapter.picasso.loadPhoto(sticker.sticker.sticker, true)
                 .into(image);

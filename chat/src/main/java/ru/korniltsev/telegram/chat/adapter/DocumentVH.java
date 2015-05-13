@@ -4,6 +4,7 @@ import android.view.View;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.chat.adapter.view.DocumentView;
+import ru.korniltsev.telegram.core.rx.RxChat;
 
 public class DocumentVH extends BaseAvatarVH {
 
@@ -15,9 +16,10 @@ public class DocumentVH extends BaseAvatarVH {
     }
 
     @Override
-    public void bind(TdApi.Message item) {
+    public void bind(RxChat.ChatListItem item) {
         super.bind(item);
-        TdApi.MessageDocument message = (TdApi.MessageDocument) item.message;
+        TdApi.Message msg = ((RxChat.MessageItem) item).msg;
+        TdApi.MessageDocument message = (TdApi.MessageDocument) msg.message;
         documentView.set(message.document);
     }
 }

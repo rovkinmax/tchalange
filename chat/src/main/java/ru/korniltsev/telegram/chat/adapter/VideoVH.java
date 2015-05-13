@@ -4,6 +4,7 @@ import android.view.View;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.chat.adapter.view.VideoView;
+import ru.korniltsev.telegram.core.rx.RxChat;
 
 public class VideoVH extends BaseAvatarVH {
     private final VideoView video;
@@ -25,9 +26,11 @@ public class VideoVH extends BaseAvatarVH {
     }
 
     @Override
-    public void bind(TdApi.Message item) {
+    public void bind(RxChat.ChatListItem item) {
         super.bind(item);
-        TdApi.MessageVideo msg = (TdApi.MessageVideo) item.message;
+        TdApi.Message rawMsg = ((RxChat.MessageItem) item).msg;
+
+        TdApi.MessageVideo msg = (TdApi.MessageVideo) rawMsg .message;
         video.set(msg.video);
 
 

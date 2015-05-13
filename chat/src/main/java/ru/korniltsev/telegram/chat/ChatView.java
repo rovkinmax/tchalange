@@ -21,8 +21,10 @@ import ru.korniltsev.telegram.core.views.AvatarView;
 
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
@@ -159,11 +161,13 @@ public class ChatView extends LinearLayout {
         CheckRecyclerViewSpan.check(list, viewSpanNotFilledAction);
     }
 
-    public void addNewMessage(TdApi.Message message) {
+    public void addNewMessage(List<RxChat.ChatListItem> message) {
         boolean scrollDown = layout.findFirstCompletelyVisibleItemPosition() == 0;
         adapter.addFirst(message);
         if (scrollDown){
             layout.scrollToPosition(0);
         }
     }
+
+
 }

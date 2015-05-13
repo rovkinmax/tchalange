@@ -12,7 +12,6 @@ import org.telegram.android.DpCalculator;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
 import rx.subjects.PublishSubject;
 
 import javax.inject.Inject;
@@ -30,12 +29,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 @Singleton
 public class ChatDB implements UserHolder {
 
-    public static final Func2<List<TdApi.User>, List<TdApi.Message>, Portion> ZIPPER = new Func2<List<TdApi.User>, List<TdApi.Message>, Portion>() {
-        @Override
-        public Portion call(List<TdApi.User> users, List<TdApi.Message> messages) {
-            return new Portion(messages, users);
-        }
-    };
+
 
     private final int chatLimit;
     private final int messageLimit;
@@ -118,7 +112,7 @@ public class ChatDB implements UserHolder {
                 .subscribe(new Action1<TdApi.UpdateMessageContent>() {
                     @Override
                     public void call(TdApi.UpdateMessageContent updateMessageContent) {
-                        updateChatMessageList(updateMessageContent.chatId, false);
+                        updateChatMessageList(updateMessageContent.chatId);
                         updateCurrentChatList();
                     }
                 });
@@ -130,7 +124,7 @@ public class ChatDB implements UserHolder {
                 .subscribe(new Action1<TdApi.UpdateChatReadOutbox>() {
                     @Override
                     public void call(TdApi.UpdateChatReadOutbox updateChatReadInbox) {
-                        updateChatMessageList(updateChatReadInbox.chatId, false);
+                        updateChatMessageList(updateChatReadInbox.chatId);
                         updateCurrentChatList();
                     }
                 });
@@ -142,7 +136,7 @@ public class ChatDB implements UserHolder {
                 .subscribe(new Action1<TdApi.UpdateChatReadInbox>() {
                     @Override
                     public void call(TdApi.UpdateChatReadInbox updateChatReadInbox) {
-                        updateChatMessageList(updateChatReadInbox.chatId, false);
+                        updateChatMessageList(updateChatReadInbox.chatId);
                         updateCurrentChatList();
                     }
                 });
@@ -154,7 +148,7 @@ public class ChatDB implements UserHolder {
                 .subscribe(new Action1<TdApi.UpdateMessageDate>() {
                     @Override
                     public void call(TdApi.UpdateMessageDate updateMessageDate) {
-                        updateChatMessageList(updateMessageDate.chatId, false);
+                        updateChatMessageList(updateMessageDate.chatId);
                         updateCurrentChatList();
                     }
                 });
@@ -168,7 +162,7 @@ public class ChatDB implements UserHolder {
                     public void call(TdApi.UpdateMessageId updateMessageId) {
                         getRxChat(updateMessageId.chatId)
                                 .updateMessageId(updateMessageId);
-                        updateChatMessageList(updateMessageId.chatId, false);
+                        updateChatMessageList(updateMessageId.chatId);
                         updateCurrentChatList();
                     }
                 });
@@ -180,7 +174,7 @@ public class ChatDB implements UserHolder {
                 .subscribe(new Action1<TdApi.UpdateDeleteMessages>() {
                     @Override
                     public void call(TdApi.UpdateDeleteMessages messages) {
-                        updateChatMessageList(messages.chatId, false);
+                        updateChatMessageList(messages.chatId);
                         updateCurrentChatList();
                     }
                 });
@@ -199,9 +193,9 @@ public class ChatDB implements UserHolder {
                 });
     }
 
-    private void updateChatMessageList(long id, boolean newMessage){
+    private void updateChatMessageList(long id){
         getRxChat(id)
-                .updateCurrentMessageList(newMessage);
+                .updateCurrentMessageList();
     }
 
 
@@ -310,10 +304,12 @@ public class ChatDB implements UserHolder {
 
     public static class Portion {
         public final List<TdApi.Message> ms;
+        public final List<RxChat.ChatListItem> items;
         public final SparseArray<TdApi.User> us;
 
-        public Portion(List<TdApi.Message> ms, List<TdApi.User> us) {
+        public Portion(List<TdApi.Message> ms, List<TdApi.User> us, List<RxChat.ChatListItem> items) {
             this.ms = ms;
+            this.items = items;
             this.us = new SparseArray<>();
             for (TdApi.User u : us) {
                 this.us.put(u.id, u);
