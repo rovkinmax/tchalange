@@ -71,7 +71,7 @@ public class ChatListView extends DrawerLayout {
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
         list.setOnScrollListener(
-                new EndlessOnScrollListener(layout, adapter, /*waitForLastItem*/true, new Runnable() {
+                new EndlessOnScrollListener(layout, adapter, /*waitForLastItem*/ new Runnable() {
                     @Override
                     public void run() {
                         presenter.listScrolledToEnd();

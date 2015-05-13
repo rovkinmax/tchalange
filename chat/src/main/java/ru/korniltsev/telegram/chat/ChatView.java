@@ -82,7 +82,7 @@ public class ChatView extends LinearLayout {
         list.setAdapter(adapter);
         btnScrollDown.setVisibility(View.INVISIBLE);
         list.setOnScrollListener(
-                new EndlessOnScrollListener(layout, adapter, /*waitForLastItem*/ true, new Runnable() {
+                new EndlessOnScrollListener(layout, adapter, /*waitForLastItem*/  new Runnable() {
                     @Override
                     public void run() {
                         presenter.listScrolledToEnd();

@@ -5,29 +5,23 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 public class EndlessOnScrollListener extends RecyclerView.OnScrollListener {
-    final boolean waitForLastItem;
+    public static final int DO_NOT_WAIT_FOR_FULL_SCROLL = 5;
+    final boolean waitForLastItem = true;
     final LinearLayoutManager lm;
     final RecyclerView.Adapter a;
     final Runnable run;
 
-    public EndlessOnScrollListener(LinearLayoutManager lm, RecyclerView.Adapter a, boolean waitForLastItem, Runnable run) {
+    public EndlessOnScrollListener(LinearLayoutManager lm, RecyclerView.Adapter a, Runnable run) {
         this.lm = lm;
         this.a = a;
-        this.waitForLastItem = waitForLastItem;
         this.run = run;
     }
 
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-        if (waitForLastItem){
-            if (lm.findLastVisibleItemPosition() == a.getItemCount() - 1) {
-                run.run();
-            }
-        } else {
-            if (lm.findFirstVisibleItemPosition() == 0) {
-                run.run();
-            }
-        }
 
+        if (lm.findLastVisibleItemPosition() >= a.getItemCount() - 1 - DO_NOT_WAIT_FOR_FULL_SCROLL) {
+            run.run();
+        }
     }
 }
