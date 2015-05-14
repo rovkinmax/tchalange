@@ -6,6 +6,7 @@ import ru.korniltsev.telegram.chat.adapter.view.AudioMessageView;
 import ru.korniltsev.telegram.chat.adapter.view.DocumentView;
 import ru.korniltsev.telegram.chat.adapter.view.GeoPointView;
 import ru.korniltsev.telegram.chat.adapter.view.PhotoMessageView;
+import ru.korniltsev.telegram.chat.adapter.view.StickerView;
 import ru.korniltsev.telegram.chat.adapter.view.VideoView;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
@@ -40,6 +41,7 @@ public class Chat extends BasePath implements Serializable {
                     GeoPointView.class ,
                     VideoView.class ,
                     DocumentView.class ,
+                    StickerView.class ,
             },
             addsTo = RootModule.class)
     public static class Module {

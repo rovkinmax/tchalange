@@ -70,4 +70,9 @@ public class PhotoUtils {
         }
         throw new IllegalStateException("wtf");
     }
+
+    public static float getPhotoRation(TdApi.Photo photo) {
+        TdApi.PhotoSize size = findBiggestSize(photo);
+        return (float)size.width / size.height;
+    }
 }
