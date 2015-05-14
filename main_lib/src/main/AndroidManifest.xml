@@ -9,7 +9,9 @@
             android:name=".core.app.MyApp"
             android:theme="@style/AppTheme"
             android:hardwareAccelerated='true'>
-        <activity android:name='com.example.activity.MainActivity'>
+        <activity android:name='com.example.activity.MainActivity'
+                android:windowSoftInputMode="adjustResize"
+                >
             <intent-filter>
                 <action android:name='android.intent.action.MAIN' />
                 <category android:name='android.intent.category.LAUNCHER' />

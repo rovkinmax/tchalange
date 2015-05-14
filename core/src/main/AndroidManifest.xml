@@ -5,9 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <application >
-        <meta-data
-                android:name="ru.korniltsev.telegram.core.glide.TDGlideModule"
-                android:value="GlideModule" />
+
         <receiver android:name="ru.korniltsev.telegram.core.app.NetworkStateBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED"/>

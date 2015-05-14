@@ -2,6 +2,7 @@ package com.example.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+import dagger.ObjectGraph;
 import flow.Flow;
 import flow.FlowDelegate;
 import flow.History;
@@ -12,6 +13,7 @@ import ru.korniltsev.telegram.R;
 import ru.korniltsev.telegram.auth.phone.EnterPhoneFragment;
 import ru.korniltsev.telegram.chat_list.ChatList;
 import ru.korniltsev.telegram.core.flow.SerializableParceler;
+import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.mortar.core.MortarScreenSwitcherFrame;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import rx.Subscription;
@@ -27,6 +29,7 @@ public class MainActivity extends Activity {
 
     RXAuthState authState;
     private Subscription subscription;
+    private ActivityOwner activityOwner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +53,10 @@ public class MainActivity extends Activity {
         @SuppressWarnings("deprecation") FlowDelegate.NonConfigurationInstance nonConfig =
                 (FlowDelegate.NonConfigurationInstance) getLastNonConfigurationInstance();
 
-
-        authState = ObjectGraphService.getObjectGraph(this).get(RXAuthState.class);
+        ObjectGraph objectGraph = ObjectGraphService.getObjectGraph(this);
+        authState = objectGraph.get(RXAuthState.class);
+        activityOwner = objectGraph.get(ActivityOwner.class);
+        activityOwner.takeView(this);
         History history = History.single(getScreenForAuthState(authState.getState()));
         flow = FlowDelegate.onCreate(nonConfig, getIntent(), savedInstanceState, new SerializableParceler(),
                 history, container);
@@ -125,7 +130,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-
+        activityOwner.dropView(this);
         // activityScope may be null in case isWrongInstance() returned true in onCreate()
         if (isFinishing() && activityScope != null) {
             activityScope.destroy();

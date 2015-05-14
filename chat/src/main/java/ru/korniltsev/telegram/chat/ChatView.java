@@ -6,12 +6,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import org.telegram.android.LayoutObservableLinearLayout;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
+import ru.korniltsev.telegram.core.flow.pathview.HandlesBack;
 import ru.korniltsev.telegram.core.recycler.CheckRecyclerViewSpan;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
 import ru.korniltsev.telegram.core.rx.RxChat;
@@ -28,7 +29,7 @@ import static junit.framework.Assert.fail;
 import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
-public class ChatView extends LinearLayout {
+public class ChatView extends LayoutObservableLinearLayout implements HandlesBack{
     public static final int SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT = 10;
     @Inject Presenter presenter;
     @Inject RxGlide picasso;
@@ -213,5 +214,8 @@ public class ChatView extends LinearLayout {
         }
     }
 
-
+    @Override
+    public boolean onBackPressed() {
+        return messagePanel.dissmissEmojiPopup();
+    }
 }

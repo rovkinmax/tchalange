@@ -21,6 +21,7 @@ import dagger.Provides;
 import org.telegram.android.DpCalculator;
 import org.telegram.android.Emoji;
 import ru.korniltsev.telegram.core.audio.AudioPlayer;
+import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.rx.EmojiParser;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
@@ -44,6 +45,7 @@ import javax.inject.Singleton;
                 DpCalculator.class,
                 ChatDB.class,
                 EmojiParser.class,
+                ActivityOwner.class,
         },
         library = true)
 public class RootModule {
@@ -71,5 +73,9 @@ public class RootModule {
     DpCalculator provideDpCalc(){
         float density = ctx.getResources().getDisplayMetrics().density;
         return new DpCalculator(density);
+    }
+
+    @Provides @Singleton ActivityOwner provideActivityOwner() {
+        return new ActivityOwner();
     }
 }

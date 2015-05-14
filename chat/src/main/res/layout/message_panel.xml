@@ -28,7 +28,7 @@
             android:gravity="left|bottom"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-
+            android:imeOptions="flagNoExtractUi"
             />
 
     <ImageView

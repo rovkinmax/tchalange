@@ -5,6 +5,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.view.AudioMessageView;
 import ru.korniltsev.telegram.chat.adapter.view.DocumentView;
 import ru.korniltsev.telegram.chat.adapter.view.GeoPointView;
+import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.chat.adapter.view.PhotoMessageView;
 import ru.korniltsev.telegram.chat.adapter.view.StickerView;
 import ru.korniltsev.telegram.chat.adapter.view.VideoView;
@@ -42,6 +43,7 @@ public class Chat extends BasePath implements Serializable {
                     VideoView.class ,
                     DocumentView.class ,
                     StickerView.class ,
+                    MessagePanel.class ,
             },
             addsTo = RootModule.class)
     public static class Module {
