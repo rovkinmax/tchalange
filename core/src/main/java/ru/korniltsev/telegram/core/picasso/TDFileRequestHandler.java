@@ -65,25 +65,28 @@ public class TDFileRequestHandler extends RequestHandler {
             path = uri.getQueryParameter(FILE_PATH);
         } else {
             int id = Integer.parseInt(strId);
-            path = downloadAndGetPaht(id);//uri.getQueryParameter(FILE_PATH);
+            path = downloadAndGetPath(id);//uri.getQueryParameter(FILE_PATH);
         }
 
-//        https://code.google.com/p/webp/issues/detail?id=147
-//        WebP support for transparent files was added in Android JB-MR2 (4.2) onwards.
-        if (webp && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2){
-            return new Result(
-                    SupportBitmapFactory.decodeWebPBitmap(path),
-                    Picasso.LoadedFrom.NETWORK);
+        //        https://code.google.com/p/webp/issues/detail?id=147
+        //        WebP support for transparent files was added in Android JB-MR2 (4.2) onwards.
+        if (webp && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            Bitmap bitmap = SupportBitmapFactory.decodeWebPBitmap(path);
+            if (bitmap != null) {
+                return new Result(
+                        bitmap,
+                        Picasso.LoadedFrom.NETWORK);
+            } else {
+                //may be it is not webp
+                return new Result(new FileInputStream(path), Picasso.LoadedFrom.NETWORK);
+            }
         } else {
             return new Result(new FileInputStream(path), Picasso.LoadedFrom.NETWORK);
         }
     }
 
-    private Bitmap decodeBitmap() {
-        return null;
-    }
 
-    private String downloadAndGetPaht(int id) throws IOException {
+    private String downloadAndGetPath(int id) throws IOException {
         try {
             TdApi.FileLocal first = downloader.download(id)
                     .first()

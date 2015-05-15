@@ -25,7 +25,8 @@ public class SupportBitmapFactory {
             MappedByteBuffer map = r.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, f.length());
             return nativeDecodeBitmap(map, map.limit());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
+//            throw new RuntimeException(e);
         } finally {
             if (r != null){
                 try {
