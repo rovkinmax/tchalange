@@ -1,4 +1,4 @@
-package org.telegram.android;
+package ru.korniltsev.telegram.core.emoji;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,21 +9,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
-import ru.korniltsev.telegram.empji.R;
+import mortar.dagger1support.ObjectGraphService;
+import ru.korniltsev.telegram.utils.R;
 
-public class EmojiPopup extends PopupWindow implements LayoutObservableLinearLayout.CallBack {
-    final LayoutObservableLinearLayout rootView;
+import javax.inject.Inject;
+
+public class EmojiPopup extends PopupWindow implements ObservableLinearLayout.CallBack {
+    final ObservableLinearLayout parentView;
     private final WindowManager wm;
     private boolean keyboardVisible;
-    private DpCalculator calc;
+    @Inject  DpCalculator calc;
     private final Context ctx;
     private final SharedPreferences prefs;
+    EmojiKeyboardView view;
 
-    public EmojiPopup(View contentView, LayoutObservableLinearLayout rootView, DpCalculator calc) {
-        super(contentView);
-        this.rootView = rootView;
-        this.calc = calc;
-        ctx = contentView.getContext();
+
+
+    public EmojiPopup(EmojiKeyboardView view, ObservableLinearLayout rootView) {
+        super(view);
+        this.view = view;
+        this.parentView = rootView;
+        ObjectGraphService.inject(view.getContext(), this);
+        ctx = view.getContext();
         prefs = ctx.getSharedPreferences("EmojiPopup", Context.MODE_PRIVATE);
         rootView.setCallback(this);
 
@@ -75,15 +82,18 @@ public class EmojiPopup extends PopupWindow implements LayoutObservableLinearLay
     @Override
     public void dismiss() {
         super.dismiss();
-        rootView.setCallback(null);
-        rootView.setPadding(0,0,0,0);
+        parentView.setCallback(null);
+        parentView.setPadding(0, 0, 0, 0);
     }
 
 
-    public static EmojiPopup create(Activity ctx, LayoutObservableLinearLayout parent, DpCalculator calc) {
+    public static EmojiPopup create(Activity ctx, ObservableLinearLayout parent, EmojiKeyboardView.CallBack cb) {
         LayoutInflater viewFactory = LayoutInflater.from(ctx);
         EmojiKeyboardView view = (EmojiKeyboardView)  viewFactory.inflate(R.layout.view_emoji_keyboard, null, false);
-        EmojiPopup res = new EmojiPopup(view, parent, calc);
+        view.setCallback(cb);
+//        view.setEmoji(emoji);
+
+        EmojiPopup res = new EmojiPopup(view, parent);
 
 
 
@@ -109,7 +119,7 @@ public class EmojiPopup extends PopupWindow implements LayoutObservableLinearLay
             dismiss();
         } else {
             //if shown - update layout
-            rootView.setPadding(0, 0, 0, 0);
+            parentView.setPadding(0, 0, 0, 0);
             saveKeyboardHiehgt(keyboardHeight);
             View contentView = getContentView();
             final WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) contentView.getLayoutParams();

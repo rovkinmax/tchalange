@@ -20,7 +20,6 @@ class StickerVH extends BaseAvatarVH {
         TdApi.Message msg = ((RxChat.MessageItem) item).msg;
         TdApi.MessageSticker sticker = (TdApi.MessageSticker) msg.message;
         image.bind(sticker.sticker);
-        //todo thumb
 
     }
 }

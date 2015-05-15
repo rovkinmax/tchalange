@@ -196,24 +196,7 @@ public class RxChat implements UserHolder {
         }
     }
 
-    public void sendMessage(String text) {
 
-        TdApi.InputMessageText content = new TdApi.InputMessageText(text);
-        client.sendRx(new TdApi.SendMessage(id, content))
-                .map(new Func1<TdApi.TLObject, TdApi.Message>() {
-                    @Override
-                    public TdApi.Message call(TdApi.TLObject tlObject) {
-                        return (TdApi.Message) tlObject;
-                    }
-                })
-                .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.Message>() {
-                    @Override
-                    public void call(TdApi.Message tlObject) {
-                        handleNewMessage(tlObject);
-                    }
-                });
-    }
 
     public void handleNewMessage(TdApi.Message tlObject) {
         messages.add(0, tlObject);
@@ -281,6 +264,35 @@ public class RxChat implements UserHolder {
             }
         }
         subject.onNext(chatListItems);
+    }
+
+    public void sendSticker(String stickerFilePath) {
+        TdApi.InputMessageSticker content = new TdApi.InputMessageSticker(stickerFilePath);
+        sendMessageImpl(content);
+    }
+
+
+
+    public void sendMessage(String text) {
+        TdApi.InputMessageText content = new TdApi.InputMessageText(text);
+        sendMessageImpl(content);
+    }
+
+    private void sendMessageImpl(TdApi.InputMessageContent content) {
+        client.sendRx(new TdApi.SendMessage(id, content))
+                .map(new Func1<TdApi.TLObject, TdApi.Message>() {
+                    @Override
+                    public TdApi.Message call(TdApi.TLObject tlObject) {
+                        return (TdApi.Message) tlObject;
+                    }
+                })
+                .observeOn(mainThread())
+                .subscribe(new Action1<TdApi.Message>() {
+                    @Override
+                    public void call(TdApi.Message tlObject) {
+                        handleNewMessage(tlObject);
+                    }
+                });
     }
 
     public static abstract class ChatListItem {

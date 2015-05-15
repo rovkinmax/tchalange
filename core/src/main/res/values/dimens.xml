@@ -2,4 +2,6 @@
 <resources>
     <!--<dimen name="avatar_size">52dp</dimen>-->
     <dimen name="avatar_text_size">28dp</dimen>
+    <dimen name="emoji_size">45dp</dimen>
+    <dimen name="sticker_size">66dp</dimen>
 </resources>

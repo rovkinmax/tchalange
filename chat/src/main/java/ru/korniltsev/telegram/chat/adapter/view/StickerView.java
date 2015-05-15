@@ -7,7 +7,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
-import org.telegram.android.DpCalculator;
+import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 
 import javax.inject.Inject;
@@ -38,22 +38,42 @@ public class StickerView extends ImageView {
         float ratio = (float) s.width / s.height;
 
         width = (int) (ratio * height);
-        picasso.loadPhoto(s.thumb.photo, true)
-                .resize(width, height)
-                .priority(Picasso.Priority.HIGH)
-                .into(this, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        picasso.loadPhoto(s.sticker, true)
-                                .placeholder(getDrawable())
-                                .resize(width, height)
-                                .into(StickerView.this);
-                    }
+        if (isValidThumb(s)){
+            picasso.loadPhoto(s.thumb.photo, true)
+                    .resize(width, height)
+                    .priority(Picasso.Priority.HIGH)
+                    .into(this, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            picasso.loadPhoto(s.sticker, true)
+                                    .placeholder(getDrawable())
+                                    .resize(width, height)
+                                    .into(StickerView.this);
+                        }
 
-                    @Override
-                    public void onError() {
+                        @Override
+                        public void onError() {
 
-                    }
-                });
+                        }
+                    });
+        } else {
+            picasso.loadPhoto(s.sticker, true)
+                    .resize(width, height)
+                    .into(StickerView.this);
+
+        }
+
+    }
+
+    private boolean isValidThumb(TdApi.Sticker s) {
+        TdApi.File photo = s.thumb.photo;
+        int id;
+        if (photo instanceof TdApi.FileLocal) {
+            id = ((TdApi.FileLocal) photo).id;
+            return id != 0;
+        } else {
+            id = ((TdApi.FileEmpty) photo).id;
+        }
+        return id != 0;
     }
 }

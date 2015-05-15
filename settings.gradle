@@ -1,4 +1,7 @@
-include 'libtd', 'libwebp', 'libopus'
+include 'libtd',
+        'libwebp',
+        'libopus',
+        'libpagerslidingtabstrip2'
 include 'core'
 include 'main_lib'
 include 'provided_res'
@@ -7,5 +10,5 @@ include 'provided_res'
 include 'auth'
 include 'chats_list'
 include 'chat'
-include 'emoji'
+//include 'emoji'
 include 'photo_view'

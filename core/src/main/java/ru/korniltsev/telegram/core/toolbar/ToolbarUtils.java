@@ -41,14 +41,20 @@ public class ToolbarUtils {
     }
 
     public ToolbarUtils pop(){
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+
+        View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Flow.get(view.getContext())
                         .goBack();
             }
-        });
+        };
+        return pop(listener);
+    }
+
+    public ToolbarUtils pop(View.OnClickListener listener) {
+        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        toolbar.setNavigationOnClickListener(listener);
         return this;
     }
 

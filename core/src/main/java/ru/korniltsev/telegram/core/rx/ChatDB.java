@@ -8,7 +8,7 @@ import android.util.SparseArray;
 import android.view.WindowManager;
 import junit.framework.Assert;
 import org.drinkless.td.libcore.telegram.TdApi;
-import org.telegram.android.DpCalculator;
+import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;

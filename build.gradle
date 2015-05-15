@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.2'
+        classpath 'com.android.tools.build:gradle:1.2.3'
     }
 }
 ext {
@@ -11,17 +11,21 @@ ext {
 }
 subprojects {
 
-//    if (project.name == "libwebp"){
-//        return;
-//    }
-    apply plugin: 'idea'
-    idea {
-        module {
-            def R = new File(project.buildDir, "generated/source/r/release/")
-            sourceDirs += R
-            generatedSourceDirs += R
-        }
+    if (project.name == "libpagerslidingtabstrip") {
+        return;
     }
+//    apply plugin: 'idea'
+//    idea {
+//        module {
+//            def R = new File(project.buildDir, "generated/source/r/release/")
+//            sourceDirs += R
+//            generatedSourceDirs += R
+//        }
+//    }
+    def R = new File(project.buildDir, "generated/source/r/release/")
+//    sourceDirs += R
+//    generatedSourceDirs += R
+
     repositories {
         jcenter()
         mavenCentral()
@@ -41,6 +45,12 @@ subprojects {
                 sourceCompatibility JavaVersion.VERSION_1_7
                 targetCompatibility JavaVersion.VERSION_1_7
             }
+
+            sourceSets {
+                main {
+                    java.srcDir R
+                }
+            }
         }
     }
 //    compileSdkVersion = 22
@@ -50,7 +60,7 @@ subprojects {
     ext {
 
 
-//        support_v4 = "com.android.support:support-v4:21.0.3"
+        support_v4 = "com.android.support:support-v4:21.0.3"
         appcompat_v7 = "com.android.support:appcompat-v7:21.0.3"
         recycler_v7 = "com.android.support:recyclerview-v7:21.0.3"
         rx_java = "io.reactivex:rxjava:1.0.9"
@@ -60,6 +70,8 @@ subprojects {
         flow_path = 'com.squareup.flow:flow-path:0.10'
         mortar = 'com.squareup.mortar:mortar:0.17'
         mortar_dagger1support = 'com.squareup.mortar:dagger1support:0.17'
+
+        pager_sliding_tab_strip = 'com.astuetz:pagerslidingtabstrip:1.0.1'
 
 //        glide = 'com.github.bumptech.glide:glide:3.6.0'
 

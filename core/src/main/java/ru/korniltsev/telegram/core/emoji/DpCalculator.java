@@ -1,4 +1,7 @@
-package org.telegram.android;
+package ru.korniltsev.telegram.core.emoji;
+
+import javax.inject.Singleton;
+
 
 public class DpCalculator {
     public final float density;

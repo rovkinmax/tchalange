@@ -1,8 +1,13 @@
-apply plugin: 'com.android.library'
-
-dependencies {
-    compile project.rx_java
-
-
-}
-
+//apply plugin: 'com.android.library'
+//
+//dependencies {
+//    compile project.rx_java
+//    compile project.support_v4
+//    compile project(":libpagerslidingtabstrip2")
+//    compile project(":provided_res")
+//    compile project(":libtd")
+//
+//
+//
+//}
+//

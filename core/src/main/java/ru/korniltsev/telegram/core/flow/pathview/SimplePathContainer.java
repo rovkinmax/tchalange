@@ -23,7 +23,6 @@ import android.animation.ObjectAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.view.animation.DecelerateInterpolator;
 import dagger.ObjectGraph;
 import flow.Flow;
@@ -32,10 +31,9 @@ import flow.path.PathContainer;
 import flow.path.PathContext;
 import flow.path.PathContextFactory;
 import mortar.dagger1support.ObjectGraphService;
-import org.telegram.android.DpCalculator;
+import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.core.flow.utils.Utils;
 
-import static flow.Flow.Direction.FORWARD;
 import static flow.Flow.Direction.REPLACE;
 
 /**

@@ -6,7 +6,7 @@
  * Copyright Nikolai Kudashov, 2013.
  */
 
-package org.telegram.android;
+package ru.korniltsev.telegram.core.emoji;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -18,23 +18,22 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import java.lang.reflect.Field;
 
-public class LayoutObservableLinearLayout extends LinearLayout {
+public class ObservableLinearLayout extends LinearLayout {
 
     private final int statusBarHeight;
     private final Point displaySize = new Point();
     private Rect rect = new Rect();
     private int keyboardHeight;
-    private LayoutObservableLinearLayout.CallBack cb;
+    private ObservableLinearLayout.CallBack cb;
 
     public interface CallBack {
         void onLayout(int keyboardHeight, boolean landscape);
     }
 
-    public LayoutObservableLinearLayout(Context context, AttributeSet attrs) {
+    public ObservableLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         setWillNotDraw(false);
 

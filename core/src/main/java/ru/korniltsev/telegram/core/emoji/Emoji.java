@@ -6,7 +6,7 @@
  * Copyright Nikolai Kudashov, 2013.
  */
 
-package org.telegram.android;
+package ru.korniltsev.telegram.core.emoji;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -23,8 +23,8 @@ import android.text.style.DynamicDrawableSpan;
 import android.text.style.ImageSpan;
 import android.util.Log;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Locale;
@@ -33,6 +33,7 @@ import java.util.Locale;
 //import org.telegram.messenger.Utilities;
 //import org.telegram.messenger.ApplicationLoader;
 
+@Singleton
 public class Emoji {
     private final HashMap<Long, DrawableInfo> rects = new HashMap<>();
     private final DpCalculator dpCalculator;
@@ -195,6 +196,7 @@ public class Emoji {
 
     private final Context ctx;
 
+    @Inject
     public Emoji(Context ctx, DpCalculator dpCalculator) {
         this.ctx = ctx;
         this.dpCalculator = dpCalculator;
@@ -269,9 +271,10 @@ public class Emoji {
             Bitmap colors = BitmapFactory.decodeStream(is, null, opts);
 
             final Bitmap bitmap = compositeDrawableWithMask(colors, alpha);
+            System.gc();
             //todo do this only once
 
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File("/mnt/sdcard/foo")));
+//            bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File("/mnt/sdcard/foo")));
 
 
             new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -325,6 +328,7 @@ public class Emoji {
             }
             destBitmap.setPixels(pixels, 0, width, 0, y, width, 1);
         }
+
 
         return destBitmap;//new BitmapDrawable(resources, destBitmap);
     }
@@ -553,5 +557,18 @@ public class Emoji {
 //                return size;
 //            }
 //        }
+    }
+
+    public String toString(long code) {
+        String str = "";
+        for (int i = 0; ; i++) {
+            if (i >= 4) {
+                return str;
+            }
+            int j = (int)(0xFFFF & code >> 16 * (3 - i));
+            if (j != 0) {
+                str = str + (char)j;
+            }
+        }
     }
 }

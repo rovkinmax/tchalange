@@ -7,9 +7,10 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
+import flow.Flow;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
-import org.telegram.android.LayoutObservableLinearLayout;
+import ru.korniltsev.telegram.core.emoji.ObservableLinearLayout;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.flow.pathview.HandlesBack;
@@ -29,7 +30,7 @@ import static junit.framework.Assert.fail;
 import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
-public class ChatView extends LayoutObservableLinearLayout implements HandlesBack{
+public class ChatView extends ObservableLinearLayout implements HandlesBack{
     public static final int SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT = 10;
     @Inject Presenter presenter;
     @Inject RxGlide picasso;
@@ -64,7 +65,15 @@ public class ChatView extends LayoutObservableLinearLayout implements HandlesBac
     protected void onFinishInflate() {
         super.onFinishInflate();
         toolbar = initToolbar(this)
-                .pop()
+                .pop(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onBackPressed();
+                        Flow.get(v)
+                                .goBack();
+
+                    }
+                })
                 .customView(R.layout.toolbar_chat_title)
                 .inflate(R.menu.chat_fragment)
                 .setMenuClickListener(presenter);
@@ -207,7 +216,17 @@ public class ChatView extends LayoutObservableLinearLayout implements HandlesBac
     }
 
     public void addNewMessage(List<RxChat.ChatListItem> message) {
-        boolean scrollDown = layout.findFirstCompletelyVisibleItemPosition() == 0;
+        boolean scrollDown;
+        int firstFullVisible = layout.findFirstCompletelyVisibleItemPosition();
+        if (firstFullVisible == 0){
+            scrollDown = true;
+        } else {
+            if (layout.findFirstVisibleItemPosition() == 0){
+                scrollDown = true;
+            } else {
+                scrollDown = false;
+            }
+        }
         adapter.addFirst(message);
         if (scrollDown){
             layout.scrollToPosition(0);

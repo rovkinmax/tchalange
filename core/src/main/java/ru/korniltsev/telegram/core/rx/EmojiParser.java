@@ -4,8 +4,7 @@ import android.graphics.Color;
 import android.text.Spannable;
 import android.text.style.ForegroundColorSpan;
 import org.drinkless.td.libcore.telegram.TdApi;
-import org.telegram.android.Emoji;
-import ru.korniltsev.telegram.core.utils.Preconditions;
+import ru.korniltsev.telegram.core.emoji.Emoji;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

@@ -44,6 +44,7 @@ public class Chat extends BasePath implements Serializable {
                     DocumentView.class ,
                     StickerView.class ,
                     MessagePanel.class ,
+
             },
             addsTo = RootModule.class)
     public static class Module {

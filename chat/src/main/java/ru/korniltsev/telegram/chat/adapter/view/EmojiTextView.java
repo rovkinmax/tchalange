@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
-import org.telegram.android.Emoji;
+import ru.korniltsev.telegram.core.emoji.Emoji;
 
 import javax.inject.Inject;
 

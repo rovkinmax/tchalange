@@ -4,20 +4,25 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import flow.path.Path;
 import mortar.dagger1support.ObjectGraphService;
-import org.telegram.android.DpCalculator;
-import org.telegram.android.EmojiPopup;
-import org.telegram.android.LayoutObservableLinearLayout;
+import ru.korniltsev.telegram.chat.Chat;
+import ru.korniltsev.telegram.core.emoji.Emoji;
+import ru.korniltsev.telegram.core.emoji.EmojiKeyboardView;
+import ru.korniltsev.telegram.core.emoji.EmojiPopup;
+import ru.korniltsev.telegram.core.emoji.ObservableLinearLayout;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.TextWatcherAdapter;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
-import ru.korniltsev.telegram.core.rx.EmojiParser;
+import ru.korniltsev.telegram.core.rx.ChatDB;
+import ru.korniltsev.telegram.core.rx.RxChat;
 
 import javax.inject.Inject;
 
@@ -30,10 +35,30 @@ public class MessagePanel extends LinearLayout{
     private EditText input;
 
     @Inject ActivityOwner activityOwner;
-    @Inject DpCalculator calc;
+    @Inject Emoji emoji;
+    @Inject ChatDB chat;
     @Nullable private EmojiPopup emojiPopup;
     private boolean emojiPopupShowWithKeyboard;
-//    private LayoutObservableLinearLayout parent;
+    private EmojiKeyboardView.CallBack emojiKeyboardCallback = new EmojiKeyboardView.CallBack() {
+        @Override
+        public void backspaceClicked() {
+            input.dispatchKeyEvent(new KeyEvent(0, KeyEvent.KEYCODE_DEL));
+        }
+
+        @Override
+        public void emojiClicked(long code) {
+            String strEmoji = emoji.toString(code);
+            Editable text = input.getText();
+            text.append(emoji.replaceEmoji(strEmoji));
+        }
+
+        @Override
+        public void stickerCLicked(String stickerFilePath) {
+            Chat c = Chat.get(getContext());
+            RxChat rxChat = chat.getRxChat(c.chat.id);
+            rxChat.sendSticker(stickerFilePath);
+        }
+    };
 
     public MessagePanel(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -80,8 +105,8 @@ public class MessagePanel extends LinearLayout{
             @Override
             public void onClick(View v) {
 
-                LayoutObservableLinearLayout parent = getParentView();
-                emojiPopup = EmojiPopup.create(activityOwner.expose(), parent, calc);
+                ObservableLinearLayout parent = getParentView();
+                emojiPopup = EmojiPopup.create(activityOwner.expose(), parent, emojiKeyboardCallback);
                 emojiPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
                     @Override
                     public void onDismiss() {
@@ -94,13 +119,13 @@ public class MessagePanel extends LinearLayout{
         });
     }
 
-    private LayoutObservableLinearLayout getParentView() {
-        return (LayoutObservableLinearLayout) getParent();
+    private ObservableLinearLayout getParentView() {
+        return (ObservableLinearLayout) getParent();
     }
 
-    public boolean isEmojiPopupShown() {
-        return emojiPopup != null;
-    }
+//    public boolean isEmojiPopupShown() {
+//        return emojiPopup != null;
+//    }
 
     private void showAttachPopup() {
 
