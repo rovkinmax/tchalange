@@ -25,6 +25,8 @@ import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -234,6 +236,10 @@ public class Emoji {
 
 
     private void loadEmoji(final int page) {
+        File maskedFile = getMaskedFile(page);
+        if (maskedFile.exists()){
+            loadMasked(page, maskedFile);
+        }
         try {
             float scale = 1.0f;
             int imageResize = 1;
@@ -273,25 +279,43 @@ public class Emoji {
 
             final Bitmap bitmap = compositeDrawableWithMask(colors, alpha);
             System.gc();
-            //todo do this only once
+
 
 //            bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File("/mnt/sdcard/foo")));
 
+            dispatchPageLoaded(page, bitmap);
 
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    emojiBmp[page] = bitmap;
-                    synchronized (weakness){
-                        for (EmojiDrawable k: weakness.keySet()) {
-                            k.invalidateSelf();
-                        }
-                    }
-                }
-            });
+            //todo do this only once
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(maskedFile));
         } catch (Throwable x) {
             Log.e("Emoji", "Error loading emoji", x);
         }
+    }
+
+    private void dispatchPageLoaded(final int page, final Bitmap bitmap) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                emojiBmp[page] = bitmap;
+                synchronized (weakness){
+                    for (EmojiDrawable k: weakness.keySet()) {
+                        k.invalidateSelf();
+                    }
+                }
+            }
+        });
+    }
+
+    private void loadMasked(int page, File maskedFile) {
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inPreferredConfig = Bitmap.Config.RGB_565;
+        Bitmap bmp = BitmapFactory.decodeFile(maskedFile.getAbsolutePath(), opts);
+        dispatchPageLoaded(page, bmp);
+    }
+
+    private File getMaskedFile(int page) {
+        File filesDir = ctx.getFilesDir();
+        return new File(filesDir, "emoji_masked_" + page);
     }
 
     private void loadEmojiAsync(final int page) {
@@ -521,6 +545,7 @@ public class Emoji {
 
         public EmojiSpan(EmojiDrawable d) {
             super(d, DynamicDrawableSpan.ALIGN_BOTTOM);
+
 //            fontMetrics = original;
 //            if (original != null) {
 //                size = Math.abs(fontMetrics.descent) + Math.abs(fontMetrics.ascent);
