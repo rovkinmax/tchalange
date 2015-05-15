@@ -26,6 +26,7 @@ import java.util.List;
 
 public class EmojiKeyboardView extends LinearLayout {
 
+    private final RecentSmiles recent;
     private ViewPager pager;
     @Inject Emoji emoji;
     @Inject Stickers stickers;
@@ -39,6 +40,7 @@ public class EmojiKeyboardView extends LinearLayout {
 
     public EmojiKeyboardView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        recent =new RecentSmiles(context.getSharedPreferences("RecentEmoji", Context.MODE_PRIVATE));
         ObjectGraphService.inject(context, this);
         viewFactory = LayoutInflater.from(context);
     }
@@ -49,7 +51,8 @@ public class EmojiKeyboardView extends LinearLayout {
         pager = ((ViewPager) findViewById(R.id.pager));
         strip = (PagerSlidingTabStrip) findViewById(R.id.tabs_strip);
         strip.setShouldExpand(true);
-        pager.setAdapter(new Adapter(getContext()));
+        Adapter adapter = new Adapter(getContext());
+        pager.setAdapter(adapter);
         strip.setViewPager(pager);
         backspace = findViewById(R.id.backspace);
         backspace.setOnClickListener(new OnClickListener() {
@@ -58,6 +61,9 @@ public class EmojiKeyboardView extends LinearLayout {
                 callback.backspaceClicked();
             }
         });
+        if (adapter.recentIds.length==0) {
+            pager.setCurrentItem(1);
+        }
     }
 
     @Override
@@ -77,6 +83,29 @@ public class EmojiKeyboardView extends LinearLayout {
         void stickerCLicked(String stickerFilePath);
     }
 
+    public static class CallbackWrapper implements CallBack{
+        final CallBack delegate;
+
+        public CallbackWrapper(CallBack delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void backspaceClicked() {
+            delegate.backspaceClicked();
+        }
+
+        @Override
+        public void emojiClicked(long code) {
+            delegate.emojiClicked(code);
+        }
+
+        @Override
+        public void stickerCLicked(String stickerFilePath) {
+            delegate.stickerCLicked(stickerFilePath);
+        }
+    }
+
 
     class Adapter extends PagerAdapter implements PagerSlidingTabStrip.IconTabProvider{
         final int[] icons = new int[]{
@@ -91,10 +120,11 @@ public class EmojiKeyboardView extends LinearLayout {
         };
         private final LayoutInflater viewFactory;
         private Context context;
+        private long[] recentIds;
 
         public Adapter(Context context) {
             this.context = context;
-
+            recentIds = EmojiKeyboardView.this.recent.get();
             viewFactory = LayoutInflater.from(context);
         }
 
@@ -108,7 +138,18 @@ public class EmojiKeyboardView extends LinearLayout {
         @Override
         public GridView instantiateItem(ViewGroup container, int position) {
             if (position == 0){
-                return createRecent(container, position);
+                //todo cleanup
+
+                final long[] longs = recentIds;
+                GridView gridPage = createGridPage(container, position, new EmojiPageAdapter(longs), R.dimen.emoji_size);
+                gridPage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        long emojiCode = longs[position];
+                        callback.emojiClicked(emojiCode);
+                    }
+                });
+                return gridPage;
             } else if (position == getCount() -1){
                 final List<TdApi.Sticker> ss = EmojiKeyboardView.this.stickers.getStickers();
                 GridView res = createGridPage(container, position, new StickerAdapter(ss), R.dimen.sticker_size);
@@ -129,7 +170,9 @@ public class EmojiKeyboardView extends LinearLayout {
                 gridPage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        callback.emojiClicked(data[position]);
+                        long emojiCode = data[position];
+                        callback.emojiClicked(emojiCode);
+                        recent.emojiClicked(emojiCode);
                     }
                 });
                 return gridPage;

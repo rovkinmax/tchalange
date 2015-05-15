@@ -13,8 +13,11 @@ import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.utils.R;
 
 import javax.inject.Inject;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class EmojiPopup extends PopupWindow implements ObservableLinearLayout.CallBack {
+    public static final String PREF_RECENT_SMILES = "recent_smiles";
     final ObservableLinearLayout parentView;
     private final WindowManager wm;
     private boolean keyboardVisible;
@@ -22,6 +25,12 @@ public class EmojiPopup extends PopupWindow implements ObservableLinearLayout.Ca
     private final Context ctx;
     private final SharedPreferences prefs;
     EmojiKeyboardView view;
+
+
+//    final SortedSet<RecentEmojiEntry> recentEmoji = new TreeSet<>();
+
+
+
 
 
 
@@ -32,11 +41,12 @@ public class EmojiPopup extends PopupWindow implements ObservableLinearLayout.Ca
         ObjectGraphService.inject(view.getContext(), this);
         ctx = view.getContext();
         prefs = ctx.getSharedPreferences("EmojiPopup", Context.MODE_PRIVATE);
+
         rootView.setCallback(this);
 
         int keyboardHeight = rootView.getKeyboardHeight();
         wm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
-        int width = wm.getDefaultDisplay().getWidth();//todo landscape
+        int width = wm.getDefaultDisplay().getWidth();
         int height;
         if (keyboardHeight > 0) {
             height = keyboardHeight;
