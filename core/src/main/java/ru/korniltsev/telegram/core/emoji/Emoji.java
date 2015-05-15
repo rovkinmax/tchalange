@@ -26,8 +26,12 @@ import android.util.Log;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.WeakHashMap;
 
 //import org.telegram.messenger.FileLog;
 //import org.telegram.messenger.Utilities;
@@ -228,9 +232,6 @@ public class Emoji {
 
     }
 
-    static {
-
-    }
 
     private void loadEmoji(final int page) {
         try {
@@ -281,11 +282,15 @@ public class Emoji {
                 @Override
                 public void run() {
                     emojiBmp[page] = bitmap;
-                    //                    NotificationCenter.getInstance().postNotificationName(NotificationCenter.emojiDidLoaded);
+                    synchronized (weakness){
+                        for (EmojiDrawable k: weakness.keySet()) {
+                            k.invalidateSelf();
+                        }
+                    }
                 }
             });
         } catch (Throwable x) {
-            Log.e("tmessages", "Error loading emoji", x);
+            Log.e("Emoji", "Error loading emoji", x);
         }
     }
 
@@ -343,15 +348,15 @@ public class Emoji {
     //            view.invalidate();
     //        }
     //    }
-
+    public static final Object DUMB = new Object();
+    private final WeakHashMap<EmojiDrawable, Object> weakness = new WeakHashMap<>();
     public EmojiDrawable getEmojiDrawable(long code) {
         DrawableInfo info = rects.get(code);
-        if (info == null) {
-            Log.e("tmessages", "No emoji drawable for code " + String.format("%016X", code));
-            return null;
-        }
         EmojiDrawable ed = new EmojiDrawable(info);
         ed.setBounds(0, 0, drawImgSize, drawImgSize);
+        synchronized (weakness) {
+            weakness.put(ed, DUMB);
+        }
         return ed;
     }
 
