@@ -4,6 +4,7 @@ import dagger.Provides;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.view.AudioMessageView;
 import ru.korniltsev.telegram.chat.adapter.view.DocumentView;
+import ru.korniltsev.telegram.chat.adapter.view.ForwardedMessageView;
 import ru.korniltsev.telegram.chat.adapter.view.GeoPointView;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.chat.adapter.view.PhotoMessageView;
@@ -44,6 +45,7 @@ public class Chat extends BasePath implements Serializable {
                     DocumentView.class ,
                     StickerView.class ,
                     MessagePanel.class ,
+                    ForwardedMessageView.class ,
 
             },
             addsTo = RootModule.class)

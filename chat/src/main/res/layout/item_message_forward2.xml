@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:paddingLeft="56dp"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_marginBottom="8dp"
+<ru.korniltsev.telegram.chat.adapter.view.ForwardedMessageView xmlns:android="http://schemas.android.com/apk/res/android"
+                                                               android:paddingLeft="71dp"
+                                                               android:layout_height="wrap_content"
+                                                               android:layout_width="match_parent"
         >
-
-
 
     <ru.korniltsev.telegram.core.views.AvatarView
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -16,7 +13,6 @@
             android:layout_height="wrap_content"
             app:size="@dimen/avatar_size"
 
-
             />
 
     <TextView
@@ -25,25 +21,32 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/forward_avatar"
             android:layout_toRightOf="@id/forward_avatar"
+            android:textStyle="bold"
+            android:layout_marginLeft="7dp"
             />
+
     <TextView
             android:id="@+id/forward_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/forward_nick"
             android:layout_alignBottom="@id/forward_nick"
+            android:layout_marginLeft="7dp"
+            android:textColor="@color/time_color"
             />
+
     <TextView
             android:id="@+id/forward_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/forward_avatar"
+            android:layout_alignLeft="@id/forward_nick"
             android:layout_below="@id/forward_nick"
+            android:paddingRight="8dp"
             />
     <!--<TextView-->
-            <!--android:id="@+id/message"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--style="@style/item_content"-->
-            <!--/>-->
-</RelativeLayout>
+    <!--android:id="@+id/message"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--style="@style/item_content"-->
+    <!--/>-->
+</ru.korniltsev.telegram.chat.adapter.view.ForwardedMessageView>

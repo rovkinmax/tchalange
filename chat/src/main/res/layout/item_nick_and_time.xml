@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/nick"
-            android:textColor="#ff939494"
+            android:textColor="@color/time_color"
             android:layout_marginLeft="8dp"
             />
 </merge>

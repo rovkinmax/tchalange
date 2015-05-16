@@ -3,7 +3,6 @@ package ru.korniltsev.telegram.chat.adapter;
 import android.view.View;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -12,9 +11,6 @@ import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.utils.Colors;
 import ru.korniltsev.telegram.core.views.AvatarView;
-
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 abstract class BaseAvatarVH extends RealBaseVH {
     public static final DateTimeFormatter MESSAGE_TIME_FORMAT = DateTimeFormat.forPattern("K:mm a");
@@ -30,9 +26,13 @@ abstract class BaseAvatarVH extends RealBaseVH {
         nick = ((TextView) itemView.findViewById(R.id.nick));
         time = (TextView) itemView.findViewById(R.id.time);
 
-        nick.setTextColor(Colors.USER_NAME_COLOR);
+        colorizeNick(nick);
         //todo blue dot
         //todo message set status
+    }
+
+    public static void colorizeNick(TextView v) {
+        v.setTextColor(Colors.USER_NAME_COLOR_STATE_LIST);
     }
 
     public void bind(RxChat.ChatListItem item){

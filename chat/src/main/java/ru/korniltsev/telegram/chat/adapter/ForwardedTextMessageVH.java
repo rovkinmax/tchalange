@@ -24,6 +24,8 @@ class ForwardedTextMessageVH extends BaseAvatarVH {
         TextMessageVH.applyTextStyle(text);
         message_time = ((TextView) itemView.findViewById(R.id.forward_time));
         nick = ((TextView) itemView.findViewById(R.id.forward_nick));
+        BaseAvatarVH.colorizeNick(nick);
+
         avatar = ((AvatarView) itemView.findViewById(R.id.forward_avatar));
     }
 

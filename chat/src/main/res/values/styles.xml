@@ -12,6 +12,7 @@
     <style name="item_content">
         <item name="android:layout_below">@id/nick</item>
         <item name="android:layout_toRightOf">@id/avatar</item>
+        <!--<item name="android:layout_marginTop">3dp</item>-->
     </style>
     <style name="item_content_with_margins" parent="item_content">
         <item name="android:layout_marginRight">@dimen/photo_view_right_margin</item>
