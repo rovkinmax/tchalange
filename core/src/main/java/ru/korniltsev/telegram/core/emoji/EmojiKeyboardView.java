@@ -182,7 +182,7 @@ public class EmojiKeyboardView extends LinearLayout {
 
         private void stickerClicked(TdApi.Sticker sticker) {
             if (downloader.isDownloaded(sticker.sticker)) {
-                downloader.download(sticker.sticker)
+                downloader.downloadWithoutProgress(sticker.sticker)
                         .subscribe(new Action1<TdApi.FileLocal>() {
                             @Override
                             public void call(TdApi.FileLocal fileLocal) {

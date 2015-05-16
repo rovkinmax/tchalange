@@ -6,6 +6,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import org.drinkless.td.libcore.telegram.TdApi;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -45,7 +46,7 @@ public class Utils {
         OutputStream os = null;
         try {
             is = new FileInputStream(source);
-            os = new FileOutputStream(dest);
+            os = new BufferedOutputStream(new FileOutputStream(dest));
             byte[] buffer = new byte[1024];
             int length;
             while ((length = is.read(buffer)) > 0) {

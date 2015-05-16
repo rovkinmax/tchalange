@@ -1,6 +1,10 @@
 package ru.korniltsev.telegram.chat.adapter.view;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,24 +16,23 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
-import rx.Subscription;
-import rx.functions.Action1;
-import rx.subscriptions.Subscriptions;
+import ru.korniltsev.telegram.core.views.DownloadView;
 
 import javax.inject.Inject;
-
-import static rx.android.schedulers.AndroidSchedulers.mainThread;
+import java.io.File;
 
 public class DocumentView extends LinearLayout{
 
-    private ImageView btnPlay;
+//    private ImageView btnPlay;
     private ImageView documentThumb;
     private TextView documentName;
+    private TextView documentProgress;
     private View clicker;
-    private Subscription subscription = Subscriptions.empty();
+//    private Subscription subscription = Subscriptions.empty();
     @Inject RxDownloadManager downloader;
     @Inject RxGlide picasso;
     private TdApi.Document document;
+    private DownloadView downloadView;
 
     public DocumentView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -40,8 +43,9 @@ public class DocumentView extends LinearLayout{
     protected void onFinishInflate() {
         super.onFinishInflate();
         documentName = ((TextView) findViewById(R.id.document_name));
+        documentProgress = ((TextView) findViewById(R.id.document_progress));
         documentThumb = (ImageView) findViewById(R.id.image_document_thumb);
-        btnPlay = ((ImageView) findViewById(R.id.btn_play));
+        downloadView = (DownloadView) findViewById(R.id.download_view);
         clicker = findViewById(R.id.thumb_and_btn_root);
         clicker.setOnClickListener(new OnClickListener() {
             @Override
@@ -71,36 +75,66 @@ public class DocumentView extends LinearLayout{
             documentThumb.setVisibility(View.GONE);
         }
         documentName.setText(document.fileName);
-
-        subscription.unsubscribe();
-
-        if (downloader.isDownloaded(document.document)) {
-            //show play
-            btnPlay.setImageResource(R.drawable.ic_play);
-            clicker.setEnabled(true);
-        } else if (downloader.isDownloading((TdApi.FileEmpty) document.document)) {
-            //show pause
-            btnPlay.setImageResource(R.drawable.ic_pause);
-            //that does nothing
-            clicker.setEnabled(false);
-            //subscribe for update
-            subscribeForFileDownload((TdApi.FileEmpty) document.document);
+        documentProgress.setText("");
+        DownloadView.Config cfg;
+        if (image){
+            cfg = new DownloadView.Config(DownloadView.Config.FINAL_ICON_EMPTY, false, false, 48);
         } else {
-            //show download Button
-            btnPlay.setImageResource(R.drawable.ic_download);
-            clicker.setEnabled(true);
+            cfg = new DownloadView.Config(R.drawable.ic_file, true, false, 38);
+        }
+        downloadView.bind(d.document, cfg, new DownloadView.CallBack() {
+            @Override
+            public void onProgress(TdApi.UpdateFileProgress p) {
+                documentProgress.setText(getResources().getString(R.string.downloading_kb, kb(p.ready), kb(p.size)));
+            }
+
+            @Override
+            public void onFinished(TdApi.FileLocal e) {
+                documentProgress.setText(getResources().getString(R.string.downloaded_kb, kb(e.size)));
+            }
+
+            @Override
+            public void play(TdApi.FileLocal e) {
+                openDocument(e);
+            }
+        });
+
+    }
+
+    private void openDocument(TdApi.FileLocal e) {
+        File f = new File(e.path);
+        String name = document.fileName;
+        if (name != null && name.equals("")) {
+            name = null;
+        }
+        File target = downloader.exposeFile(f, Environment.DIRECTORY_DOWNLOADS, name);
+
+        String type = document.mimeType;
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri data = Uri.fromFile(target);
+
+        intent.setDataAndType(data, type);
+
+        try {
+            getContext()
+                    .startActivity(intent);
+        } catch (ActivityNotFoundException e1) {
+            //todo err
         }
     }
 
-    private void subscribeForFileDownload(TdApi.FileEmpty d) {
-        subscription = downloader.nonMainThreadObservableFor(d)
-                .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.FileLocal>() {
-                    @Override
-                    public void call(TdApi.FileLocal updateFile) {
-                        document.document = updateFile;//new TdApi.FileLocal(updateFile.fileId, updateFile.size, updateFile.path);
-                        set(document);
-                    }
-                });
+    public static String humanReadableByteCount(long bytes) {
+        int unit = 1024;
+        if (bytes < unit) return bytes + " b";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = ( "KMGTPE").charAt(exp-1) + "";
+        return String.format("%.1f %sb", bytes / Math.pow(unit, exp), pre);
     }
+
+    private String kb(int size) {
+        return humanReadableByteCount(size);
+    }
+
+
 }

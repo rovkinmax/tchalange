@@ -89,6 +89,7 @@ public class TDFileRequestHandler extends RequestHandler {
     private String downloadAndGetPath(int id) throws IOException {
         try {
             TdApi.FileLocal first = downloader.download(id)
+                    .compose(RxDownloadManager.ONLY_RESULT)
                     .first()
                     .toBlocking()
                     .toFuture()

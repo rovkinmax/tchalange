@@ -85,7 +85,7 @@ public class AudioPlayer {
 
             File src = new File(file.path);
 
-            File exposed = downloader.exposeFile(src, Environment.DIRECTORY_MUSIC);
+            File exposed = downloader.exposeFile(src, Environment.DIRECTORY_MUSIC, null);
 //            File externalFilesDir = ctx.getExternalFilesDir("telegram audio");
 //            externalFilesDir.mkdirs();
 //            File dst = new File(externalFilesDir, src.getName());

@@ -31,6 +31,7 @@ import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.ChatDB;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
+import ru.korniltsev.telegram.core.views.DownloadView;
 
 import javax.inject.Singleton;
 
@@ -54,6 +55,8 @@ import javax.inject.Singleton;
 
                 EmojiKeyboardView.class,
                 EmojiPopup.class,
+
+                DownloadView.class,
         },
         library = true)
 public class RootModule {

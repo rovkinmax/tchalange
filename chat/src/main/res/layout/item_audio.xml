@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 style="@style/Item.Root"
         >
 
@@ -13,15 +14,12 @@
             android:layout_height="wrap_content"
             style="@style/item_content_with_margins"
             >
-
-        <ImageView
-                android:id="@+id/btn_play"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-
-                android:scaleType="center"
-                android:background="#ff76c4ff"
+        <ru.korniltsev.telegram.core.views.DownloadView
+                android:id="@+id/download_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 />
+
 
         <View
                 android:id="@+id/progress"

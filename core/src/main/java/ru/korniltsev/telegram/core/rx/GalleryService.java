@@ -56,6 +56,7 @@ public class GalleryService {
     private Observable<File> saveToGallerySync(TdApi.Photo photo) {
         TdApi.PhotoSize biggestSize = PhotoUtils.findBiggestSize(photo);
         return downloader.download(biggestSize.photo)
+                .compose(RxDownloadManager.ONLY_RESULT)
                 .observeOn(io())
                 .flatMap(new Func1<TdApi.FileLocal, Observable<File>>() {
                     @Override

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="downloading_kb">Downloading %1$s of %2$s</string>
+    <string name="downloaded_kb">%1$s</string>
+</resources>

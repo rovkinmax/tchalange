@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              style="@style/Item.Root"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                style="@style/Item.Root"
         >
 
     <include layout="@layout/item_avatar"/>
@@ -12,7 +13,9 @@
             android:id="@+id/document_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             style="@style/item_content_with_margins"
+            android:layout_marginTop="3dp"
             >
         <FrameLayout
                 android:id="@+id/thumb_and_btn_root"
@@ -25,19 +28,39 @@
                     android:layout_height="80dp"
                     android:scaleType="centerCrop"
                     />
-            <ImageView
-                    android:id="@+id/btn_play"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:background="#ffd4dade"
+            <ru.korniltsev.telegram.core.views.DownloadView
+                    android:id="@+id/download_view"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+
                     />
         </FrameLayout>
-        
-        <TextView
-                android:id="@+id/document_name"
+        <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                />
+                android:layout_marginLeft="10dp"
+                android:orientation="vertical"
+                >
+            <TextView
+                    android:id="@+id/document_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#262626"
+                    android:textSize="16sp"
+                    android:paddingRight="8dp"
+                    />
+
+            <TextView
+                    android:id="@+id/document_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#a4a4a4"
+                    android:textSize="14sp"
+                    />
+        </LinearLayout>
+
     </ru.korniltsev.telegram.chat.adapter.view.DocumentView>
     <!--<ru.korniltsev.telegram.chat.adapter.view.EmojiTextView-->
             <!--android:id="@+id/message"-->

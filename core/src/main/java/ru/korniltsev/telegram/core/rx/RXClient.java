@@ -315,6 +315,22 @@ public class RXClient {
                 .map(CAST_TO_FILE_UPDATE);
     }
 
+    public Observable<TdApi.UpdateFileProgress> fileProgress(){
+        return globalSubject
+                .filter(new Func1<TLObject, Boolean>() {
+                    @Override
+                    public Boolean call(TLObject tlObject) {
+                        return tlObject instanceof TdApi.UpdateFileProgress;
+                    }
+                })
+                .map(new Func1<TLObject, TdApi.UpdateFileProgress>() {
+                    @Override
+                    public TdApi.UpdateFileProgress call(TLObject tlObject) {
+                        return (TdApi.UpdateFileProgress) tlObject;
+                    }
+                });
+    }
+
     public Observable<TdApi.UpdateNewMessage> updateNewMessages() {
         return globalSubject
                 .filter(ONLY_NEW_MESSAGE_UPDATES)
