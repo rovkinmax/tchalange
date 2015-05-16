@@ -21,6 +21,7 @@ class ForwardedTextMessage2VH extends RealBaseVH {
         super(itemView, adapter);
 //        message = ((TextView) itemView.findViewById(R.id.message));
         text = ((TextView) itemView.findViewById(R.id.forward_text));
+        TextMessageVH.applyTextStyle(text);
         message_time = ((TextView) itemView.findViewById(R.id.forward_time));
         nick = ((TextView) itemView.findViewById(R.id.forward_nick));
         avatar = ((AvatarView) itemView.findViewById(R.id.forward_avatar));
