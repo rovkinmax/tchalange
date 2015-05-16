@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import flow.Flow;
 import flow.path.PathContext;
+import mortar.dagger1support.ObjectGraphService;
+import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.utils.R;
 
 /**
@@ -60,12 +62,10 @@ public class ToolbarUtils {
 
     public ToolbarUtils setDrawer(DrawerLayout drawer, int openStr, int closeStr){
         Context ctx = drawer.getContext();
-        //todo WTF IS THIS~?
-        Context a = ((ContextWrapper) ((ContextWrapper) ((ContextWrapper) ((PathContext) ctx).getBaseContext()).getBaseContext()).getBaseContext()).getBaseContext();
-        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle((Activity) a,  drawer, toolbar,
+        ActivityOwner a = ObjectGraphService.getObjectGraph(ctx).get(ActivityOwner.class);
+        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(a.expose(),  drawer, toolbar,
                 openStr, closeStr
         );
-//
         drawer.setDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
         return this;

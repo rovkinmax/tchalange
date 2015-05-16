@@ -48,7 +48,7 @@ public class EmojiParser {
                 }
 
                 while (matcher.find()){
-                    s.setSpan(new ForegroundColorSpan(Color.RED), matcher.start(), matcher.end(), 0);
+                    s.setSpan(new ForegroundColorSpan(0xff427ab0), matcher.start(), matcher.end(), 0);
                 }
                 cache.put(key, s);
                 text.textWithSmilesAndUserRefs = s;

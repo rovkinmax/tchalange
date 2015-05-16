@@ -1,6 +1,11 @@
 package ru.korniltsev.telegram.chat.adapter;
 
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -54,40 +59,87 @@ public class SingleTextViewVH extends RealBaseVH {
 
 
     private void bindChatDeletePhoto(TdApi.Message message) {
-        String name = getNameForSenderOf(message);
-        text.setText(text.getResources().getString(R.string.message_removed_group_photo, name));
+        Spannable name = userColor(getNameForSenderOf(message));
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(name)
+                .append(" ")
+                .append(resources.getString(R.string.message_removed_group_photo));
+        text.setText(sb);
     }
 
 
 
     private void bindChatAddParticipant(TdApi.Message item) {
+
         TdApi.MessageChatAddParticipant create = (TdApi.MessageChatAddParticipant) item.message;
-        String inviter = getNameForSenderOf(item);
-        String newUser = Utils.uiName(create.user);
-        text.setText(
-                resources.getString(R.string.message_ivited, inviter, newUser));
+
+//        String inviter = ;
+        Spannable inviter = userColor(
+                getNameForSenderOf(item));
+        Spannable newUser = userColor(
+                Utils.uiName(create.user));
+
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(inviter)
+                .append(" ")
+                .append(resources.getString(R.string.message_ivited))
+                .append(" ")
+                .append(newUser);
+
+        text.setText(sb);
+    }
+
+    public static Spannable userColor(String str){
+        Spannable.Factory factory = Spannable.Factory.getInstance();
+        Spannable spannable = factory.newSpannable(str);
+        spannable.setSpan(new ForegroundColorSpan(0xff427ab0), 0, spannable.length(), 0);
+        spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, spannable.length(), 0);
+        return spannable;
     }
 
     private void bindChatDeleteParticipant(TdApi.Message item) {
         TdApi.MessageChatDeleteParticipant kick = (TdApi.MessageChatDeleteParticipant) item.message;
-        String inviter = getNameForSenderOf(item);
-        String newUser = Utils.uiName(kick.user);
-        text.setText(
-                resources.getString(R.string.message_kicked, inviter, newUser));
+        Spannable inviter = userColor(getNameForSenderOf(item));
+        Spannable newUser = userColor(Utils.uiName(kick.user));
+
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(inviter)
+                .append(" ")
+                .append(resources.getString(R.string.message_kicked))
+                .append(" ")
+                .append(newUser);
+
+
+        text.setText(sb);
     }
 
     private void bindChatCreated(TdApi.Message item) {
         TdApi.MessageGroupChatCreate create = (TdApi.MessageGroupChatCreate) item.message;
-        String creator = getNameForSenderOf(item);
-        text.setText(
-                resources.getString(R.string.message_created_group, creator, create.title));
+        Spannable creator = userColor(getNameForSenderOf(item));
+        Spannable title = userColor(create.title);
+
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(creator)
+                .append(" ")
+                .append(resources.getString(R.string.message_created_group))
+                .append(" ")
+                .append(title);
+        text.setText(sb);
     }
 
     private void bindChatChangedTitle(TdApi.Message item) {
         TdApi.MessageChatChangeTitle create = (TdApi.MessageChatChangeTitle) item.message;
-        String creator = getNameForSenderOf(item);
-        text.setText(
-                resources.getString(R.string.message_renamed_group, creator, create.title));
+        Spannable creator = userColor(getNameForSenderOf(item));
+        Spannable title = userColor(create.title);
+
+
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(creator)
+                .append(" ")
+                .append(resources.getString(R.string.message_created_group))
+                .append(" ")
+                .append(title);
+        text.setText(sb);
     }
 
     private void bindUnsupported() {

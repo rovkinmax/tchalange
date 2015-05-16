@@ -46,11 +46,11 @@ subprojects {
                 targetCompatibility JavaVersion.VERSION_1_7
             }
 
-//            sourceSets {
-//                main {
-//                    java.srcDir R
-//                }
-//            }
+            sourceSets {
+                main {
+                    java.srcDir R
+                }
+            }
         }
     }
 //    compileSdkVersion = 22

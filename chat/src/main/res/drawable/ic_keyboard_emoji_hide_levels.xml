@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<level-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_smiles" android:maxLevel="0"/>
+    <item android:drawable="@drawable/ic_msg_panel_kb" android:maxLevel="1"/>
+    <item android:drawable="@drawable/ic_arrow_down" android:maxLevel="2"/>
+</level-list>

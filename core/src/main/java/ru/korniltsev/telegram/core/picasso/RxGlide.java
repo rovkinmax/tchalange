@@ -2,9 +2,11 @@ package ru.korniltsev.telegram.core.picasso;
 
 import android.content.Context;
 import android.net.Uri;
+import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 
 import javax.inject.Inject;
@@ -28,6 +30,7 @@ public class RxGlide {
         this.ctx = ctx;
 
         picasso = new Picasso.Builder(ctx)
+                .memoryCache(new LruCache(Utils.calculateMemoryCacheSize(ctx)))
                 .addRequestHandler(new StubRequestHandler(ctx))
                 .addRequestHandler(new TDFileRequestHandler(downlaoder))
                 .build();

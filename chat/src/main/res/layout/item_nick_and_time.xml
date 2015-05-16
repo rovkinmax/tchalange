@@ -9,6 +9,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/avatar"
+            android:textColor="#ff427ab0"
+            android:textStyle="bold"
             />
 
     <TextView
@@ -16,5 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/nick"
+            android:textColor="#ff939494"
+            android:layout_marginLeft="8dp"
             />
 </merge>

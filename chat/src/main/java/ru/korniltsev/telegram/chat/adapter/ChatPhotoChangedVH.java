@@ -1,5 +1,7 @@
 package ru.korniltsev.telegram.chat.adapter;
 
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.view.View;
 import android.widget.TextView;
 import flow.Flow;
@@ -8,6 +10,8 @@ import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.views.AvatarView;
 import ru.korniltsev.telegram.photoview.PhotoViewer;
+
+import static ru.korniltsev.telegram.chat.adapter.SingleTextViewVH.userColor;
 
 public class ChatPhotoChangedVH extends RealBaseVH {
 
@@ -32,9 +36,13 @@ public class ChatPhotoChangedVH extends RealBaseVH {
     @Override
     public void bind(RxChat.ChatListItem item) {
         TdApi.Message msg = ((RxChat.MessageItem) item).msg;
-        String userName = getNameForSenderOf(msg);
-        String text =  this.text.getResources().getString(R.string.message_changed_group_photo, userName);
-        this.text.setText(text);
+        Spannable userName = userColor(getNameForSenderOf(msg));
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(userName)
+                .append(" ")
+                .append(text.getResources().getString(R.string.message_changed_group_photo));
+//        String text =  this.text.getResources().getString(R.string.message_changed_group_photo, userName);
+        this.text.setText(sb);
         TdApi.MessageChatChangePhoto changed = (TdApi.MessageChatChangePhoto) msg.message;
         TdApi.PhotoSize smallSize = changed.photo.photos[0];
         for (TdApi.PhotoSize photo : changed.photo.photos) {

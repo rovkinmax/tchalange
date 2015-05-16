@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 import mortar.dagger1support.ObjectGraphService;
@@ -124,18 +125,27 @@ public class EmojiPopup extends PopupWindow implements ObservableLinearLayout.Ca
         }
         //keyboard shown or hidden
         keyboardVisible = newKeyboardVisible;
-        if (!keyboardVisible) {
-            //if hidden - dissmiss
-            dismiss();
-        } else {
-            //if shown - update layout
-            parentView.setPadding(0, 0, 0, 0);
-            saveKeyboardHiehgt(keyboardHeight);
-            View contentView = getContentView();
-            final WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) contentView.getLayoutParams();
-            if (layoutParams.height != keyboardHeight) {
-                wm.updateViewLayout(contentView, layoutParams);
+        dismiss();
+        parentView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                parentView.getViewTreeObserver().removeOnPreDrawListener(this);
+                return false;
             }
-        }
+        });
+        parentView.setPadding(0, 0, 0, 0);
+//        if (!keyboardVisible) {
+//            //if hidden - dissmiss
+//
+//        } else {
+//            //if shown - update layout
+//
+//            saveKeyboardHiehgt(keyboardHeight);
+//            View contentView = getContentView();
+//            final WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) contentView.getLayoutParams();
+//            if (layoutParams.height != keyboardHeight) {
+//                wm.updateViewLayout(contentView, layoutParams);
+//            }
+//        }
     }
 }

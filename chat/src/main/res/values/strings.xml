@@ -18,16 +18,18 @@
     <string name="user_status_last_week">last week</string>
     <string name="user_status_last_month">last month</string>
     <string name="user_status_recently">recently</string>
+    <string name="user_status_last_seen">last seen</string>
 
 
     <string name="message_unsupported">Unsupported message</string>
     <string name="message_deleted">Deleted message</string>
-    <string name="message_removed_group_photo">%1$s removed group photo</string>
-    <string name="message_changed_group_photo">%1$s changed group photo</string>
-    <string name="message_created_group">%1$s created group "%2$s"</string>
-    <string name="message_renamed_group">%1$s renamed group "%2$s"</string>
-    <string name="message_ivited">%1$s invited "%2$s"</string>
-    <string name="message_kicked">%1$s kicked "%2$s"</string>
+    <string name="message_removed_group_photo">removed group photo</string>
+    <string name="message_changed_group_photo">changed group photo</string>
+    <string name="message_created_group">created group</string>
+    <string name="message_renamed_group">renamed group</string>
+    <string name="message_ivited">invited</string>
+    <string name="message_kicked">kicked</string>
     <string name="empty_chat">No messages here yet...</string>
+    <string name="hint_message_panel">Message</string>
 
 </resources>

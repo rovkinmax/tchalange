@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/text"
-              style="@style/Item.Root"
+          android:gravity="center"
+          android:textStyle="bold"
+          android:textSize="16sp"
+          android:textColor="#ff252525"
+          style="@style/Item.Root"
         />

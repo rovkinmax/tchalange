@@ -22,6 +22,7 @@ import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
 import javax.inject.Inject;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -189,13 +190,16 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
                 totalStr + ", " + onlineStr);
     }
 
+    private static SimpleDateFormat SUBTITLE_FORMATTER = new SimpleDateFormat("dd/MM/yy");
     public void setPirvateChatSubtitle(TdApi.UserStatus status) {
         if (status instanceof TdApi.UserStatusOnline) {
             toolbarSubtitle.setText(R.string.user_status_online);
         } else if (status instanceof TdApi.UserStatusOffline) {
             long wasOnline = ((TdApi.UserStatusOffline) status).wasOnline;
-            Date date = new Date(wasOnline * 1000);
-            toolbarSubtitle.setText(date.toString());//todo time zone
+            long timeInMillis = wasOnline * 1000;
+//            Date date = new Date(timeInMillis);
+            String date = SUBTITLE_FORMATTER.format(timeInMillis);
+            toolbarSubtitle.setText(getResources().getString(R.string.user_status_last_seen) + " " + date);
         } else if (status instanceof TdApi.UserStatusLastWeek) {
             toolbarSubtitle.setText(R.string.user_status_last_week);
         } else if (status instanceof TdApi.UserStatusLastMonth) {

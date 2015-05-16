@@ -1,5 +1,6 @@
 package ru.korniltsev.telegram.core;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -12,10 +13,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import static android.content.Context.ACTIVITY_SERVICE;
+import static android.content.pm.ApplicationInfo.FLAG_LARGE_HEAP;
+import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.HONEYCOMB;
+
 /**
  * Created by korniltsev on 23/04/15.
  */
 public class Utils {
+    public static int calculateMemoryCacheSize(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        int memoryClass = am.getMemoryClass();
+        // Target ~15% of the available heap.
+        int percent15 = 1024 * 1024 * memoryClass / 7;
+        return 2 * percent15;
+    }
     public static String textFrom(EditText e) {
         return e.getText().toString();
     }

@@ -8,14 +8,14 @@
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
         android:gravity="bottom"
-        android:background="#ffcdcdcd"
+
         >
 
     <ImageView
             android:id="@+id/btn_left"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_smiles"
+            android:src="@drawable/ic_keyboard_emoji_hide_levels"
             android:scaleType="center"
             />
 
@@ -28,6 +28,11 @@
             android:gravity="left|bottom"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
+            android:maxLines="4"
+            android:paddingBottom="12dp"
+            android:paddingTop="12dp"
+            android:textCursorDrawable="@null"
+            android:hint="@string/hint_message_panel"
             android:imeOptions="flagNoExtractUi"
             />
 
@@ -35,7 +40,8 @@
             android:id="@+id/btn_right"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_attach"
+            android:src="@drawable/ic_send_attach_levels"
             android:scaleType="center"
+
             />
 </ru.korniltsev.telegram.chat.adapter.view.MessagePanel>
