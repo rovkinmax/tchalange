@@ -3,16 +3,21 @@ package ru.korniltsev.telegram.chat.adapter;
 import android.view.View;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
+import ru.korniltsev.telegram.core.utils.Colors;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 abstract class BaseAvatarVH extends RealBaseVH {
-    public static final SimpleDateFormat MESSAGE_TIME_FORMAT = new SimpleDateFormat("K:mm a", Locale.getDefault());
+    public static final DateTimeFormatter MESSAGE_TIME_FORMAT = DateTimeFormat.forPattern("K:mm a");
     private final AvatarView avatar;
     private final TextView nick;
     private final TextView time;
@@ -25,6 +30,7 @@ abstract class BaseAvatarVH extends RealBaseVH {
         nick = ((TextView) itemView.findViewById(R.id.nick));
         time = (TextView) itemView.findViewById(R.id.time);
 
+        nick.setTextColor(Colors.USER_NAME_COLOR);
         //todo blue dot
         //todo message set status
     }
@@ -35,7 +41,8 @@ abstract class BaseAvatarVH extends RealBaseVH {
         avatar.loadAvatarFor(user);
         String name = Utils.uiName(user);
         nick.setText(name);
-        long timeInMillis = msg.date * 1000;
-        time.setText(MESSAGE_TIME_FORMAT.format(timeInMillis));
+        long timeInMillis = Utils.dateToMillis(msg.date);
+        long local = DateTimeZone.UTC.convertUTCToLocal(timeInMillis);
+        time.setText(MESSAGE_TIME_FORMAT.print(local));
     }
 }

@@ -10,6 +10,10 @@ import android.widget.TextView;
 import flow.Flow;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import ru.korniltsev.telegram.core.emoji.ObservableLinearLayout;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
@@ -190,7 +194,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
                 totalStr + ", " + onlineStr);
     }
 
-    private static SimpleDateFormat SUBTITLE_FORMATTER = new SimpleDateFormat("dd/MM/yy");
+    private static DateTimeFormatter SUBTITLE_FORMATTER = DateTimeFormat.forPattern("dd/MM/yy");
     public void setPirvateChatSubtitle(TdApi.UserStatus status) {
         if (status instanceof TdApi.UserStatusOnline) {
             toolbarSubtitle.setText(R.string.user_status_online);
@@ -198,7 +202,8 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
             long wasOnline = ((TdApi.UserStatusOffline) status).wasOnline;
             long timeInMillis = wasOnline * 1000;
 //            Date date = new Date(timeInMillis);
-            String date = SUBTITLE_FORMATTER.format(timeInMillis);
+            DateTime dateTime = new DateTime(timeInMillis, DateTimeZone.UTC).withZone(DateTimeZone.getDefault());
+            String date = SUBTITLE_FORMATTER.print(dateTime);
             toolbarSubtitle.setText(getResources().getString(R.string.user_status_last_seen) + " " + date);
         } else if (status instanceof TdApi.UserStatusLastWeek) {
             toolbarSubtitle.setText(R.string.user_status_last_week);

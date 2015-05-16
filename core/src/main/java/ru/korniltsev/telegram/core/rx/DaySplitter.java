@@ -1,43 +1,63 @@
 package ru.korniltsev.telegram.core.rx;
 
 import android.support.v4.util.LongSparseArray;
+import android.text.method.DateTimeKeyListener;
 import org.drinkless.td.libcore.telegram.TdApi;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import ru.korniltsev.telegram.core.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DaySplitter {
-    private static final ThreadLocal<Calendar> threadLocalA = new ThreadLocal<Calendar>() {
-        @Override
-        protected Calendar initialValue() {
-            return Calendar.getInstance();
-        }
-    };
+//    private static final ThreadLocal<Calendar> threadLocalA = new ThreadLocal<Calendar>() {
+//        @Override
+//        protected Calendar initialValue() {
+//            return Calendar.getInstance();
+//        }
+//    };
 
-    private static final ThreadLocal<Calendar> threadLocalB = new ThreadLocal<Calendar>() {
-        @Override
-        protected Calendar initialValue() {
-            return Calendar.getInstance();
-        }
-    };
+//    private static final ThreadLocal<Calendar> threadLocalB = new ThreadLocal<Calendar>() {
+//        @Override
+//        protected Calendar initialValue() {
+//            return Calendar.getInstance();
+//        }
+//    };
 
     public boolean hasTheSameDay(TdApi.Message a, TdApi.Message b) {
         return hasTheSameDay(timInMillis(a), timInMillis(b));
     }
 
     private long timInMillis(TdApi.Message b) {
-        return (long) b.date * 1000;
+        return Utils.dateToMillis(b.date);
     }
 
     public boolean hasTheSameDay(long aTime, long bTime) {
-        Calendar calA = threadLocalA.get();
-        Calendar calB = threadLocalB.get();
-        calA.setTimeInMillis(aTime);
-        calB.setTimeInMillis(bTime);
-        round(calA);
-        round(calB);
-        return calA.getTimeInMillis() == calB.getTimeInMillis();
+        //        new DateTimeKeyListener()
+        DateTime dateTimeA = localTime(aTime);
+        DateTime dateTimeB = localTime(bTime);
+
+        return dateTimeA.withTimeAtStartOfDay().equals(dateTimeB.withTimeAtStartOfDay());
+
+        //        dateTimeA.day
+//        Calendar calA = threadLocalA.get();
+//        Calendar calB = threadLocalB.get();
+//        calA.setTimeInMillis(aTime);
+//        calB.setTimeInMillis(bTime);
+//        round(calA);
+//        round(calB);
+//        return calA.getTimeInMillis() == calB.getTimeInMillis();
+    }
+
+    private DateTime localTime(long aTime) {
+
+        DateTimeZone utcZone = DateTimeZone.UTC;
+        long localTime = utcZone.convertUTCToLocal(aTime);
+        return new DateTime(localTime);
     }
 
     public  List<RxChat.ChatListItem> split(List<TdApi.Message> ms) {
@@ -64,18 +84,14 @@ public class DaySplitter {
     }
 
     //guarded by cache
-    private final LongSparseArray<RxChat.DaySeparatorItem> cache = new LongSparseArray<>();
+    private final Map<DateTime, RxChat.DaySeparatorItem> cache = new HashMap<>();
     //guarded by cache
     private int counter = -1;
 
     public RxChat.DaySeparatorItem createSeparator(TdApi.Message msg) {
-        Calendar cal = threadLocalA.get();
-        cal.setTimeInMillis(
-                timInMillis(msg));
-        round(cal);
-
-        long time = cal.getTimeInMillis();
-        synchronized (cache){
+        DateTime time = localTime(timInMillis(msg))
+                .withTimeAtStartOfDay();
+        synchronized (cache) {
             RxChat.DaySeparatorItem cached = cache.get(time);
             if (cached != null) {
                 return cached;
@@ -87,12 +103,6 @@ public class DaySplitter {
         }
     }
 
-    private static void round(Calendar first) {
-        first.set(Calendar.MILLISECOND, 0);
-        first.set(Calendar.SECOND, 0);
-        first.set(Calendar.MINUTE, 0);
-        first.set(Calendar.HOUR_OF_DAY, 0);
-    }
 
     public void append(List<RxChat.ChatListItem> what, List<RxChat.ChatListItem> into) {
         if (what.isEmpty()) {

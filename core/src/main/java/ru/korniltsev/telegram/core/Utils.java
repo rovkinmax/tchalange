@@ -81,5 +81,7 @@ public class Utils {
         return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
     }
 
-
+    public static long dateToMillis(long date) {
+        return date * 1000;
+    }
 }

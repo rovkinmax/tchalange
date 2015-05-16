@@ -12,6 +12,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
+import ru.korniltsev.telegram.core.utils.Colors;
 
 //something we can draw as a single textView
 
@@ -92,7 +93,7 @@ public class SingleTextViewVH extends RealBaseVH {
     public static Spannable userColor(String str){
         Spannable.Factory factory = Spannable.Factory.getInstance();
         Spannable spannable = factory.newSpannable(str);
-        spannable.setSpan(new ForegroundColorSpan(0xff427ab0), 0, spannable.length(), 0);
+        spannable.setSpan(new ForegroundColorSpan(Colors.USER_NAME_COLOR), 0, spannable.length(), 0);
         spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, spannable.length(), 0);
         return spannable;
     }

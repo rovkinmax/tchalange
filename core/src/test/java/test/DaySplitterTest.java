@@ -9,6 +9,7 @@ import ru.korniltsev.telegram.core.rx.RxChat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -27,6 +28,7 @@ public class DaySplitterTest {
     public void setup() {
         daySplitter = new DaySplitter();
         cal = Calendar.getInstance();
+//        cal.setTimeZone(TimeZone.);
         counter = 0;
     }
     @Test
@@ -147,13 +149,13 @@ public class DaySplitterTest {
         RxChat.DaySeparatorItem separator4 = daySplitter.createSeparator(msg4);
 
         assertThat(separator1.id, equalTo(separator2.id));
-        assertThat(separator1.time, equalTo(separator2.time));
+        assertThat(separator1.day, equalTo(separator2.day));
 
         assertThat(separator1.id, equalTo(separator3.id));
-        assertThat(separator1.time, equalTo(separator3.time));
+        assertThat(separator1.day, equalTo(separator3.day));
 
         assertThat(separator3.id, not(equalTo(separator4.id)));
-        assertThat(separator3.time, not(equalTo(separator4.time)));
+        assertThat(separator3.day, not(equalTo(separator4.day)));
     }
 
     private TdApi.Message createMessage() {
@@ -209,6 +211,6 @@ public class DaySplitterTest {
 
 
     private int getTimeInSecs(Calendar cal) {
-        return (int) cal.getTimeInMillis()/1000;
+        return (int) (cal.getTimeInMillis()/1000);
     }
 }

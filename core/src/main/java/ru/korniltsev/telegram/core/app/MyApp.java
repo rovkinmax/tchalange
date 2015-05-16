@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import dagger.ObjectGraph;
 import mortar.MortarScope;
 import mortar.dagger1support.ObjectGraphService;
+import net.danlew.android.joda.JodaTimeAndroid;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 
@@ -21,6 +22,7 @@ public class MyApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        JodaTimeAndroid.init(this);
         initClient();
     }
 

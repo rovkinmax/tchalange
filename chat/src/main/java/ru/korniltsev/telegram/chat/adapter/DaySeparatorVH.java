@@ -3,6 +3,8 @@ package ru.korniltsev.telegram.chat.adapter;
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.TextView;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxChat;
 
@@ -11,15 +13,15 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class DaySeparatorVH extends RealBaseVH {
-    public static SimpleDateFormat FORMATTER;
+    public static DateTimeFormatter FORMATTER;
 
     static {
 
         Locale l = Locale.getDefault();
         if (l.getCountry().equals("RU")){
-            FORMATTER = new SimpleDateFormat("d MMMM", l);
+            FORMATTER = DateTimeFormat.forPattern("d MMMM");
         } else {
-            FORMATTER = new SimpleDateFormat("MMMM d", l);
+            FORMATTER =  DateTimeFormat.forPattern("MMMM d");
         }
     }
 
@@ -35,8 +37,7 @@ public class DaySeparatorVH extends RealBaseVH {
     @Override
     public void bind(RxChat.ChatListItem item) {
         RxChat.DaySeparatorItem s = (RxChat.DaySeparatorItem) item;
-//        cal.setTimeInMillis(s.time);
-        text.setText(FORMATTER.format(s.time));//"Day #" + s.id + " " + cal.getTime());
+        text.setText(FORMATTER.print(s.day));
 
     }
 

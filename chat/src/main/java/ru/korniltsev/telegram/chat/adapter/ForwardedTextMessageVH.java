@@ -3,6 +3,7 @@ package ru.korniltsev.telegram.chat.adapter;
 import android.view.View;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
+import org.joda.time.DateTimeZone;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
@@ -39,8 +40,9 @@ class ForwardedTextMessageVH extends BaseAvatarVH {
         avatar.loadAvatarFor(user);
         nick.setText(
                 Utils.uiName(user));
-        long forwardDateInMillis = rawMsg.forwardDate * 1000;
-        message_time.setText(MESSAGE_TIME_FORMAT.format(forwardDateInMillis));
+        long forwardDateInMillis = Utils.dateToMillis(rawMsg.forwardDate );
+        long local = DateTimeZone.UTC.convertUTCToLocal(forwardDateInMillis);
+        message_time.setText(MESSAGE_TIME_FORMAT.print(local));
 
 
 

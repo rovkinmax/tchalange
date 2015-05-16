@@ -2,6 +2,7 @@ package ru.korniltsev.telegram.core.rx;
 
 import android.util.SparseArray;
 import org.drinkless.td.libcore.telegram.TdApi;
+import org.joda.time.DateTime;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -307,11 +308,11 @@ public class RxChat implements UserHolder {
     }
     public static class DaySeparatorItem extends ChatListItem  {
         public final long id;
-        public final long time;//millis
+        public final DateTime day;//millis
 
-        public DaySeparatorItem(long id, long time) {
+        public DaySeparatorItem(long id, DateTime day) {
             this.id = id;
-            this.time = time;
+            this.day = day;
         }
     }
 }

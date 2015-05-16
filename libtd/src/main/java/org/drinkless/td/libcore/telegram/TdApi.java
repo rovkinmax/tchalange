@@ -870,6 +870,8 @@ public class TdApi {
         public Message() {
         }
 
+
+
         public Message(int id, int forwardFromId, int forwardDate, int fromId, long chatId, int date, MessageContent message) {
             this.id = id;
             this.forwardFromId = forwardFromId;

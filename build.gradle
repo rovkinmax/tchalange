@@ -80,6 +80,7 @@ subprojects {
         dagger = 'com.squareup.dagger:dagger:1.2.2'
         dagger_compiler = 'com.squareup.dagger:dagger-compiler:1.2.2'
         photo_view = 'com.github.chrisbanes.photoview:library:1.2.3'
+        jodatime = 'net.danlew:android.joda:2.7.2'
 
 
     }

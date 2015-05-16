@@ -12,6 +12,9 @@ dependencies {
     compile project.flow_path
     compile project.mortar
     compile project.mortar_dagger1support
+
+    compile project.jodatime
+
     compile project.dagger
     provided project.dagger_compiler
     compile project(":provided_res")
