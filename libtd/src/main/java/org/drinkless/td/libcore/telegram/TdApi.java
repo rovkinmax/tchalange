@@ -1364,6 +1364,7 @@ public class TdApi {
 
     public static class NotificationSettings extends TLObject {
         public int muteFor;
+        public long muteForElapsedRealtime;
         public String sound;
         public boolean showPreviews;
         public int eventsMask;

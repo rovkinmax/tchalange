@@ -161,15 +161,19 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
         return adapter;
     }
 
-    public void initMenu(boolean groupChat) {
+    public void initMenu(boolean groupChat, boolean muted) {
         if (!groupChat) {
             toolbar.hideMenu(R.id.menu_leave_group);
         }
+        if (muted){
+            toolbar.hideMenu(R.id.menu_mute);
+            toolbar.showMenu(R.id.menu_unmute);
+        } else {
+            toolbar.showMenu(R.id.menu_mute);
+            toolbar.hideMenu(R.id.menu_unmute);
+        }
     }
 
-    public void clearAdapter() {
-        adapter.clearData();
-    }
 
     public void loadToolBarImage(TdApi.Chat chat) {
         toolbarAvatar.loadAvatarFor(chat);

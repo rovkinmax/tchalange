@@ -102,6 +102,12 @@ public class ToolbarUtils {
                 .setVisible(false);
     }
 
+    public void showMenu(int id) {
+        toolbar.getMenu()
+                .findItem(id)
+                .setVisible(true);
+    }
+
     public void setIcon(Bitmap bitmap) {
         toolbar.setNavigationIcon(new BitmapDrawable(bitmap));
         //todo заменить на кастом вью

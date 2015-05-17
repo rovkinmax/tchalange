@@ -60,15 +60,17 @@ public class ChatDB implements UserHolder {
      */
 
     final RXClient client;
+    final NotificationManager nm;
     EmojiParser parser;
     private Observable<TdApi.Chats> chatsRequest;
     private boolean downloadedAllChats;
     private boolean atLeastOneResponseReturned;
 
     @Inject
-    public ChatDB(final Context ctx, final RXClient client, EmojiParser parser, DpCalculator calc) {
+    public ChatDB(final Context ctx, final RXClient client, EmojiParser parser, DpCalculator calc, NotificationManager nm) {
         this.client = client;
         this.parser = parser;
+        this.nm = nm;
         prepareForUpdates();
 
 
@@ -195,6 +197,7 @@ public class ChatDB implements UserHolder {
                     public void call(TdApi.UpdateNewMessage updateNewMessage) {
                         getRxChat(updateNewMessage.message.chatId)
                                 .handleNewMessage(updateNewMessage.message);
+                        nm.notifyNewMessage(updateNewMessage.message);
                         updateCurrentChatList();
                     }
                 });
@@ -251,6 +254,7 @@ public class ChatDB implements UserHolder {
                     chatsList.clear();
                 }
                 chatsList.addAll(csList);
+                nm.updateNotificationScopes(chatsList);
                 currentChatList.onNext(chatsList);
             }
         });

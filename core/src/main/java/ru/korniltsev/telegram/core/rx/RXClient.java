@@ -161,6 +161,18 @@ public class RXClient {
             return (TdApi.UpdateOption) tlObject;
         }
     };
+    public static final Func1<TLObject, Boolean> PREDICATE = new Func1<TLObject, Boolean>() {
+        @Override
+        public Boolean call(TLObject tlObject) {
+            return tlObject instanceof TdApi.UpdateNotificationSettings;
+        }
+    };
+    public static final Func1<TLObject, TdApi.UpdateNotificationSettings> FUNC = new Func1<TLObject, TdApi.UpdateNotificationSettings>() {
+        @Override
+        public TdApi.UpdateNotificationSettings call(TLObject tlObject) {
+            return (TdApi.UpdateNotificationSettings) tlObject;
+        }
+    };
     private Context ctx;
 
     private final Client client;
@@ -341,6 +353,10 @@ public class RXClient {
         return client;
     }
 
+    public Observable<TdApi.UpdateNotificationSettings> updateNotificationSettings() {
+        return globalSubject.filter(PREDICATE)
+                .map(FUNC);
+    }
     ////////////
 
     public Observable<TdApi.Chats> getChats(int offset, int limit) {

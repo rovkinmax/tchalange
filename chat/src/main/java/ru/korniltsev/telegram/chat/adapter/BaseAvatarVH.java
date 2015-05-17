@@ -38,9 +38,11 @@ abstract class BaseAvatarVH extends RealBaseVH {
     public void bind(RxChat.ChatListItem item){
         TdApi.Message msg = ((RxChat.MessageItem) item).msg;
         TdApi.User user = adapter.getUserHolder().getUser(msg.fromId);
-        avatar.loadAvatarFor(user);
-        String name = Utils.uiName(user);
-        nick.setText(name);
+        if (user != null){
+            avatar.loadAvatarFor(user);
+            String name = Utils.uiName(user);
+            nick.setText(name);
+        }
         long timeInMillis = Utils.dateToMillis(msg.date);
         long local = DateTimeZone.UTC.convertUTCToLocal(timeInMillis);
         time.setText(MESSAGE_TIME_FORMAT.print(local));

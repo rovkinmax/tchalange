@@ -1,6 +1,5 @@
 package ru.korniltsev.telegram.chat;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -8,7 +7,7 @@ import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
-import ru.korniltsev.telegram.core.emoji.Emoji;
+import ru.korniltsev.telegram.core.rx.NotificationManager;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.ChatDB;
@@ -30,18 +29,18 @@ public class Presenter extends ViewPresenter<ChatView>
 
     private final Chat path;
     private final RXClient client;
-    private final Emoji emoji;
     private final RxChat rxChat;
+    private final NotificationManager nm;
 
     private final Observable<TdApi.GroupChatFull> fullChatInfoRequest;
     private final boolean isGroupChat;
     private CompositeSubscription subscription;
 
     @Inject
-    public Presenter(Chat c, RXClient client, ChatDB chatDB, Emoji emoji) {
+    public Presenter(Chat c, RXClient client, ChatDB chatDB, NotificationManager nm) {
         path = c;
         this.client = client;
-        this.emoji = emoji;
+        this.nm = nm;
         rxChat = chatDB.getRxChat(path.chat.id);
 
         if (path.chat.type instanceof TdApi.GroupChatInfo) {
@@ -65,7 +64,7 @@ public class Presenter extends ViewPresenter<ChatView>
             }
         }
         view.loadToolBarImage(path.chat);
-        view.initMenu(isGroupChat);
+        view.initMenu(isGroupChat, nm.isMuted(path.chat));
         setViewSubtitle();
 
         getView().updateData(rxChat);
@@ -127,15 +126,16 @@ public class Presenter extends ViewPresenter<ChatView>
                             }
                         }
                 ));
-        subscription.add(emoji.pageLoaded()
-                .subscribe(new Action1<Bitmap>() {
-                    @Override
-                    public void call(Bitmap bitmap) {
-                        getView()
-                                .invalidate();
 
-                    }
-                }));
+        subscription.add(
+                nm.updatesForChat(path.chat)
+                        .subscribe(new Action1<TdApi.NotificationSettings>() {
+                                       @Override
+                                       public void call(TdApi.NotificationSettings s) {
+                                           getView().initMenu(isGroupChat, nm.isMuted(s));
+                                       }
+                                   }
+                        ));
     }
 
     private void updateOnlineStatus(TdApi.GroupChatFull info) {
@@ -164,12 +164,19 @@ public class Presenter extends ViewPresenter<ChatView>
 
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
-        if (R.id.menu_leave_group == menuItem.getItemId()) {
+        int id = menuItem.getItemId();
+        if (R.id.menu_leave_group == id) {
             leaveGroup();
             return true;
-        } else if (R.id.menu_clear_history == menuItem.getItemId()) {
+        } else if (R.id.menu_clear_history == id) {
             clearHistory();
             return true;
+        } else if (R.id.menu_mute == id){
+            nm.mute(path.chat);
+            getView().initMenu(isGroupChat, true);
+        } else if (R.id.menu_unmute == id){
+            nm.unmute(path.chat);
+            getView().initMenu(isGroupChat, false);
         }
         return false;
     }

@@ -31,20 +31,7 @@ public class RxChat implements UserHolder {
             return new ChatDB.Portion(messages, users, splitter.split(messages));
         }
     };
-    final long id;
-    final RXClient client;
-    final ChatDB holder;
 
-    private final List<ChatListItem> chatListItems = new ArrayList<>();
-    private final List<TdApi.Message> messages = new ArrayList<>();
-
-    private final PublishSubject<List<ChatListItem>> subject = PublishSubject.create();
-    private final DaySplitter splitter;
-    private Observable<ChatDB.Portion> request;
-    private Set<Integer> tmpUIDs = new HashSet<>();
-
-    private boolean atLeastOneRequestCompleted = false;
-    private boolean downloadedAll;
     private Func1<TdApi.TLObject, TdApi.Message> CAST_TO_MESSAGE_AND_PARSE_EMOJI = new Func1<TdApi.TLObject, TdApi.Message>() {
         @Override
         public TdApi.Message call(TdApi.TLObject tlObject) {
@@ -59,6 +46,23 @@ public class RxChat implements UserHolder {
             handleNewMessage(tlObject);
         }
     };
+
+
+    final long id;
+    final RXClient client;
+    final ChatDB holder;
+
+    private final List<ChatListItem> chatListItems = new ArrayList<>();
+    private final List<TdApi.Message> messages = new ArrayList<>();
+
+    private final PublishSubject<List<ChatListItem>> subject = PublishSubject.create();
+    private final DaySplitter splitter;
+    private Observable<ChatDB.Portion> request;
+    private Set<Integer> tmpUIDs = new HashSet<>();
+
+    private boolean atLeastOneRequestCompleted = false;
+    private boolean downloadedAll;
+
 
     public RxChat(long id, RXClient client, ChatDB holder) {
         this.id = id;
