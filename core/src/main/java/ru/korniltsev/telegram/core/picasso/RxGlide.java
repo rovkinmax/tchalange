@@ -1,7 +1,6 @@
 package ru.korniltsev.telegram.core.picasso;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
@@ -87,6 +86,7 @@ public class RxGlide {
         loadPhoto(file, false)
                 .resize(size, size)
                 .transform(ROUND)
+                .placeholder(getStubDrawable(u, size))
                 .into(avatarView);
     }
 
@@ -97,24 +97,42 @@ public class RxGlide {
      * @return
      */
     private void loadStub(TdApi.User u, int size, ImageView target) {
+        StubDrawable stub = getStubDrawable(u, size);
+        target.setImageDrawable(stub);
+        picasso.cancelRequest(target);
+    }
+
+    private StubDrawable getStubDrawable(TdApi.User u, int size) {
         String chars = STUB_AWARE_USER.needStub(u);
-        stubDrawable(chars, u.id, size, target);
+
+        return getStubDrawable(chars, u.id, size);
     }
 
     private void stubDrawable(String chars, int id, int size, ImageView target) {
+        StubDrawable stub = getStubDrawable(chars, id, size);
+        target.setImageDrawable(stub);
+        picasso.cancelRequest(target);
+    }
+
+    private StubDrawable getStubDrawable(String chars, int id, int size) {
         StubKey key = new StubKey(id, chars, size);
         StubDrawable stub = stubs.get(key);
         if (stub == null) {
             stub = new StubDrawable(key);
             stubs.put(key, stub);
         }
+        return stub;
+    }
+
+    private void loadStub(TdApi.GroupChatInfo info, int size, ImageView target) {
+        StubDrawable stub = getStubDrawable(info, size);
         target.setImageDrawable(stub);
         picasso.cancelRequest(target);
     }
 
-    private void loadStub(TdApi.GroupChatInfo info, int size, ImageView target) {
+    private StubDrawable getStubDrawable(TdApi.GroupChatInfo info, int size) {
         String chars = STUB_AWARE_GROUP_CHAT.needStub(info.groupChat);
-        stubDrawable(chars, info.groupChat.id, size, target);
+        return getStubDrawable(chars, info.groupChat.id, size);
     }
 
     public void loadAvatarForChat(TdApi.Chat chat, int size, AvatarView avatarView) {
@@ -139,6 +157,7 @@ public class RxGlide {
         loadPhoto(file, false)
                 .resize(size, size)
                 .transform(ROUND)
+                .placeholder(getStubDrawable(info, size))
                 .into(avatarView);
     }
 
