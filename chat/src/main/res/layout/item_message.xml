@@ -7,7 +7,7 @@
 
     <include layout="@layout/item_nick_and_time"/>
 
-    <TextView
+    <ru.korniltsev.telegram.core.emoji.EmojiTextView
             android:id="@+id/message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

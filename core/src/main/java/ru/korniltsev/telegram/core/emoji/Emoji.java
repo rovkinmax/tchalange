@@ -22,6 +22,8 @@ import android.text.Spannable;
 import android.text.style.DynamicDrawableSpan;
 import android.text.style.ImageSpan;
 import android.util.Log;
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -201,6 +203,11 @@ public class Emoji {
                             0x00000000D83DDD34L, 0x00000000D83DDD35L, 0x00000000D83DDD3BL, 0x00000000D83DDD36L, 0x00000000D83DDD37L, 0x00000000D83DDD38L, 0x00000000D83DDD39L}};
 
     private final Context ctx;
+    private final PublishSubject<Bitmap> pageLoaded = PublishSubject.create();
+
+    public Observable<Bitmap> pageLoaded() {
+        return pageLoaded;
+    }
 
     @Inject
     public Emoji(Context ctx, DpCalculator dpCalculator) {
@@ -302,6 +309,7 @@ public class Emoji {
                         k.invalidateSelf();
                     }
                 }
+                pageLoaded.onNext(bitmap);
             }
         });
     }
@@ -539,6 +547,8 @@ public class Emoji {
         return s;
     }
 
+
+
     public class EmojiSpan extends ImageSpan {
 //        private Paint.FontMetricsInt fontMetrics = null;
 //        private int size = dpCalculator.dp(20);
@@ -589,7 +599,8 @@ public class Emoji {
 //        }
     }
 
-    public String toString(long code) {
+
+    public static String toString(long code) {
         String str = "";
         for (int i = 0; ; i++) {
             if (i >= 4) {

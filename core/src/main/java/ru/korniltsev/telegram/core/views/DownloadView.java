@@ -44,7 +44,7 @@ public class DownloadView extends FrameLayout {
     public static final int LEVEL_EMPTY = 2;
     public static final Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
     public static final int BG_BLUE = 0xffecf4F9;
-    public static final int BG_BLACK = 0xBE000000;
+    public static final int BG_BLACK = 0xB1000000;
     public static final int BG_DARKEN_BLUE = 0xff579cda;
 
     //size of visible part of view

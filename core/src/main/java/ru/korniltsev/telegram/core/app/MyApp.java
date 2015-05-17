@@ -3,6 +3,7 @@ package ru.korniltsev.telegram.core.app;
 import android.app.Application;
 import android.content.Context;
 import android.support.v4.app.Fragment;
+import android.view.InflateException;
 import dagger.ObjectGraph;
 import mortar.MortarScope;
 import mortar.dagger1support.ObjectGraphService;
@@ -24,6 +25,18 @@ public class MyApp extends Application {
         super.onCreate();
         JodaTimeAndroid.init(this);
         initClient();
+
+        final Thread.UncaughtExceptionHandler w = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable ex) {
+                if (ex instanceof InflateException) {
+                    w.uncaughtException(thread, ex.getCause().getCause());
+                } else {
+                    w.uncaughtException(thread, ex);
+                }
+            }
+        });
     }
 
     @Override public Object getSystemService(String name) {

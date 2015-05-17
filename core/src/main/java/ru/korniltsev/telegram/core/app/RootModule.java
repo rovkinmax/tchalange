@@ -23,6 +23,7 @@ import ru.korniltsev.telegram.core.emoji.Emoji;
 import ru.korniltsev.telegram.core.audio.AudioPlayer;
 import ru.korniltsev.telegram.core.emoji.EmojiKeyboardView;
 import ru.korniltsev.telegram.core.emoji.EmojiPopup;
+import ru.korniltsev.telegram.core.emoji.EmojiTextView;
 import ru.korniltsev.telegram.core.emoji.Stickers;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.rx.EmojiParser;
@@ -57,6 +58,7 @@ import javax.inject.Singleton;
                 EmojiPopup.class,
 
                 DownloadView.class,
+                EmojiTextView.class,
         },
         library = true)
 public class RootModule {

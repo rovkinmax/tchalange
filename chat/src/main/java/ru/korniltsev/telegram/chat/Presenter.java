@@ -1,5 +1,6 @@
 package ru.korniltsev.telegram.chat;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -7,6 +8,7 @@ import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
+import ru.korniltsev.telegram.core.emoji.Emoji;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.ChatDB;
@@ -28,6 +30,7 @@ public class Presenter extends ViewPresenter<ChatView>
 
     private final Chat path;
     private final RXClient client;
+    private final Emoji emoji;
     private final RxChat rxChat;
 
     private final Observable<TdApi.GroupChatFull> fullChatInfoRequest;
@@ -35,9 +38,10 @@ public class Presenter extends ViewPresenter<ChatView>
     private CompositeSubscription subscription;
 
     @Inject
-    public Presenter(Chat c, RXClient client, ChatDB chatDB) {
+    public Presenter(Chat c, RXClient client, ChatDB chatDB, Emoji emoji) {
         path = c;
         this.client = client;
+        this.emoji = emoji;
         rxChat = chatDB.getRxChat(path.chat.id);
 
         if (path.chat.type instanceof TdApi.GroupChatInfo) {
@@ -123,6 +127,15 @@ public class Presenter extends ViewPresenter<ChatView>
                             }
                         }
                 ));
+        subscription.add(emoji.pageLoaded()
+                .subscribe(new Action1<Bitmap>() {
+                    @Override
+                    public void call(Bitmap bitmap) {
+                        getView()
+                                .invalidate();
+
+                    }
+                }));
     }
 
     private void updateOnlineStatus(TdApi.GroupChatFull info) {

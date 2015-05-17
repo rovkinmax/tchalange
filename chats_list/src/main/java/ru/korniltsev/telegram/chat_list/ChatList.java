@@ -2,6 +2,7 @@ package ru.korniltsev.telegram.chat_list;
 
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.Chat;
 import ru.korniltsev.telegram.core.app.RootModule;
+import ru.korniltsev.telegram.core.emoji.Emoji;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
@@ -41,6 +43,7 @@ public class ChatList extends BasePath implements Serializable {
     @Singleton
     public static class Presenter extends ViewPresenter<ChatListView> {
         private RXClient client;
+        private final Emoji emoji;
         private RXAuthState authState;
         private ChatDB chatDB;
         final Observable<TdApi.User> meRequest;
@@ -53,8 +56,9 @@ public class ChatList extends BasePath implements Serializable {
         //        boolean atLeastOneResponseReturned = false;
 
         @Inject
-        public Presenter(RXClient client, RXAuthState authState, ChatDB chatDB) {
+        public Presenter(RXClient client, Emoji emoji, RXAuthState authState, ChatDB chatDB) {
             this.client = client;
+            this.emoji = emoji;
             this.authState = authState;
             this.chatDB = chatDB;
             checkTlObjectIsSerializable();
@@ -130,6 +134,14 @@ public class ChatList extends BasePath implements Serializable {
                             }
                             Presenter.this.getView()
                                     .updateNetworkStatus(connected);
+                        }
+                    }));
+            subscription.add(emoji.pageLoaded()
+                    .subscribe(new Action1<Bitmap>() {
+                        @Override
+                        public void call(Bitmap bitmap) {
+                            getView()
+                                    .invalidate();
                         }
                     }));
         }
