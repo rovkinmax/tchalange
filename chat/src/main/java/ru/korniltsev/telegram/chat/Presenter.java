@@ -67,6 +67,11 @@ public class Presenter extends ViewPresenter<ChatView>
         view.initMenu(isGroupChat, nm.isMuted(path.chat));
         setViewSubtitle();
 
+        List<RxChat.ChatListItem> messages = rxChat.getMessages();
+        if (!messages.isEmpty()
+                && !rxChat.isRequestInProgress()){
+            rxChat.updateCurrentMessageList();
+        }
         getView().updateData(rxChat);
         subscribe();
     }
@@ -112,7 +117,9 @@ public class Presenter extends ViewPresenter<ChatView>
                         .subscribe(new Action1<List<RxChat.ChatListItem>>() {
                                        @Override
                                        public void call(List<RxChat.ChatListItem> chatListItems) {
-                                           getView().addNewMessage(chatListItems);
+                                           getView()
+                                                   .addNewMessage(chatListItems);
+                                           rxChat.hackToReadTheMessage(chatListItems);
                                        }
                                    }
                         ));

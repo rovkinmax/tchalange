@@ -1,21 +1,28 @@
 package ru.korniltsev.telegram.core.picasso;
 
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
+import ru.korniltsev.telegram.core.views.AvatarView;
+import ru.korniltsev.telegram.core.views.RoundTransformation;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static junit.framework.Assert.assertTrue;
 
 @Singleton
 public class RxGlide {
+    public static final RoundTransformation ROUND = new RoundTransformation();
 
     public static final String TELEGRAM_FILE = "telegram.file.";
     private final Picasso picasso;
@@ -31,7 +38,7 @@ public class RxGlide {
 
         picasso = new Picasso.Builder(ctx)
                 .memoryCache(new LruCache(Utils.calculateMemoryCacheSize(ctx)))
-                .addRequestHandler(new StubRequestHandler(ctx))
+//                .addRequestHandler(new StubRequestHandler(ctx))
                 .addRequestHandler(new TDFileRequestHandler(downlaoder))
                 .build();
     }
@@ -68,16 +75,19 @@ public class RxGlide {
         }
     };
 
-    public RequestCreator loadAvatarForUser(TdApi.User u, int size) {
+    public void loadAvatarForUser(TdApi.User u, int size, AvatarView avatarView) {
         TdApi.File file = u.photoSmall;
         if (file instanceof TdApi.FileEmpty) {
             boolean stub = ((TdApi.FileEmpty) file).id == 0;
             if (stub) {
-                return loadStub(u, size);
+                loadStub(u, size,avatarView);
+                return;
             }
         }
-        return loadPhoto(file, false)
-                .resize(size, size);
+        loadPhoto(file, false)
+                .resize(size, size)
+                .transform(ROUND)
+                .into(avatarView);
     }
 
     /**
@@ -86,39 +96,92 @@ public class RxGlide {
      * @param size in px
      * @return
      */
-    private RequestCreator loadStub(TdApi.User u, int size) {
+    private void loadStub(TdApi.User u, int size, ImageView target) {
         String chars = STUB_AWARE_USER.needStub(u);
-        Uri uri = StubRequestHandler.create(chars, u.id, size);
-        return picasso.load(uri);
-
+        stubDrawable(chars, u.id, size, target);
     }
 
-    private RequestCreator loadStub(TdApi.GroupChatInfo info, int size) {
+    private void stubDrawable(String chars, int id, int size, ImageView target) {
+        StubKey key = new StubKey(id, chars, size);
+        StubDrawable stub = stubs.get(key);
+        if (stub == null) {
+            stub = new StubDrawable(key);
+            stubs.put(key, stub);
+        }
+        target.setImageDrawable(stub);
+        picasso.cancelRequest(target);
+    }
+
+    private void loadStub(TdApi.GroupChatInfo info, int size, ImageView target) {
         String chars = STUB_AWARE_GROUP_CHAT.needStub(info.groupChat);
-        Uri uri = StubRequestHandler.create(chars, info.groupChat.id, size);
-        return picasso.load(uri);
+        stubDrawable(chars, info.groupChat.id, size, target);
     }
 
-    public RequestCreator loadAvatarForChat(TdApi.Chat chat, int size) {
+    public void loadAvatarForChat(TdApi.Chat chat, int size, AvatarView avatarView) {
         if (chat.type instanceof TdApi.PrivateChatInfo) {
             TdApi.User user = ((TdApi.PrivateChatInfo) chat.type).user;
-            return loadAvatarForUser(user, size);
+            loadAvatarForUser(user, size, avatarView);
         } else {
-            return loadAvatarForGroup(chat, size);
+            loadAvatarForGroup(chat, size, avatarView);
         }
     }
 
-    private RequestCreator loadAvatarForGroup(TdApi.Chat chat, int size) {
+    private void loadAvatarForGroup(TdApi.Chat chat, int size, AvatarView avatarView) {
         TdApi.GroupChatInfo info = (TdApi.GroupChatInfo) chat.type;
         TdApi.File file = info.groupChat.photoSmall;
         if (file instanceof TdApi.FileEmpty) {
             boolean stub = ((TdApi.FileEmpty) file).id == 0;
             if (stub) {
-                return loadStub(info, size);
+                loadStub(info, size, avatarView);
+                return;
             }
         }
-        return loadPhoto(file, false)
-                .resize(size, size);
+        loadPhoto(file, false)
+                .resize(size, size)
+                .transform(ROUND)
+                .into(avatarView);
+    }
+
+    private final Map<StubKey, StubDrawable> stubs = new HashMap<>();
+
+    public class StubKey {
+        final int id;
+        final String chars;
+        final int size;
+
+        public StubKey(int id, String chars, int size) {
+            this.id = id;
+            this.chars = chars;
+            this.size = size;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            StubKey stubKey = (StubKey) o;
+
+            if (id != stubKey.id) {
+                return false;
+            }
+            if (size != stubKey.size) {
+                return false;
+            }
+            return chars.equals(stubKey.chars);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = id;
+            result = 31 * result + chars.hashCode();
+            result = 31 * result + size;
+            return result;
+        }
     }
 
 

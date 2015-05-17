@@ -1,7 +1,9 @@
 package ru.korniltsev.telegram.chat.adapter.view;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.widget.ImageView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -23,8 +25,7 @@ public class StickerView extends ImageView {
     public StickerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         ObjectGraphService.inject(context, this);
-        MAX_HEIGHT = calc.dp(256);
-//        height = MAX_HEIGHT;
+            MAX_HEIGHT = Math.min(512, calc.dp(256));
     }
 
     @Override
@@ -36,8 +37,13 @@ public class StickerView extends ImageView {
 
     public void bind(final TdApi.Sticker s) {
         setImageBitmap(null);
-        height = Math.min(MAX_HEIGHT, s.height);
-        float ratio = (float) s.width / s.height;
+        height = MAX_HEIGHT;
+        float ratio;
+        if (s.width == 0 && s.height == 0){
+            ratio = 1f;
+        } else {
+            ratio = (float) s.width / s.height;
+        }
 
         width = (int) (ratio * height);
         if (isValidThumb(s)){

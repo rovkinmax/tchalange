@@ -10,6 +10,7 @@ import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.Chat;
+import ru.korniltsev.telegram.chat_list.view.DividerRelativeLayout;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.emoji.Emoji;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
@@ -35,7 +36,10 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 @WithModule(ChatList.Module.class)
 public class ChatList extends BasePath implements Serializable {
 
-    @dagger.Module(injects = ChatListView.class, addsTo = RootModule.class)
+    @dagger.Module(injects = {
+            ChatListView.class,
+            DividerRelativeLayout.class,
+    }, addsTo = RootModule.class)
     public static class Module {
 
     }
@@ -87,8 +91,12 @@ public class ChatList extends BasePath implements Serializable {
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
             ContentObservable.fromBroadcast(getView().getContext(), filter);
 
-            getView()
-                    .setData(chatDB.getAllChats());
+            List<TdApi.Chat> allChats = chatDB.getAllChats();
+            getView().setData(allChats);
+            if (!allChats.isEmpty()
+                    && !chatDB.isRequestInProgress()){
+                chatDB.updateCurrentChatList();
+            }
 
             subscribe();
         }
@@ -148,6 +156,7 @@ public class ChatList extends BasePath implements Serializable {
 
         public void openChat(TdApi.Chat chat) {
             if (supportedChats(chat)) {
+//                chat.unreadCount = 0;//todo why here?!?!?!
                 Flow.get(getView())
                         .set(new Chat(chat, me));
             } //else do nothing

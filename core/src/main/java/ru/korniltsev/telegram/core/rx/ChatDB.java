@@ -209,7 +209,7 @@ public class ChatDB implements UserHolder {
     }
 
 
-    private void updateCurrentChatList() {
+    public void updateCurrentChatList() {
         checkMainThread();
         if (chatsRequest != null) {
             //todo

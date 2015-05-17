@@ -89,16 +89,7 @@ public class ChatListView extends DrawerLayout {
                 presenter.logout();
             }
         });
-        findViewById(R.id.btn_dump_heap).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    Debug.dumpHprofData("/mnt/sdcard/dump.hprof");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+
 
     }
 

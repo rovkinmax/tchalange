@@ -201,7 +201,7 @@ public class RxChat implements UserHolder {
         holder.saveUser(u);
     }
 
-    void updateCurrentMessageList() {
+    public void updateCurrentMessageList() {
         checkMainThread();
         if (messages.isEmpty()) {
             return;
@@ -302,6 +302,18 @@ public class RxChat implements UserHolder {
                 .map(CAST_TO_MESSAGE_AND_PARSE_EMOJI)
                 .observeOn(mainThread())
                 .subscribe(HANDLE_NEW_MESSAGE);
+    }
+
+    public void hackToReadTheMessage(List<ChatListItem> chatListItems) {
+        MessageItem msg = (MessageItem) chatListItems.get(0);
+        client.sendRx(new TdApi.GetChatHistory(id, msg.msg.id, -1, 1))
+        .subscribe(new Action1<TdApi.TLObject>() {
+            @Override
+            public void call(TdApi.TLObject tlObject) {
+
+            }
+        });
+
     }
 
     public static abstract class ChatListItem {

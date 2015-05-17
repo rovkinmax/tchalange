@@ -2,15 +2,8 @@ package ru.korniltsev.telegram.core.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.ImageView;
-import com.squareup.picasso.Transformation;
 import junit.framework.Assert;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -20,6 +13,7 @@ import ru.korniltsev.telegram.utils.R;
 import static junit.framework.Assert.assertNotNull;
 
 public class AvatarView extends ImageView {
+
 
     private final int spec;
     private int size;
@@ -53,13 +47,13 @@ public class AvatarView extends ImageView {
         assertNotNull(o);
         setImageBitmap(null);
         if (o instanceof TdApi.User) {
-            picasso2.loadAvatarForUser((TdApi.User) o, size)
-                    .transform(new RoundTransformation())
-                    .into(this);
+            picasso2.loadAvatarForUser((TdApi.User) o, size, this);
+            //                    .transform(ROUND)
+            //                    .into(this);
         } else {
-            picasso2.loadAvatarForChat((TdApi.Chat) o, size)
-                    .transform(new RoundTransformation())
-                    .into(this);
+            picasso2.loadAvatarForChat((TdApi.Chat) o, size, this);
+            //                    .transform(new RoundTransformation())
+            //                    .into(this);
         }
     }
 
@@ -67,35 +61,6 @@ public class AvatarView extends ImageView {
     public void requestLayout() {
         if (getMeasuredWidth() == 0){
             super.requestLayout();
-        }
-    }
-
-    private static class RoundTransformation implements Transformation {
-
-        private static final ThreadLocal<Paint> paints = new ThreadLocal<Paint>(){
-            @Override
-            protected Paint initialValue() {
-                return new Paint(Paint.ANTI_ALIAS_FLAG);
-            }
-        };
-
-
-        @Override
-        public Bitmap transform(Bitmap source) {
-            int width = source.getWidth();
-            int height = source.getHeight();
-            Bitmap transformed = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(transformed);
-            Paint p = paints.get();
-            p.setShader(new BitmapShader(source, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
-            canvas.drawCircle(width / 2, height / 2, width / 2, p);
-            source.recycle();
-            return transformed;
-        }
-
-        @Override
-        public String key() {
-            return "round transformation";
         }
     }
 }

@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="72dp"
+<ru.korniltsev.telegram.chat_list.view.DividerRelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="@drawable/bg_keyboard_tab"
+
         >
+
     <ru.korniltsev.telegram.core.views.AvatarView
             android:id="@+id/avatar"
             android:layout_width="wrap_content"
@@ -12,9 +16,87 @@
             android:layout_margin="10dp"
             app:size="52dp"
             />
-    <ru.korniltsev.telegram.core.emoji.EmojiTextView
-            android:id="@+id/message"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"/>
-</LinearLayout>
+    <!-- top-->
+    <LinearLayout
+            android:id="@+id/top"
+            android:layout_toRightOf="@id/avatar"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+
+            android:gravity="bottom"
+            android:paddingRight="15dp"
+            >
+
+        <ImageView
+                android:id="@+id/group_chat_icon"
+                android:layout_width="16dp"
+                android:layout_height="9dp"
+                android:src="@drawable/ic_group"
+                android:layout_marginRight="6dp"
+                android:layout_marginBottom="4dp"
+                />
+
+        <ru.korniltsev.telegram.core.views.RobotoMediumTextView
+                android:id="@+id/name"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textSize="17sp"
+                android:textColor="#222222"
+                android:fontFamily="me"
+                android:gravity="bottom"
+                />
+
+        <ImageView
+                android:id="@+id/icon_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                />
+
+        <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:textSize="13sp"
+                android:textColor="#999999"
+                />
+    </LinearLayout>
+    <!-- bottom -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="37dp"
+            android:layout_alignLeft="@id/top"
+            android:layout_below="@id/top"
+            android:paddingRight="14dp"
+            >
+
+        <ru.korniltsev.telegram.core.emoji.EmojiTextView
+                android:id="@+id/message"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:layout_marginRight="6dp"
+                android:text="asd"
+                android:textSize="15sp"
+                android:paddingTop="3dp"
+                android:fontFamily="sans-serif"
+                android:textStyle="normal"
+                />
+
+            <!--<item name="android:fontFamily">sans-serif</item>-->
+            <!--<item name="android:textStyle">normal</item>-->
+            <TextView
+                android:id="@+id/icon_bottom"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:textColor="#fff"
+                android:gravity="center"
+                android:layout_marginTop="2dp"
+                />
+    </LinearLayout>
+
+</ru.korniltsev.telegram.chat_list.view.DividerRelativeLayout>

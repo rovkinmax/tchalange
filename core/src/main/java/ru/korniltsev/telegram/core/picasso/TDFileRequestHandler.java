@@ -57,6 +57,7 @@ public class TDFileRequestHandler extends RequestHandler {
 
     @Override
     public Result load(Request request, int networkPolicy) throws IOException {
+        Log.e("FileDownloader", "download " + request.uri);
         Uri uri = request.uri;
         boolean webp = Boolean.parseBoolean(uri.getQueryParameter(WEBP));
         String strId = uri.getQueryParameter(ID);
