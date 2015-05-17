@@ -45,6 +45,20 @@ public class RxChat implements UserHolder {
 
     private boolean atLeastOneRequestCompleted = false;
     private boolean downloadedAll;
+    private Func1<TdApi.TLObject, TdApi.Message> CAST_TO_MESSAGE_AND_PARSE_EMOJI = new Func1<TdApi.TLObject, TdApi.Message>() {
+        @Override
+        public TdApi.Message call(TdApi.TLObject tlObject) {
+            TdApi.Message msg = (TdApi.Message) tlObject;
+            holder.parser.parse(msg);
+            return msg;
+        }
+    };
+    private Action1<TdApi.Message> HANDLE_NEW_MESSAGE = new Action1<TdApi.Message>() {
+        @Override
+        public void call(TdApi.Message tlObject) {
+            handleNewMessage(tlObject);
+        }
+    };
 
     public RxChat(long id, RXClient client, ChatDB holder) {
         this.id = id;
@@ -281,19 +295,9 @@ public class RxChat implements UserHolder {
 
     private void sendMessageImpl(TdApi.InputMessageContent content) {
         client.sendRx(new TdApi.SendMessage(id, content))
-                .map(new Func1<TdApi.TLObject, TdApi.Message>() {
-                    @Override
-                    public TdApi.Message call(TdApi.TLObject tlObject) {
-                        return (TdApi.Message) tlObject;
-                    }
-                })
+                .map(CAST_TO_MESSAGE_AND_PARSE_EMOJI)
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.Message>() {
-                    @Override
-                    public void call(TdApi.Message tlObject) {
-                        handleNewMessage(tlObject);
-                    }
-                });
+                .subscribe(HANDLE_NEW_MESSAGE);
     }
 
     public static abstract class ChatListItem {
