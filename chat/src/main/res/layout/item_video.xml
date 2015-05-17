@@ -12,6 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/item_content_with_margins"
+            android:layout_marginTop="3dp"
             >
         <ImageView
                 android:id="@+id/preview"

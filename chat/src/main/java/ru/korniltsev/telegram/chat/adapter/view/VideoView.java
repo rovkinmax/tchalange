@@ -17,6 +17,7 @@ import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
+import ru.korniltsev.telegram.core.utils.PhotoUtils;
 import ru.korniltsev.telegram.core.views.DownloadView;
 import rx.Observable;
 import rx.Subscription;
@@ -31,10 +32,8 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 public class VideoView extends FrameLayout {
 
-    private final int widthSpec;
-    private final int heightSpec;
-    private final int width;
-    private final int height;
+    private final int dp207;
+    private final int dp154;
     @Inject RxGlide picasso;
     @Inject DpCalculator calc;
     @Inject RxDownloadManager downloader;
@@ -44,15 +43,15 @@ public class VideoView extends FrameLayout {
 
     private TdApi.Video msg;
     private DownloadView downloadView;
+    private int width;
+    private int height;
 
     public VideoView(Context context, AttributeSet attrs) {
         super(context, attrs);
         ObjectGraphService.inject(context, this);
         //207x165
-        width = calc.dp(207);
-        height = calc.dp(165);
-        widthSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
-        heightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+        dp207 = calc.dp(207);
+        dp154 = calc.dp(154);
     }
 
     @Override
@@ -82,13 +81,23 @@ public class VideoView extends FrameLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthSpec, heightSpec);
+        super.onMeasure(
+                MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
     }
 
 
 
     public void set(TdApi.Video msg) {
         this.msg = msg;
+        float ratio = (float)msg.thumb.width / msg.thumb.height;//PhotoUtils.getPhotoRation(msg.thumb.);
+        if (ratio > 1) {
+            width = dp207;
+        } else {
+            width = dp154;
+        }
+        height = (int) ( width/ratio);
+        requestLayout();
         showLowQualityThumb();
         downloadView.bind(msg.video, new DownloadView.Config(R.drawable.ic_play, false, false, 48), new DownloadView.CallBack() {
             @Override
