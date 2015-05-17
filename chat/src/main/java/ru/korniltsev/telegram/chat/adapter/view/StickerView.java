@@ -13,16 +13,18 @@ import ru.korniltsev.telegram.core.picasso.RxGlide;
 import javax.inject.Inject;
 
 public class StickerView extends ImageView {
+    private final int MAX_HEIGHT;
     @Inject RxGlide picasso;
     @Inject DpCalculator calc;
 
-    final int height;
+    private int height;
     private int width;
 
     public StickerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         ObjectGraphService.inject(context, this);
-        height = calc.dp(256);
+        MAX_HEIGHT = calc.dp(256);
+//        height = MAX_HEIGHT;
     }
 
     @Override
@@ -34,20 +36,20 @@ public class StickerView extends ImageView {
 
     public void bind(final TdApi.Sticker s) {
         setImageBitmap(null);
-
+        height = Math.min(MAX_HEIGHT, s.height);
         float ratio = (float) s.width / s.height;
 
         width = (int) (ratio * height);
         if (isValidThumb(s)){
             picasso.loadPhoto(s.thumb.photo, true)
-                    .resize(width, height)
+//                    .resize(width, height)
                     .priority(Picasso.Priority.HIGH)
                     .into(this, new Callback() {
                         @Override
                         public void onSuccess() {
                             picasso.loadPhoto(s.sticker, true)
                                     .placeholder(getDrawable())
-                                    .resize(width, height)
+//                                    .resize(width, height)
                                     .into(StickerView.this);
                         }
 
@@ -58,7 +60,7 @@ public class StickerView extends ImageView {
                     });
         } else {
             picasso.loadPhoto(s.sticker, true)
-                    .resize(width, height)
+//                    .resize(width, height)
                     .into(StickerView.this);
 
         }

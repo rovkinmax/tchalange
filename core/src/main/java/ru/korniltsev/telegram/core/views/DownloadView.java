@@ -264,7 +264,8 @@ public class DownloadView extends FrameLayout {
         if (size % 2 == 1) {
             size--;
         }
-        rect.set(strokeWidth, strokeWidth, size - strokeWidth, size - strokeWidth);
+        int shift = strokeWidth - 1;
+        rect.set(shift, shift, size - shift, size - shift);
         this.cfg = cfg;
         LevelListDrawable ls = new LevelListDrawable();
         Drawable icDownload = cfg.blue? downloadBlue: download;

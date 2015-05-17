@@ -326,8 +326,8 @@ public class EmojiKeyboardView extends LinearLayout {
         private void onBindVH(VH vh, int position) {
             TdApi.Sticker s = getItem(position);
             picasso.loadPhoto(s.sticker, true)
-                    .fit()
-                    .centerInside()
+//                    .fit()
+//                    .centerInside()
                     .into(vh.img);
         }
     }
