@@ -85,7 +85,7 @@ public class DocumentView extends LinearLayout{
         downloadView.bind(d.document, cfg, new DownloadView.CallBack() {
             @Override
             public void onProgress(TdApi.UpdateFileProgress p) {
-                documentProgress.setText(getResources().getString(R.string.downloading_kb, kb(p.ready), kb(p.size)));
+                documentProgress.setText(getResources().getString(R.string.downloading_kb,  kb(p.size),kb(p.ready)));
             }
 
             @Override
