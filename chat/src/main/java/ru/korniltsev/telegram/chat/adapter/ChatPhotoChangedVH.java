@@ -52,7 +52,9 @@ public class ChatPhotoChangedVH extends RealBaseVH {
         }
 
         TdApi.Chat o = new TdApi.Chat();
+
         TdApi.GroupChatInfo groupChatInfo = new TdApi.GroupChatInfo();
+        groupChatInfo.groupChat.title = "";//todo !!
         o.type = groupChatInfo;
         groupChatInfo.groupChat = new TdApi.GroupChat();
         groupChatInfo.groupChat.photoSmall = smallSize.photo;
