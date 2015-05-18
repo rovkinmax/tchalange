@@ -37,7 +37,7 @@ public class TDFileRequestHandler extends RequestHandler {
                     .build();
         } else {
             TdApi.FileEmpty e = (TdApi.FileEmpty) f;
-            Log.e("SomeCrazyTag", "create uri for id " + e.id, new Throwable());
+//            Log.e("SomeCrazyTag", "create uri for id " + e.id, new Throwable());
             assertTrue(e.id != 0);
             return new Uri.Builder()
                     .scheme(TD_FILE)
@@ -60,7 +60,7 @@ public class TDFileRequestHandler extends RequestHandler {
 
     @Override
     public Result load(Request request, int networkPolicy) throws IOException {
-        Log.e("FileDownloader", "download " + request.uri);
+//        Log.e("FileDownloader", "download " + request.uri);
         Uri uri = request.uri;
         boolean webp = Boolean.parseBoolean(uri.getQueryParameter(WEBP));
         String strId = uri.getQueryParameter(ID);

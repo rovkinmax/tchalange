@@ -101,7 +101,7 @@ public class ChatDB implements UserHolder {
         prepareForUpdateMessageDate();
         //todo this 3 ones are probably needed
 //        prepareForUpdateChatReadInbox();
-//        prepareForUpdateChatReadOutbox();
+        prepareForUpdateChatReadOutbox();
 //        prepareForUpdateMessageContent();
 
 //        prepareForUpdateChatTitle();

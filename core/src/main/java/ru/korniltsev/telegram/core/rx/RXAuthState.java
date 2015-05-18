@@ -13,11 +13,24 @@ import javax.inject.Singleton;
 public class RXAuthState {
     public static final String PREF_AUTHORIZED = "pref_authorized";
     public static final String RX_CLIENT = "rx_client";
+    public static final String ME_UID = "ME_UID";
     private final SharedPreferences prefs;
     private final RXClient client;
 
-    public enum AuthState {//todomove
-        AUTHORIZED, LOGOUT
+    public abstract class AuthState {//todomove
+//        AUTHORIZED, LOGOUT
+    }
+
+    public class StateLogout extends AuthState{
+
+    }
+
+    public class StateAuthorized extends AuthState{
+        public final int userId;
+
+        public StateAuthorized(int userId) {
+            this.userId = userId;
+        }
     }
 
     private final PublishSubject<AuthState> authState = PublishSubject.create();;
@@ -32,24 +45,30 @@ public class RXAuthState {
     }
 
     public AuthState getState() {
-        return prefs.getBoolean(PREF_AUTHORIZED, false) ? AuthState.AUTHORIZED : AuthState.LOGOUT;
+        boolean authorized = prefs.getBoolean(PREF_AUTHORIZED, false);
+        if (authorized) {
+            int me_uid = prefs.getInt(ME_UID, -1);
+            return new StateAuthorized(me_uid);//AuthState.AUTHORIZED;
+        } else {
+            return new StateLogout();
+        }
     }
 
-    public void authorized() {
+    public void authorized(TdApi.User user) {
         prefs.edit()
                 .putBoolean(PREF_AUTHORIZED, true)
-                .commit();
-        authState.onNext(AuthState.AUTHORIZED);
+                .putInt(ME_UID, user.id)
+                .apply();
+        authState.onNext(new StateAuthorized(user.id));
     }
 
     public void logout() {
         client.sendSilently(new TdApi.AuthReset());
         prefs.edit()
                 .remove(PREF_AUTHORIZED)
-                .commit();
-        //todo clear picasso cache
-        // but not here!
-        authState.onNext(AuthState.LOGOUT);
+                .apply();
+
+        authState.onNext(new StateLogout());
     }
 
     public Observable<AuthState> listen() {

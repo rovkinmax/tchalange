@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import dagger.Provides;
 import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -35,21 +36,36 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 @WithModule(ChatList.Module.class)
 public class ChatList extends BasePath implements Serializable {
+    final int myId;
+
+    public ChatList(int myId) {
+        this.myId = myId;
+    }
 
     @dagger.Module(injects = {
             ChatListView.class,
             DividerRelativeLayout.class,
     }, addsTo = RootModule.class)
     public static class Module {
+        final ChatList path;
 
+        public Module(ChatList path) {
+            this.path = path;
+        }
+
+        @Provides ChatList providePath(){
+            return path;
+        }
     }
 
     @Singleton
     public static class Presenter extends ViewPresenter<ChatListView> {
-        private RXClient client;
+        private final ChatList cl;
+        private final RXClient client;
         private final Emoji emoji;
-        private RXAuthState authState;
-        private ChatDB chatDB;
+        private final RXAuthState authState;
+        private final ChatDB chatDB;
+
         final Observable<TdApi.User> meRequest;
         private TdApi.User me;
         private Observable<TdApi.UpdateOption> networkState;
@@ -60,7 +76,8 @@ public class ChatList extends BasePath implements Serializable {
         //        boolean atLeastOneResponseReturned = false;
 
         @Inject
-        public Presenter(RXClient client, Emoji emoji, RXAuthState authState, ChatDB chatDB) {
+        public Presenter(ChatList cl, RXClient client, Emoji emoji, RXAuthState authState, ChatDB chatDB) {
+            this.cl = cl;
             this.client = client;
             this.emoji = emoji;
             this.authState = authState;
@@ -185,6 +202,10 @@ public class ChatList extends BasePath implements Serializable {
                 return;
             }
             chatDB.requestPortion();
+        }
+
+        public ChatList getCl() {
+            return cl;
         }
     }
 

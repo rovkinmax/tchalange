@@ -7,9 +7,11 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.Utils;
+import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.views.AvatarView;
 import ru.korniltsev.telegram.core.views.RoundTransformation;
+import rx.functions.Action1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,21 +27,28 @@ public class RxGlide {
 
     public static final String TELEGRAM_FILE = "telegram.file.";
     private final Picasso picasso;
+    private final LruCache cache;
 
     private Context ctx;
 
-
-
-
     @Inject
-    public RxGlide(Context ctx, RxDownloadManager downlaoder) {
+    public RxGlide(Context ctx, RxDownloadManager downlaoder, RXAuthState auth) {
         this.ctx = ctx;
 
+        cache = new LruCache(Utils.calculateMemoryCacheSize(ctx));
         picasso = new Picasso.Builder(ctx)
-                .memoryCache(new LruCache(Utils.calculateMemoryCacheSize(ctx)))
-//                .addRequestHandler(new StubRequestHandler(ctx))
+                .memoryCache(cache)
                 .addRequestHandler(new TDFileRequestHandler(downlaoder))
                 .build();
+
+        auth.listen().subscribe(new Action1<RXAuthState.AuthState>() {
+            @Override
+            public void call(RXAuthState.AuthState authState) {
+                if (authState instanceof RXAuthState.StateLogout){
+                    cache.clear();
+                }
+            }
+        });
     }
 
     private static final RxGlide.StubAware<TdApi.GroupChat> STUB_AWARE_GROUP_CHAT = new StubAware<TdApi.GroupChat>() {

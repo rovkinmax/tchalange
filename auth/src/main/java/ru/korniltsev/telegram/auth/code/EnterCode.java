@@ -9,13 +9,17 @@ import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.Serializable;
 
 import static junit.framework.Assert.fail;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 /**
  * Created by korniltsev on 21/04/15.
@@ -50,17 +54,45 @@ public class EnterCode extends BasePath implements Serializable{
 
         public void checkCode(String code) {
             TdApi.AuthSetCode f = new TdApi.AuthSetCode(code);
-            client.sendCachedRXUI(f)
-                    .subscribe(new Action1<TdApi.TLObject>() {
+            authorizeAndGetMe(f)
+                    .observeOn(mainThread())
+                    .subscribe(new Action1<TdApi.User>() {
                         @Override
-                        public void call(TdApi.TLObject r) {
-                            if (r instanceof TdApi.AuthStateOk) {
-                                auth.authorized();
-                            } else {
-                                fail("unimplemented");
-                            }
+                        public void call(TdApi.User user) {
+                            auth.authorized(user);
                         }
                     });
+//                    .subscribe(new Action1<TdApi.TLObject>() {
+//                        @Override
+//                        public void call(TdApi.TLObject r) {
+//                            if (r instanceof TdApi.AuthStateOk) {
+//
+//                            } else {
+//                                fail("unimplemented");
+//                            }
+//                        }
+//                    });
+        }
+
+        private Observable<TdApi.User> authorizeAndGetMe(TdApi.AuthSetCode f) {
+            return client.sendRx(f)
+                    .map(new Func1<TdApi.TLObject, TdApi.AuthStateOk>() {
+                        @Override
+                        public TdApi.AuthStateOk call(TdApi.TLObject tlObject) {
+                            return (TdApi.AuthStateOk) tlObject;
+                        }
+                    })
+                    .flatMap(new Func1<TdApi.AuthStateOk, Observable<TdApi.TLObject>>() {
+                        @Override
+                        public Observable<TdApi.TLObject> call(TdApi.AuthStateOk authStateOk) {
+                            return client.sendRx(new TdApi.GetMe());
+                        }
+                    }).map(new Func1<TdApi.TLObject, TdApi.User>() {
+                @Override
+                public TdApi.User call(TdApi.TLObject tlObject) {
+                    return (TdApi.User) tlObject;
+                }
+            });
         }
     }
 

@@ -20,11 +20,15 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
     public static final DateTimeFormatter MESSAGE_TIME_FORMAT = DateTimeFormat.forPattern("K:mm a");
     public static final ColorStateList COLOR_SYSTEM = ColorStateList.valueOf(0xff6b9cc2);
 
+    private final Context ctx;
+    private final int myId;
     private final Action1<TdApi.Chat> clicker;
     private ColorStateList COLOR_TEXT = ColorStateList.valueOf(0xff8a8a8a);
 
-    public Adapter(Context ctx, Action1<TdApi.Chat> clicker) {
+    public Adapter(Context ctx, int myId, Action1<TdApi.Chat> clicker) {
         super(ctx);
+        this.ctx = ctx;
+        this.myId = myId;
         this.clicker = clicker;
         setHasStableIds(true);
     }
@@ -72,6 +76,17 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
             holder.iconBottom.setText(String.valueOf(chat.unreadCount));
         } else {
             holder.iconBottom.setVisibility(View.GONE);
+        }
+
+        if (chat.topMessage.fromId == myId){
+            if (chat.lastReadOutboxMessageId == chat.topMessage.id){
+                holder.iconTop.setVisibility(View.GONE);
+            } else {
+                holder.iconTop.setBackgroundResource(R.drawable.ic_unread);
+                holder.iconTop.setVisibility(View.VISIBLE);
+            }
+        } else {
+            holder.iconTop.setVisibility(View.GONE);
         }
         loadAvatar(holder, chat);
     }

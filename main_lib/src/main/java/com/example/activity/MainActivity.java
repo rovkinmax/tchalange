@@ -68,7 +68,13 @@ public class MainActivity extends Activity {
     }
 
     private Object getScreenForAuthState(RXAuthState.AuthState state) {
-        return state == RXAuthState.AuthState.AUTHORIZED ? new ChatList() : new EnterPhoneFragment();
+        if (state instanceof RXAuthState.StateAuthorized) {
+            RXAuthState.StateAuthorized a = (RXAuthState.StateAuthorized) state;
+            return new ChatList(a.userId);
+        } else {
+            return new EnterPhoneFragment();
+        }
+//        return state == RXAuthState.AuthState.AUTHORIZED ? new ChatList() : new EnterPhoneFragment();
     }
 
     @Override
