@@ -43,7 +43,7 @@ public class RxDownloadManager {
     final Set<String> exposedFiles = new HashSet<>();
 
     @Inject
-    public RxDownloadManager(Context ctx, RXClient client) {
+    public RxDownloadManager(Context ctx, RXClient client, RXAuthState auth) {
         this.ctx = ctx;
         this.client = client;
 //        client
@@ -58,10 +58,26 @@ public class RxDownloadManager {
         client.fileProgress().subscribe(new Action1<TdApi.UpdateFileProgress>() {
             @Override
             public void call(TdApi.UpdateFileProgress upd) {
-//                SystemClock.sleep(400);
+                //                SystemClock.sleep(400);
                 updateFileProgress(upd);
             }
         });
+        auth.listen().subscribe(new Action1<RXAuthState.AuthState>() {
+            @Override
+            public void call(RXAuthState.AuthState authState) {
+                if (authState instanceof RXAuthState.StateLogout) {
+                    cleanup();
+                }
+            }
+        });
+    }
+
+    private void cleanup() {
+        synchronized (lock) {
+            allRequests.clear();
+            allDownloadedFiles.clear();
+            exposedFiles.clear();
+        }
     }
 
     private void updateFileProgress(TdApi.UpdateFileProgress upd) {

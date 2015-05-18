@@ -27,7 +27,7 @@ public class DocumentView extends LinearLayout{
     private ImageView documentThumb;
     private TextView documentName;
     private TextView documentProgress;
-    private View clicker;
+//    private View clicker;
 //    private Subscription subscription = Subscriptions.empty();
     @Inject RxDownloadManager downloader;
     @Inject RxGlide picasso;
@@ -46,23 +46,23 @@ public class DocumentView extends LinearLayout{
         documentProgress = ((TextView) findViewById(R.id.document_progress));
         documentThumb = (ImageView) findViewById(R.id.image_document_thumb);
         downloadView = (DownloadView) findViewById(R.id.download_view);
-        clicker = findViewById(R.id.thumb_and_btn_root);
-        clicker.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (downloader.isDownloaded(document.document)) {
-                    open();
-                } else {
-                    downloader.download((TdApi.FileEmpty) document.document);
-                    set(document);//update ui
-                }
-            }
-        });
+//        clicker = findViewById(R.id.thumb_and_btn_root);
+//        clicker.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (downloader.isDownloaded(document.document)) {
+//                    open();
+//                } else {
+//                    downloader.download((TdApi.FileEmpty) document.document);
+//                    set(document);//update ui
+//                }
+//            }
+//        });
     }
 
-    private void open() {
-        Assert.fail();
-    }
+//    private void open() {
+//        Assert.fail();
+//    }
 
     public void set(TdApi.Document d) {
         this.document = d;
@@ -85,7 +85,7 @@ public class DocumentView extends LinearLayout{
         downloadView.bind(d.document, cfg, new DownloadView.CallBack() {
             @Override
             public void onProgress(TdApi.UpdateFileProgress p) {
-                documentProgress.setText(getResources().getString(R.string.downloading_kb,  kb(p.size),kb(p.ready)));
+                documentProgress.setText(getResources().getString(R.string.downloading_kb, kb(p.size), kb(p.ready)));
             }
 
             @Override
@@ -97,7 +97,7 @@ public class DocumentView extends LinearLayout{
             public void play(TdApi.FileLocal e) {
                 openDocument(e);
             }
-        });
+        }, this);
 
     }
 
@@ -110,7 +110,11 @@ public class DocumentView extends LinearLayout{
         File target = downloader.exposeFile(f, Environment.DIRECTORY_DOWNLOADS, name);
 
         String type = document.mimeType;
-
+        if (target.getName().endsWith(".apk")
+                && "application/octet-stream".equals(type)){
+            type = "application/vnd.android.package-archive";
+        }
+//        "application/vnd.android.package-archive"
         Intent intent = new Intent(Intent.ACTION_VIEW);
         Uri data = Uri.fromFile(target);
 

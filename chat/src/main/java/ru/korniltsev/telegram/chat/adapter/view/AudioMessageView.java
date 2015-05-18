@@ -55,7 +55,8 @@ public class AudioMessageView extends LinearLayout {
 
     public void setAudio(TdApi.Audio a) {
         this.audio = a;
-        download_view.bind(a.audio, new DownloadView.Config(R.drawable.ic_play, true, true, 38), new DownloadView.CallBack() {
+        DownloadView.Config cfg = new DownloadView.Config(R.drawable.ic_play, true, true, 38);
+        download_view.bind(a.audio, cfg, new DownloadView.CallBack() {
             @Override
             public void onProgress(TdApi.UpdateFileProgress p) {
 
@@ -70,7 +71,7 @@ public class AudioMessageView extends LinearLayout {
             public void play(TdApi.FileLocal e) {
                 player.play(e);
             }
-        });
+        }, download_view);
     }
 
 

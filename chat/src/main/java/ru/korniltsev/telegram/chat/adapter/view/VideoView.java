@@ -99,7 +99,8 @@ public class VideoView extends FrameLayout {
         height = (int) ( width/ratio);
         requestLayout();
         showLowQualityThumb();
-        downloadView.bind(msg.video, new DownloadView.Config(R.drawable.ic_play, false, false, 48), new DownloadView.CallBack() {
+        DownloadView.Config cfg = new DownloadView.Config(R.drawable.ic_play, false, false, 48);
+        downloadView.bind(msg.video, cfg, new DownloadView.CallBack() {
             @Override
             public void onProgress(TdApi.UpdateFileProgress p) {
 
@@ -114,7 +115,7 @@ public class VideoView extends FrameLayout {
             public void play(TdApi.FileLocal e) {
                 playVideo(e);
             }
-        });
+        }, this);
 
 
     }

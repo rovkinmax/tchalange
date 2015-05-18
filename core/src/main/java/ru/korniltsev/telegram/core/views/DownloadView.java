@@ -62,6 +62,7 @@ public class DownloadView extends FrameLayout {
     private final Drawable pauseBlue;
     private final Drawable ause;
     private final int strokeWidth;
+    private final OnClickListener clicker;
 
     float progress;
 
@@ -73,6 +74,7 @@ public class DownloadView extends FrameLayout {
     private CallBack cb;
     private Config cfg;
     private int size;
+    private View clickTarget;
 
     public DownloadView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -98,7 +100,7 @@ public class DownloadView extends FrameLayout {
         icon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         addView(icon, lp);
 
-        setOnClickListener(new OnClickListener() {
+        clicker = new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (downloader.isDownloaded(file)) {
@@ -107,7 +109,8 @@ public class DownloadView extends FrameLayout {
                     download();
                 }
             }
-        });
+        };
+//        setOnClickListener(clicker);
 
         p = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -142,7 +145,7 @@ public class DownloadView extends FrameLayout {
     private void download() {
         downloader.download(file);
         setProgress(0f);
-        bind(file, cfg, cb);
+        bind(file, cfg, cb, clickTarget);
     }
 
     @Override
@@ -179,7 +182,7 @@ public class DownloadView extends FrameLayout {
                                         animate()
                                                 .alpha(0f);
                                     } else {
-                                        bind(d.f, cfg, cb);
+                                        bind(d.f, cfg, cb, clickTarget);
                                     }
 
                                 }
@@ -212,7 +215,9 @@ public class DownloadView extends FrameLayout {
         //        setProgress(progress);
     }
 
-    public void bind(TdApi.File f,Config cfg,  CallBack cb) {
+    public void bind(TdApi.File f,Config cfg,  CallBack cb, View clickTarget) {
+        this.clickTarget = clickTarget;
+        clickTarget.setOnClickListener(clicker);
         configure(cfg);
         this.cb = cb;
         clearAnimation();
@@ -226,11 +231,11 @@ public class DownloadView extends FrameLayout {
         float alpha = 1f;
 
         if (downloader.isDownloaded(f)) {
-            if (cfg.finalIcon == Config.FINAL_ICON_EMPTY){
+            if (cfg.finalIcon == Config.FINAL_ICON_EMPTY) {
                 alpha = 0f;
             } else {
                 icon.setImageLevel(LEVEL_EMPTY);
-                if (cfg.darkenBlue){
+                if (cfg.darkenBlue) {
                     bgPaint.setColor(BG_DARKEN_BLUE);
                 }
                 setEnabled(true);
