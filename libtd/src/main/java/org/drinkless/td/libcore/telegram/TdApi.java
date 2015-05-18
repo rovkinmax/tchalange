@@ -3436,6 +3436,33 @@ public class TdApi {
         }
     }
 
+    public static class CancelDownloadFile extends TLFunction {
+        public int fileId;
+
+        public CancelDownloadFile() {
+        }
+
+        public CancelDownloadFile(int fileId) {
+            this.fileId = fileId;
+        }
+
+        public static final int CONSTRUCTOR = 18489866;
+
+        @Override
+        public int getConstructor() {
+            return 18489866;
+        }
+
+        @Override
+        protected void toStringBuilder(int shift, StringBuilder s) {
+            s.append("CancelDownloadFile").append(" {\n");
+            shift += 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("fileId").append(" = ").append(fileId).append('\n');
+            shift -= 2;
+            for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+    }
+
     public static class ChangeChatTitle extends TLFunction {
         public long chatId;
         public String title;
