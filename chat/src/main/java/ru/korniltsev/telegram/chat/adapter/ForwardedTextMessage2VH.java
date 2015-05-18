@@ -29,7 +29,7 @@ class ForwardedTextMessage2VH extends RealBaseVH {
     }
 
     @Override
-    public void bind(RxChat.ChatListItem item) {
+    public void bind(RxChat.ChatListItem item, long lastReadOutbox) {
 //        super.bind(item);
         TdApi.Message rawMsg = ((RxChat.MessageItem) item).msg;
         TdApi.MessageContent msg = rawMsg.message;

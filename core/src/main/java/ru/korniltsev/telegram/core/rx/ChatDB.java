@@ -65,6 +65,16 @@ public class ChatDB implements UserHolder {
     private Observable<TdApi.Chats> chatsRequest;
     private boolean downloadedAllChats;
     private boolean atLeastOneResponseReturned;
+    private Observable<TdApi.UpdateMessageId> messageIdsUpdates;
+
+    public Observable<TdApi.UpdateMessageId> getMessageIdsUpdates(final long id) {
+        return messageIdsUpdates.filter(new Func1<TdApi.UpdateMessageId, Boolean>() {
+            @Override
+            public Boolean call(TdApi.UpdateMessageId updateMessageId) {
+                return updateMessageId.chatId == id;
+            }
+        });
+    }
 
     @Inject
     public ChatDB(final Context ctx, final RXClient client, EmojiParser parser, DpCalculator calc, NotificationManager nm) {
@@ -126,7 +136,7 @@ public class ChatDB implements UserHolder {
                 .subscribe(new Action1<TdApi.UpdateChatReadOutbox>() {
                     @Override
                     public void call(TdApi.UpdateChatReadOutbox updateChatReadInbox) {
-                        updateChatMessageList(updateChatReadInbox.chatId);
+//                        updateChatMessageList(updateChatReadInbox.chatId);
                         updateCurrentChatList();
                     }
                 });
@@ -157,17 +167,18 @@ public class ChatDB implements UserHolder {
     }
 
     private void prepareForUpdateMessageId() {
-        client.updateMessageId()
+        messageIdsUpdates = client.updateMessageId()
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.UpdateMessageId>() {
+                .map(new Func1<TdApi.UpdateMessageId, TdApi.UpdateMessageId>() {
                     @Override
-                    public void call(TdApi.UpdateMessageId updateMessageId) {
+                    public TdApi.UpdateMessageId call(TdApi.UpdateMessageId updateMessageId) {
                         getRxChat(updateMessageId.chatId)
                                 .updateMessageId(updateMessageId);
-//                        updateChatMessageList(updateMessageId.chatId);
                         updateCurrentChatList();
+                        return updateMessageId;
                     }
                 });
+        messageIdsUpdates.subscribe();
     }
 
     private void prepareForUpdateDeleteMessages() {

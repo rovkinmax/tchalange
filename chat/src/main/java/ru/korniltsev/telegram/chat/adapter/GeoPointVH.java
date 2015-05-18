@@ -16,8 +16,8 @@ public class GeoPointVH extends BaseAvatarVH {
     }
 
     @Override
-    public void bind(RxChat.ChatListItem item) {
-        super.bind(item);
+    public void bind(RxChat.ChatListItem item, long lastReadOutbox) {
+        super.bind(item, lastReadOutbox);
         TdApi.Message msg = ((RxChat.MessageItem) item).msg;
         map.set((TdApi.MessageGeoPoint) msg.message);
     }

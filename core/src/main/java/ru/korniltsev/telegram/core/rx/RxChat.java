@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.core.rx;
 
 import android.util.SparseArray;
+import android.view.View;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.joda.time.DateTime;
 import rx.Observable;
@@ -24,6 +25,11 @@ import static ru.korniltsev.telegram.core.utils.Preconditions.checkNotMainThread
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 public class RxChat implements UserHolder {
+
+    public static final int MESSAGE_STATE_READ = 0;
+    public static final int MESSAGE_STATE_SENT = 1;
+    public static final int MESSAGE_STATE_NOT_SENT = 2;
+    private static final int MSG_WITHOUT_VALID_ID = 1000000000;
 
     public final Func2<List<TdApi.User>, List<TdApi.Message>, ChatDB.Portion> ZIPPER = new Func2<List<TdApi.User>, List<TdApi.Message>, ChatDB.Portion>() {
         @Override
@@ -50,7 +56,7 @@ public class RxChat implements UserHolder {
 
     final long id;
     final RXClient client;
-    final ChatDB holder;
+    public final ChatDB holder;
 
     private final List<ChatListItem> chatListItems = new ArrayList<>();
     private final List<TdApi.Message> messages = new ArrayList<>();
@@ -243,13 +249,18 @@ public class RxChat implements UserHolder {
     }
 
     final SparseArray<TdApi.UpdateMessageId> newIdToUpdate = new SparseArray<>();
+    final SparseArray<TdApi.UpdateMessageId> oldIdToUpdate = new SparseArray<>();
 
     public void updateMessageId(TdApi.UpdateMessageId upd) {
         newIdToUpdate.put(upd.newId, upd);
+        oldIdToUpdate.put(upd.oldId, upd);
     }
 
-    public TdApi.UpdateMessageId get(int newId) {
+    public TdApi.UpdateMessageId getUpdForNewId(int newId) {
         return newIdToUpdate.get(newId);
+    }
+    public TdApi.UpdateMessageId getUpdForOldId(int oldId) {
+        return oldIdToUpdate.get(oldId);
     }
 
     public Observable<TdApi.TLObject> deleteMessage(final int messageId) {
@@ -333,6 +344,32 @@ public class RxChat implements UserHolder {
         public DaySeparatorItem(long id, DateTime day) {
             this.id = id;
             this.day = day;
+        }
+    }
+
+    public int getMessageState(TdApi.Message msg, long lastReadOutbox, int myId){
+        if (myId != msg.fromId){
+            return MESSAGE_STATE_READ;
+        }
+        TdApi.UpdateMessageId upd = getUpdForOldId(msg.id);
+        if (msg.id >= MSG_WITHOUT_VALID_ID && upd == null){
+            return MESSAGE_STATE_NOT_SENT;
+//            iconRight.setImageResource(R.drawable.ic_clock);
+//            iconRight.setVisibility(View.VISIBLE);
+        } else {
+            //message sent
+            int id = msg.id;
+            if (id >= MSG_WITHOUT_VALID_ID) {
+                id = upd.newId;
+            }
+            if (lastReadOutbox < id) {
+                return MESSAGE_STATE_SENT;
+//                iconRight.setImageResource(R.drawable.ic_unread);
+//                iconRight.setVisibility(View.VISIBLE);
+            } else {
+                return MESSAGE_STATE_READ;
+//                iconRight.setVisibility(View.GONE);
+            }
         }
     }
 }

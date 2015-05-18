@@ -32,13 +32,22 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
 
 //    final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxGlide picasso;
+    private long lastReadOutbox;
 
     RxChat chat;
+    public final int myId;
 
-    public Adapter(Context ctx, RxGlide picasso) {
+    public Adapter(Context ctx, RxGlide picasso, long lastReadOutbox, int myId) {
         super(ctx);
         this.picasso = picasso;
+        this.lastReadOutbox = lastReadOutbox;
+        this.myId = myId;
         setHasStableIds(true);
+    }
+
+    public void setLastReadOutbox(long lastReadOutbox) {
+        this.lastReadOutbox = lastReadOutbox;
+        notifyDataSetChanged();//todo
     }
 
     @Override
@@ -46,16 +55,20 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
         RxChat.ChatListItem item = getItem(position);
         if (item instanceof RxChat.MessageItem){
             TdApi.Message msg = ((RxChat.MessageItem) item).msg;
-            TdApi.UpdateMessageId upd = chat.get(msg.id);
-            if (upd != null) {
-                return upd.oldId;
-            }
-            return msg.id;
+            return getIdForMessageItem(msg);
         } else if (item instanceof RxChat.DaySeparatorItem) {
             return ((RxChat.DaySeparatorItem) item).id;
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    public long getIdForMessageItem(TdApi.Message msg) {
+        TdApi.UpdateMessageId upd = chat.getUpdForNewId(msg.id);
+        if (upd != null) {
+            return upd.oldId;
+        }
+        return msg.id;
     }
 
     @Override
@@ -171,7 +184,7 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
     public void onBindViewHolder(RealBaseVH holder, int position) {
         RxChat.ChatListItem item1 = getItem(position);
 //        TdApi.Message item = (TdApi.Message) item1;
-        holder.bind(item1);
+        holder.bind(item1, lastReadOutbox);
     }
 
 //    public void addHistory(Portion ms) {

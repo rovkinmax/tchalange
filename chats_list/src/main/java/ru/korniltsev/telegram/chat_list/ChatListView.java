@@ -1,7 +1,6 @@
 package ru.korniltsev.telegram.chat_list;
 
 import android.content.Context;
-import android.os.Debug;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,13 +11,13 @@ import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.recycler.CheckRecyclerViewSpan;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
+import ru.korniltsev.telegram.core.rx.ChatDB;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 import rx.functions.Action1;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.List;
 
 import static ru.korniltsev.telegram.core.Utils.uiName;
@@ -28,6 +27,7 @@ public class ChatListView extends DrawerLayout {
 
     @Inject ChatList.Presenter presenter;
     @Inject RXClient client;
+    @Inject ChatDB chatDb;
 
     private RecyclerView list;
     private AvatarView drawerAvatar;
@@ -66,7 +66,7 @@ public class ChatListView extends DrawerLayout {
             public void call(TdApi.Chat chat) {
                 presenter.openChat(chat);
             }
-        });
+        }, chatDb);
         layout = new LinearLayoutManager(getContext());
         list.setLayoutManager(layout);
         list.setAdapter(adapter);

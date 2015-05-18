@@ -34,7 +34,7 @@ public class ChatPhotoChangedVH extends RealBaseVH {
     }
 
     @Override
-    public void bind(RxChat.ChatListItem item) {
+    public void bind(RxChat.ChatListItem item, long lastReadOutbox) {
         TdApi.Message msg = ((RxChat.MessageItem) item).msg;
         Spannable userName = userColor(getNameForSenderOf(msg));
         SpannableStringBuilder sb = new SpannableStringBuilder();

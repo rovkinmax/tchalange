@@ -13,6 +13,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
+import ru.korniltsev.telegram.core.rx.ChatDB;
+import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.views.AvatarView;
 import rx.functions.Action1;
 
@@ -24,12 +26,13 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
     private final int myId;
     private final Action1<TdApi.Chat> clicker;
     private ColorStateList COLOR_TEXT = ColorStateList.valueOf(0xff8a8a8a);
-
-    public Adapter(Context ctx, int myId, Action1<TdApi.Chat> clicker) {
+    final ChatDB chatDb;
+    public Adapter(Context ctx, int myId, Action1<TdApi.Chat> clicker, ChatDB chat) {
         super(ctx);
         this.ctx = ctx;
         this.myId = myId;
         this.clicker = clicker;
+        this.chatDb = chat;
         setHasStableIds(true);
     }
 
@@ -78,16 +81,31 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
             holder.iconBottom.setVisibility(View.GONE);
         }
 
-        if (chat.topMessage.fromId == myId){
-            if (chat.lastReadOutboxMessageId == chat.topMessage.id){
+        RxChat rxChat = chatDb.getRxChat(chat.id);
+        int msgState = rxChat.getMessageState(chat.topMessage, chat.lastReadOutboxMessageId, myId);
+        switch (msgState){
+            case RxChat.MESSAGE_STATE_READ:
                 holder.iconTop.setVisibility(View.GONE);
-            } else {
-                holder.iconTop.setBackgroundResource(R.drawable.ic_unread);
+                break;
+            case RxChat.MESSAGE_STATE_SENT:
+                holder.iconTop.setImageResource(R.drawable.ic_unread);
                 holder.iconTop.setVisibility(View.VISIBLE);
-            }
-        } else {
-            holder.iconTop.setVisibility(View.GONE);
+                break;
+            case RxChat.MESSAGE_STATE_NOT_SENT:
+                holder.iconTop.setImageResource(R.drawable.ic_clock);
+                holder.iconTop.setVisibility(View.VISIBLE);
+                break;
         }
+//        if (chat.topMessage.fromId == myId){
+//            if (chat.lastReadOutboxMessageId == chat.topMessage.id){
+//                holder.iconTop.setVisibility(View.GONE);
+//            } else {
+//                holder.iconTop.setBackgroundResource(R.drawable.ic_unread);
+//                holder.iconTop.setVisibility(View.VISIBLE);
+//            }
+//        } else {
+//            holder.iconTop.setVisibility(View.GONE);
+//        }
         loadAvatar(holder, chat);
     }
 

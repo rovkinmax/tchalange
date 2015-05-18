@@ -26,8 +26,8 @@ public class VideoVH extends BaseAvatarVH {
     }
 
     @Override
-    public void bind(RxChat.ChatListItem item) {
-        super.bind(item);
+    public void bind(RxChat.ChatListItem item, long lastReadOutbox) {
+        super.bind(item, lastReadOutbox);
         TdApi.Message rawMsg = ((RxChat.MessageItem) item).msg;
 
         TdApi.MessageVideo msg = (TdApi.MessageVideo) rawMsg .message;

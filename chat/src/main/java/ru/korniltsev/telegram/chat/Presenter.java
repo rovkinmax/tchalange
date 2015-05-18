@@ -12,7 +12,9 @@ import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.ChatDB;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
@@ -21,6 +23,7 @@ import javax.inject.Singleton;
 import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 @Singleton
 public class Presenter extends ViewPresenter<ChatView>
@@ -35,6 +38,10 @@ public class Presenter extends ViewPresenter<ChatView>
     private final Observable<TdApi.GroupChatFull> fullChatInfoRequest;
     private final boolean isGroupChat;
     private CompositeSubscription subscription;
+
+    public Chat getPath() {
+        return path;
+    }
 
     @Inject
     public Presenter(Chat c, RXClient client, ChatDB chatDB, NotificationManager nm) {
@@ -69,7 +76,7 @@ public class Presenter extends ViewPresenter<ChatView>
 
         List<RxChat.ChatListItem> messages = rxChat.getMessages();
         if (!messages.isEmpty()
-                && !rxChat.isRequestInProgress()){
+                && !rxChat.isRequestInProgress()) {
             rxChat.updateCurrentMessageList();
         }
         getView().updateData(rxChat);
@@ -143,6 +150,38 @@ public class Presenter extends ViewPresenter<ChatView>
                                        }
                                    }
                         ));
+
+        subscription.add(
+                updateReadOutbox()
+                        .subscribe(new Action1<TdApi.UpdateChatReadOutbox>() {
+                            @Override
+                            public void call(TdApi.UpdateChatReadOutbox upd) {
+                                getView()
+                                        .getAdapter()
+                                        .setLastReadOutbox(upd.lastRead);
+                            }
+                        }));
+
+        subscription.add(
+                rxChat.holder.getMessageIdsUpdates(path.chat.id)
+                        .subscribe(new Action1<TdApi.UpdateMessageId>() {
+                            @Override
+                            public void call(TdApi.UpdateMessageId updateMessageId) {
+                                getView()
+                                        .getAdapter()
+                                        .notifyDataSetChanged();
+                            }
+                        })
+        );
+    }
+
+    private Observable<TdApi.UpdateChatReadOutbox> updateReadOutbox() {
+        return client.updateChatReadOutbox().filter(new Func1<TdApi.UpdateChatReadOutbox, Boolean>() {
+            @Override
+            public Boolean call(TdApi.UpdateChatReadOutbox updateChatReadOutbox) {
+                return updateChatReadOutbox.chatId == path.chat.id;
+            }
+        }).observeOn(mainThread());
     }
 
     private void updateOnlineStatus(TdApi.GroupChatFull info) {
@@ -178,10 +217,10 @@ public class Presenter extends ViewPresenter<ChatView>
         } else if (R.id.menu_clear_history == id) {
             clearHistory();
             return true;
-        } else if (R.id.menu_mute == id){
+        } else if (R.id.menu_mute == id) {
             nm.mute(path.chat);
             getView().initMenu(isGroupChat, true);
-        } else if (R.id.menu_unmute == id){
+        } else if (R.id.menu_unmute == id) {
             nm.unmute(path.chat);
             getView().initMenu(isGroupChat, false);
         }

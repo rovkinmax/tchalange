@@ -1,7 +1,6 @@
 package ru.korniltsev.telegram.chat.adapter;
 
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -37,7 +36,7 @@ public class SingleTextViewVH extends RealBaseVH {
     }
 
     @Override
-    public void bind(RxChat.ChatListItem item) {
+    public void bind(RxChat.ChatListItem item, long lastReadOutbox) {
         TdApi.Message msgRaw = ((RxChat.MessageItem) item).msg;
         TdApi.MessageContent msg = msgRaw.message;
         if (msg instanceof TdApi.MessageChatChangeTitle) {

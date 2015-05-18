@@ -20,4 +20,14 @@
             android:textColor="@color/time_color"
             android:layout_marginLeft="8dp"
             />
+
+    <ImageView
+            android:id="@+id/icon_right"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/ic_unread"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="4dp"
+            />
 </merge>

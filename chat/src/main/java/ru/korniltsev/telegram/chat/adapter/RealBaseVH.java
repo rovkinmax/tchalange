@@ -15,7 +15,7 @@ public abstract class RealBaseVH extends RecyclerView.ViewHolder {
         this.adapter = adapter;
     }
 
-    public abstract void bind(RxChat.ChatListItem item);
+    public abstract void bind(RxChat.ChatListItem item, long lastReadOutbox);
 
     public String getNameForSenderOf(TdApi.Message item) {
         int fromId = item.fromId;

@@ -27,8 +27,8 @@ class PhotoMessageVH extends BaseAvatarVH {
     }
 
     @Override
-    public void bind(RxChat.ChatListItem item) {
-        super.bind(item);
+    public void bind(RxChat.ChatListItem item, long lastReadOutbox) {
+        super.bind(item, lastReadOutbox);
         TdApi.Message msg = ((RxChat.MessageItem) item).msg;
         TdApi.MessagePhoto photo = (TdApi.MessagePhoto) msg.message;
         image.load(photo);

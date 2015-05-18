@@ -26,8 +26,6 @@ import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
 import javax.inject.Inject;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
@@ -93,7 +91,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
         messagePanel.setListener(presenter);
 
         layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
-        adapter = new Adapter(getContext(), picasso);
+        adapter = new Adapter(getContext(), picasso, presenter.getPath().chat.lastReadOutboxMessageId, presenter.getPath().me.id);
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
         btnScrollDown.setVisibility(View.INVISIBLE);
