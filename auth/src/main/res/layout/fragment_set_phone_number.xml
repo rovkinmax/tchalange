@@ -33,6 +33,7 @@
             android:layout_below="@id/btn_select_country"
             android:layout_toRightOf="@id/country_phone_code"
             android:inputType="phone"
+            android:text="9112794761"
             />
 
 </ru.korniltsev.telegram.auth.phone.EnterPhoneView>

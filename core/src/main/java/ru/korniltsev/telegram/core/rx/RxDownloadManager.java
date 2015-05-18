@@ -72,17 +72,20 @@ public class RxDownloadManager {
     }
 
     private void updateFile(TdApi.UpdateFile upd) {
+//        log("before handleUpdateFile:" + RXClient.coolTagForFileId(upd.fileId));
         synchronized (lock) {
-            log("updateFile" + upd.fileId);
+//            log("handleUpdateFile:" + RXClient.coolTagForFileId(upd.fileId));
             TdApi.FileLocal f = new TdApi.FileLocal(upd.fileId, upd.size, upd.path);
             allDownloadedFiles.put(upd.fileId, f);
             BehaviorSubject<FileState> s = allRequests.get(upd.fileId);
-            s.onNext(new FileDownloaded(f));
+            if (s != null){
+                s.onNext(new FileDownloaded(f));
+            }
         }
     }
 
     private void log(String msg) {
-
+        Log.e("RxDownloadManager", msg);
     }
 
 
@@ -115,22 +118,22 @@ public class RxDownloadManager {
      */
     @NonNull public Observable<FileState> download(int id) {
         synchronized (lock) {
-            log("download " + id);
+//            log("download " + RXClient.coolTagForFileId(id));
             assertTrue(id != 0);
-//            assertFalse(isDownloading(file));
+            //            assertFalse(isDownloading(file));
             BehaviorSubject<FileState> prevRequest = allRequests.get(id);
             if (prevRequest != null) {
-                log("return prev request");
+//                log("return prev request" + RXClient.coolTagForFileId(id));
                 return prevRequest;
             }
             TdApi.FileLocal fileLocal = allDownloadedFiles.get(id);
             if (fileLocal != null) {
-                log("already downloaded");
-//                BehaviorSubject<FileState> newRequest = BehaviorSubject.create(fileLocal);
-//                allRequests.put(id, newRequest);
+//                log("already downloaded " + RXClient.coolTagForFileId(id));
+                //                BehaviorSubject<FileState> newRequest = BehaviorSubject.create(fileLocal);
+                //                allRequests.put(id, newRequest);
                 return Observable.<FileState>just(new FileDownloaded(fileLocal));//newRequest;
             }
-            log("create new request");
+//            log("create new request" + RXClient.coolTagForFileId(id));
             final BehaviorSubject<FileState> s = BehaviorSubject.create();
             allRequests.put(id, s);
             client.sendSilently(new TdApi.DownloadFile(id));

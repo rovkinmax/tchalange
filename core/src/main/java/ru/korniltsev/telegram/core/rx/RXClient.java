@@ -177,6 +177,8 @@ public class RXClient {
 
     private final Client client;
     private final PublishSubject<TdApi.TLObject> globalSubject = PublishSubject.create();
+    private final PublishSubject<TdApi.UpdateFile> fileUpdates = PublishSubject.create();
+    private final PublishSubject<TdApi.UpdateFileProgress> fileProgressUpdates = PublishSubject.create();
     private final BehaviorSubject<TdApi.UpdateOption> connectedState = BehaviorSubject.create(new TdApi.UpdateOption(OPTION_CONNECTION_STATE, new TdApi.OptionBoolean(false)));
 
     @Inject
@@ -185,6 +187,17 @@ public class RXClient {
         TG.setUpdatesHandler(new Client.ResultHandler() {
             @Override
             public void onResult(TLObject object) {
+                if (object instanceof TdApi.UpdateFileProgress){
+                    fileProgressUpdates.onNext((TdApi.UpdateFileProgress) object);
+                } else if (object instanceof TdApi.UpdateFile){
+//                    try {
+                        TdApi.UpdateFile o = (TdApi.UpdateFile) object;
+                        fileUpdates.onNext(o);
+//                        Log.e("DownloadFile", "\tfinish : " + coolTagForFileId(o.fileId) + " " + o.path);
+//                    } catch (Exception e) {
+//                        Log.e("RxClientError", "error: ", e);
+//                    }
+                }
                 globalSubject.onNext(object);
             }
         });
@@ -196,16 +209,17 @@ public class RXClient {
                 .subscribe(connectedState)
         ;
 
-        globalSubject
-                .subscribe(new Action1<TLObject>() {
-                    @Override
-                    public void call(TLObject tlObject) {
-                        Log.e("Update", "probably unhandled update\n" + tlObject);
-                    }
-                });
+//        globalSubject
+//                .subscribe(new Action1<TLObject>() {
+//                    @Override
+//                    public void call(TLObject tlObject) {
+//                        Log.e("Update", "probably unhandled update\n" + tlObject);
+//                    }
+//                });
 
         this.client = TG.getClientInstance();
     }
+
 
     public Observable<TdApi.UpdateOption> getConnectedState() {
         return connectedState;
@@ -227,6 +241,7 @@ public class RXClient {
         return Observable.create(new Observable.OnSubscribe<TLObject>() {
             @Override
             public void call(final Subscriber<? super TLObject> s) {
+
                 client.send(function, new Client.ResultHandler() {
                     @Override
                     public void onResult(TLObject object) {
@@ -244,6 +259,10 @@ public class RXClient {
     }
 
     public void sendSilently(final TdApi.TLFunction function) {
+//        if (function instanceof TdApi.DownloadFile) {
+//            int fileId = ((TdApi.DownloadFile) function).fileId;
+//            Log.e("DownloadFile", "begin id:" + coolTagForFileId(fileId));
+//        }
         client.send(function, RequestHandlerAdapter.INSTANCE);
     }
 
@@ -322,25 +341,11 @@ public class RXClient {
 
     //not ui thread
     public Observable<TdApi.UpdateFile> filesUpdates() {
-        return globalSubject
-                .filter(ONLY_FILE_UPDATES)
-                .map(CAST_TO_FILE_UPDATE);
+        return fileUpdates;
     }
 
     public Observable<TdApi.UpdateFileProgress> fileProgress(){
-        return globalSubject
-                .filter(new Func1<TLObject, Boolean>() {
-                    @Override
-                    public Boolean call(TLObject tlObject) {
-                        return tlObject instanceof TdApi.UpdateFileProgress;
-                    }
-                })
-                .map(new Func1<TLObject, TdApi.UpdateFileProgress>() {
-                    @Override
-                    public TdApi.UpdateFileProgress call(TLObject tlObject) {
-                        return (TdApi.UpdateFileProgress) tlObject;
-                    }
-                });
+        return fileProgressUpdates;
     }
 
     public Observable<TdApi.UpdateNewMessage> updateNewMessages() {

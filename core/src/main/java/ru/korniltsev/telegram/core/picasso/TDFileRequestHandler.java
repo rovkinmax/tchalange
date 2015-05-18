@@ -8,12 +8,14 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Request;
 import com.squareup.picasso.RequestHandler;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import webp.SupportBitmapFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -35,6 +37,7 @@ public class TDFileRequestHandler extends RequestHandler {
                     .build();
         } else {
             TdApi.FileEmpty e = (TdApi.FileEmpty) f;
+            Log.e("SomeCrazyTag", "create uri for id " + e.id, new Throwable());
             assertTrue(e.id != 0);
             return new Uri.Builder()
                     .scheme(TD_FILE)
@@ -89,17 +92,25 @@ public class TDFileRequestHandler extends RequestHandler {
 
     private String downloadAndGetPath(int id) throws IOException {
         try {
+//            Log.e("TdFileRequestHandler", "begin id: " + RXClient.coolTagForFileId(id));
             TdApi.FileLocal first = downloader.download(id)
                     .compose(RxDownloadManager.ONLY_RESULT)
                     .first()
                     .toBlocking()
                     .toFuture()
                     .get(TIMEOUT, TimeUnit.MILLISECONDS);
+            //            if (function instanceof TdApi.DownloadFile) {
+//            Log.e("TdFileRequestHandler", "     finish id: " + RXClient.coolTagForFileId(id));
+
+            //            }
             return first.path;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException(e);
-        } catch (Throwable e) {
+        } catch (TimeoutException e) {
+//            Log.e("TdFileRequestHandler", "<-> timeout " + RXClient.coolTagForFileId(id), e);
+            throw new IOException(e);
+        }catch (Throwable e) {
             Log.e("EmptyFileDataFetcher", "err", e);
             throw new IOException(e);
         }
