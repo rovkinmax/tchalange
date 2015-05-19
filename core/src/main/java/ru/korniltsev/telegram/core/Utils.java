@@ -59,16 +59,23 @@ public class Utils {
     }
 
     public static String uiName(TdApi.User user) {//todo
+        String firstName = user.firstName;
+        String lastName = user.lastName;
+        String name = uiName(firstName, lastName);
+        return name;
+    }
+
+    public static String uiName(String firstName, String lastName) {
         String name;
         StringBuilder sb = new StringBuilder();
-        if (user.firstName.length() != 0) {
-            sb.append(user.firstName);
+        if (firstName.length() != 0) {
+            sb.append(firstName);
         }
-        if (user.lastName.length() != 0){
+        if (lastName.length() != 0){
             if (sb.length() != 0) {
                 sb.append(" ");
             }
-            sb.append(user.lastName);
+            sb.append(lastName);
         }
         name = sb.toString();
         return name;

@@ -175,6 +175,10 @@ public class RxChat implements UserHolder {
                 tmpUIDs.add(message.forwardFromId);
             }
         }
+        if (message.message instanceof TdApi.MessageContact){
+            TdApi.MessageContact c = (TdApi.MessageContact) message.message;
+            tmpUIDs.add(c.userId);
+        }
     }
 
     public Observable<List<ChatListItem>> messageList() {
