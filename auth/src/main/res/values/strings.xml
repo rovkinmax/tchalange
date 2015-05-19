@@ -5,4 +5,7 @@
     <string name="send_code">Send activation code</string>
     <string name="check_code">Check activation code</string>
     <string name="activation_code">Activation code</string>
+    <string name="we_will_send">We will send an SMS with a confirmation code to your phone number</string>
+    <string name="phone_number_hint">Phone number</string>
+    <string name="we_ve_sent">We\'ve sent an SMS with an activation code to your phone number %1$s</string>
 </resources>

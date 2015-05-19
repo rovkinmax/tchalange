@@ -2,6 +2,7 @@ package com.example.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import dagger.ObjectGraph;
 import flow.Flow;
 import flow.FlowDelegate;
@@ -21,7 +22,7 @@ import rx.functions.Action1;
 
 import static mortar.bundler.BundleServiceRunner.getBundleServiceRunner;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
     private MortarScreenSwitcherFrame container;
     private FlowDelegate flow;

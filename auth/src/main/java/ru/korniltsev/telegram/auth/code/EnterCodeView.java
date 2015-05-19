@@ -2,8 +2,11 @@ package ru.korniltsev.telegram.auth.code;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.auth.R;
 
@@ -34,17 +37,38 @@ public class EnterCodeView extends RelativeLayout {
                             @Override
                             public void run() {
                                 //presenter.sendCode(getPhoneNumber());
-                                hideKeyboard(smsCode);
-                                presenter.checkCode(textFrom(smsCode));
+
+                                sendCode();
                             }
                         }
                 );
         smsCode = ((EditText) findViewById(R.id.sms_code));
+        TextView weHaveSentCode = ((TextView) findViewById(R.id.we_have_sent));
+        String string = getResources().getString(R.string.we_ve_sent, presenter.getPath().phoneNumber);
+        weHaveSentCode.setText(string);
+        smsCode.requestFocus();
+        smsCode.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    sendCode();
+                    return true;
+                }
+                return false;
+            }
+        });
 //        clicks(btnSelectCountry).subscribe(e -> {
 //            presenter.selectCountry();
 //        });
     }
 
+    private void sendCode() {
+        presenter.checkCode(textFrom(smsCode));
+    }
+
+    public EditText getSmsCode() {
+        return smsCode;
+    }
 
     @Override
     protected void onAttachedToWindow() {
@@ -58,5 +82,8 @@ public class EnterCodeView extends RelativeLayout {
         presenter.dropView(this);
     }
 
-
+    public void showError(Throwable th) {
+        smsCode.setError(th.getMessage());
+        smsCode.requestFocus();
+    }
 }

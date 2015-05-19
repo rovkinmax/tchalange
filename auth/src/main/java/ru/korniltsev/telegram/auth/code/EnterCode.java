@@ -1,24 +1,32 @@
 package ru.korniltsev.telegram.auth.code;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import dagger.Provides;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.Serializable;
 
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.fail;
+import static ru.korniltsev.telegram.core.Utils.hideKeyboard;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 /**
@@ -27,9 +35,25 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 @WithModule(EnterCode.Module.class)
 public class EnterCode extends BasePath implements Serializable{
 
+    public final String phoneNumber;
+
+    public EnterCode(String phoneNumber) {
+
+        this.phoneNumber = phoneNumber;
+    }
+
     @dagger.Module(injects = EnterCodeView.class, addsTo = RootModule.class)
     public static class Module {
+        final EnterCode code;
 
+
+        public Module(EnterCode code) {
+            this.code = code;
+        }
+
+        @Provides EnterCode provideEnterCode() {
+            return code;
+        }
     }
     @Override
     public int getRootLayout() {
@@ -38,40 +62,77 @@ public class EnterCode extends BasePath implements Serializable{
 
     @Singleton
     static class Presenter extends ViewPresenter<EnterCodeView>{
+        private final EnterCode path;
         private final RXClient client;
         private final RXAuthState auth;
+        private Observable<TdApi.User> request;
+        private Subscription subscription= Subscriptions.empty();
+        private ProgressDialog pd;
+        //        private ProgressDialog pd;
 
         @Inject
-        public Presenter(RXClient client, RXAuthState auth) {
+        public Presenter(EnterCode path, RXClient client, RXAuthState auth) {
+            this.path = path;
             this.client = client;
             this.auth = auth;
         }
 
+        public EnterCode getPath() {
+            return path;
+        }
+
         @Override
         protected void onLoad(Bundle savedInstanceState) {
-            super.onLoad(savedInstanceState);
+            if (request != null){
+                subscribe();
+            }
+        }
+
+        @Override
+        public void dropView(EnterCodeView view) {
+            super.dropView(view);
+            subscription.unsubscribe();
+            if (pd != null){
+                pd.dismiss();
+            }
         }
 
         public void checkCode(String code) {
+            assertNull(request);
             TdApi.AuthSetCode f = new TdApi.AuthSetCode(code);
-            authorizeAndGetMe(f)
-                    .observeOn(mainThread())
-                    .subscribe(new Action1<TdApi.User>() {
-                        @Override
-                        public void call(TdApi.User user) {
-                            auth.authorized(user);
-                        }
-                    });
-//                    .subscribe(new Action1<TdApi.TLObject>() {
-//                        @Override
-//                        public void call(TdApi.TLObject r) {
-//                            if (r instanceof TdApi.AuthStateOk) {
-//
-//                            } else {
-//                                fail("unimplemented");
-//                            }
-//                        }
-//                    });
+            request = authorizeAndGetMe(f);
+
+            subscribe();
+        }
+
+        private void subscribe() {
+            hideKeyboard(getView()
+                    .getSmsCode());
+            pd = new ProgressDialog(getView().getContext());
+            subscription = request.subscribe(new ObserverAdapter<TdApi.User>() {
+                @Override
+                public void onError(Throwable th) {
+                    getView().showError(th);
+                    pd.dismiss();
+                    request = null;
+                }
+
+                @Override
+                public void onNext(TdApi.User response) {
+                    auth.authorized(response);
+                    pd.dismiss();
+                    request = null;
+                }
+            });
+
+            pd.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    subscription.unsubscribe();
+                    request = null;
+                }
+            });
+            pd.show();
         }
 
         private Observable<TdApi.User> authorizeAndGetMe(TdApi.AuthSetCode f) {
@@ -88,11 +149,13 @@ public class EnterCode extends BasePath implements Serializable{
                             return client.sendRx(new TdApi.GetMe());
                         }
                     }).map(new Func1<TdApi.TLObject, TdApi.User>() {
-                @Override
-                public TdApi.User call(TdApi.TLObject tlObject) {
-                    return (TdApi.User) tlObject;
-                }
-            });
+                        @Override
+                        public TdApi.User call(TdApi.TLObject tlObject) {
+                            return (TdApi.User) tlObject;
+                        }
+                    })
+                    .cache()
+                    .observeOn(mainThread());
         }
     }
 

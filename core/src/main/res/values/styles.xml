@@ -6,8 +6,23 @@
            parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="android:windowBackground">@color/bg_white</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+
+        <item name="colorControlNormal">#e0e0e0</item>
+        <item name="colorControlActivated">#579cda</item>
+        <item name="colorControlHighlight">#ff75c1f7</item>
+
+
+
+        <!--<item name="colorPrimary">@color/foo</item>-->
+
+        <!--<item name="colorAccent">@color/foo</item>-->
+        <!--<item name="colorControlHighlight"></item>​-->
+        <!--<item name="colorControlNormal">#e0e0e0</item>-->
+        <!--<item name="colorSwitchThumbNormal">@color/foo</item>-->
+        <!--<item name="android:colorForeground">@color/foo</item>-->
     </style>
 
     <style name="PathRoot">
@@ -17,7 +32,7 @@
 
 
     <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
-        <item name="spinBars">true</item>
+        <item name="spinBars">false</item>
         <item name="color">@android:color/white</item>
     </style>
 
@@ -34,5 +49,5 @@
 
     </style>
 
-
+    <color name="foo">#ffff0000</color>
 </resources>

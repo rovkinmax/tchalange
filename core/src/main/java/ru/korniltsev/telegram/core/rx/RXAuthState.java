@@ -15,7 +15,6 @@ public class RXAuthState {
     public static final String RX_CLIENT = "rx_client";
     public static final String ME_UID = "ME_UID";
     private final SharedPreferences prefs;
-    private final RXClient client;
 
     public abstract class AuthState {//todomove
 //        AUTHORIZED, LOGOUT
@@ -37,9 +36,8 @@ public class RXAuthState {
     final Context ctx;
 
     @Inject
-    public RXAuthState( Context ctx, RXClient client) {
+    public RXAuthState(Context ctx) {
         this.ctx = ctx;
-        this.client = client;
         prefs = ctx.getSharedPreferences(RX_CLIENT, Context.MODE_PRIVATE);
         getState();
     }
@@ -63,7 +61,6 @@ public class RXAuthState {
     }
 
     public void logout() {
-        client.sendSilently(new TdApi.AuthReset());
         prefs.edit()
                 .remove(PREF_AUTHORIZED)
                 .apply();

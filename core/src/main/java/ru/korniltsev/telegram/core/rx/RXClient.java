@@ -7,8 +7,10 @@ import org.drinkless.td.libcore.telegram.TG;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.drinkless.td.libcore.telegram.TdApi.TLObject;
 import ru.korniltsev.telegram.core.adapters.RequestHandlerAdapter;
+import ru.korniltsev.telegram.core.utils.Preconditions;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
@@ -172,6 +174,7 @@ public class RXClient {
         }
     };
     private Context ctx;
+    private final RXAuthState auth;
 
     private final Client client;
     private final PublishSubject<TdApi.TLObject> globalSubject2 = PublishSubject.create();
@@ -180,23 +183,30 @@ public class RXClient {
     private final BehaviorSubject<TdApi.UpdateOption> connectedState = BehaviorSubject.create(new TdApi.UpdateOption(OPTION_CONNECTION_STATE, new TdApi.OptionBoolean(false)));
     private Observable<TLObject> globalObservableWithBackPressure;
 
+
+    BehaviorSubject<TdApi.AuthState> authStateLogut ;
+
+
     @Inject
-    public RXClient(Context ctx) {
+    public RXClient(Context ctx, RXAuthState auth) {
+        TdApi.AuthState state = new TdApi.AuthStateWaitSetPhoneNumber();
+        authStateLogut = BehaviorSubject.<TdApi.AuthState>create(state);
         this.ctx = ctx;
+        this.auth = auth;
         globalObservableWithBackPressure = globalSubject2.onBackpressureBuffer();
         TG.setUpdatesHandler(new Client.ResultHandler() {
             @Override
             public void onResult(TLObject object) {
-                if (object instanceof TdApi.UpdateFileProgress){
+                if (object instanceof TdApi.UpdateFileProgress) {
                     fileProgressUpdates.onNext((TdApi.UpdateFileProgress) object);
-                } else if (object instanceof TdApi.UpdateFile){
-//                    try {
-                        TdApi.UpdateFile o = (TdApi.UpdateFile) object;
-                        fileUpdates.onNext(o);
-//                        Log.e("DownloadFile", "\tfinish : " + coolTagForFileId(o.fileId) + " " + o.path);
-//                    } catch (Exception e) {
-//                        Log.e("RxClientError", "error: ", e);
-//                    }
+                } else if (object instanceof TdApi.UpdateFile) {
+                    //                    try {
+                    TdApi.UpdateFile o = (TdApi.UpdateFile) object;
+                    fileUpdates.onNext(o);
+                    //                        Log.e("DownloadFile", "\tfinish : " + coolTagForFileId(o.fileId) + " " + o.path);
+                    //                    } catch (Exception e) {
+                    //                        Log.e("RxClientError", "error: ", e);
+                    //                    }
                 } else {
                     globalSubject2.onNext(object);
                 }
@@ -210,13 +220,13 @@ public class RXClient {
                 .subscribe(connectedState)
         ;
 
-//        globalSubject
-//                .subscribe(new Action1<TLObject>() {
-//                    @Override
-//                    public void call(TLObject tlObject) {
-//                        Log.e("Update", "probably unhandled update\n" + tlObject);
-//                    }
-//                });
+        //        globalSubject
+        //                .subscribe(new Action1<TLObject>() {
+        //                    @Override
+        //                    public void call(TLObject tlObject) {
+        //                        Log.e("Update", "probably unhandled update\n" + tlObject);
+        //                    }
+        //                });
 
         this.client = TG.getClientInstance();
     }
@@ -258,8 +268,18 @@ public class RXClient {
                     @Override
                     public void onResult(TLObject object) {
                         if (object instanceof TdApi.Error) {
-                            Log.e("RxClient", ((TdApi.Error) object).text);
-                            s.onError(new RxClientException((TdApi.Error) object));
+                            TdApi.Error err = (TdApi.Error) object;
+                            Log.e("RxClient", (err).text);
+                            if (err.text.equals("no auth")) {
+                                Preconditions.MAIN_HANDLER.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        logout();
+                                    }
+                                });
+                            } else {
+                                s.onError(new RxClientException(err));
+                            }
                         } else {
                             s.onNext(object);
                             s.onCompleted();
@@ -268,6 +288,27 @@ public class RXClient {
                 });
             }
         });
+    }
+
+
+
+
+    public void logout() {
+        Preconditions.checkMainThread();
+        authStateLogut.onNext(new TdApi.AuthStateOk());
+        sendRx(new TdApi.AuthReset())
+            .subscribe(new Action1<TLObject>() {
+                @Override
+                public void call(TLObject tlObject) {
+                    authStateLogut.onNext((TdApi.AuthState) tlObject);
+                }
+            });
+
+        auth.logout();
+    }
+
+    public Observable<TdApi.AuthState> logoutHelper() {
+        return authStateLogut;
     }
 
     public void sendSilently(final TdApi.TLFunction function) {

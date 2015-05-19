@@ -11,13 +11,27 @@
             android:id="@+id/toolbar"
             layout="@layout/toolbar"/>
 
+    <TextView
+            android:id="@+id/we_have_sent"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="18dp"
+            android:layout_marginRight="18dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_below="@id/toolbar"
+            />
 
     <EditText
             android:id="@+id/sms_code"
-            android:layout_width="80dp"
+            android:layout_width="144dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar"
+            android:layout_below="@id/we_have_sent"
             android:inputType="number"
+            android:digits="0123456789"
+            android:layout_marginLeft="16dp"
+            android:imeOptions="actionDone"
             />
 
 

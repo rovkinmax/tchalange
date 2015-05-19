@@ -1,12 +1,17 @@
 package ru.korniltsev.telegram.auth.phone;
 
 import android.content.Context;
+import android.graphics.ColorFilter;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.auth.country.Countries;
 import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import rx.android.view.OnClickEvent;
 import rx.functions.Action1;
 
@@ -21,6 +26,7 @@ public class EnterPhoneView extends RelativeLayout {
     private EditText phoneCode;
     private EditText userPhone;
     @Inject EnterPhoneFragment.Presenter presenter;
+//    @Inject ActivityOwner owner;
 
     public EnterPhoneView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -41,7 +47,7 @@ public class EnterPhoneView extends RelativeLayout {
                         new Runnable() {
                             @Override
                             public void run() {
-                                presenter.sendCode(EnterPhoneView.this.getPhoneNumber());
+                                sendCode();
                             }
                         }
                 );
@@ -51,6 +57,22 @@ public class EnterPhoneView extends RelativeLayout {
                 presenter.selectCountry();
             }
         });
+
+        userPhone.requestFocus();
+        userPhone.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    sendCode();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void sendCode() {
+        presenter.sendCode(EnterPhoneView.this.getPhoneNumber());
     }
 
     private String getPhoneNumber() {
@@ -72,5 +94,13 @@ public class EnterPhoneView extends RelativeLayout {
     public void countrySelected(Countries.Entry c) {
         btnSelectCountry.setText(c.name);
         phoneCode.setText(c.phoneCode);
+    }
+
+    public EditText getPhoneCode() {
+        return phoneCode;
+    }
+
+    public void showError(String message) {
+        userPhone.setError(message);
     }
 }

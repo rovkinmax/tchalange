@@ -185,7 +185,7 @@ public class ChatList extends BasePath implements Serializable {
         }
 
         public void logout() {
-            authState.logout();
+            client.logout();
         }
 
         @Override
