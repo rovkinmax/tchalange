@@ -1,5 +1,6 @@
 package ru.korniltsev.telegram.chat.adapter;
 
+import android.content.res.Resources;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.view.View;
@@ -8,6 +9,7 @@ import flow.Flow;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxChat;
+import ru.korniltsev.telegram.core.rx.UserHolder;
 import ru.korniltsev.telegram.core.views.AvatarView;
 import ru.korniltsev.telegram.photoview.PhotoViewer;
 
@@ -17,6 +19,7 @@ public class ChatPhotoChangedVH extends RealBaseVH {
 
     private final TextView text;
     private final AvatarView image;
+    private final Resources res;
 
     public ChatPhotoChangedVH(View itemView, final Adapter adapter) {
         super(itemView, adapter);
@@ -31,16 +34,13 @@ public class ChatPhotoChangedVH extends RealBaseVH {
                         .set(new PhotoViewer(change.photo));
             }
         });
+        res = itemView.getResources();
     }
 
     @Override
     public void bind(RxChat.ChatListItem item, long lastReadOutbox) {
         TdApi.Message msg = ((RxChat.MessageItem) item).msg;
-        Spannable userName = userColor(getNameForSenderOf(msg));
-        SpannableStringBuilder sb = new SpannableStringBuilder();
-        sb.append(userName)
-                .append(" ")
-                .append(text.getResources().getString(R.string.message_changed_group_photo));
+        SpannableStringBuilder sb = getTextFor(res, msg, adapter.getUserHolder());
 //        String text =  this.text.getResources().getString(R.string.message_changed_group_photo, userName);
         this.text.setText(sb);
         TdApi.MessageChatChangePhoto changed = (TdApi.MessageChatChangePhoto) msg.message;
@@ -54,11 +54,20 @@ public class ChatPhotoChangedVH extends RealBaseVH {
         TdApi.Chat o = new TdApi.Chat();
 
         TdApi.GroupChatInfo groupChatInfo = new TdApi.GroupChatInfo();
-        groupChatInfo.groupChat.title = "";//todo !!
-        o.type = groupChatInfo;
         groupChatInfo.groupChat = new TdApi.GroupChat();
+        groupChatInfo.groupChat.title = "";//todo !!
         groupChatInfo.groupChat.photoSmall = smallSize.photo;
+        o.type = groupChatInfo;
         image.loadAvatarFor(o);
 
+    }
+
+    public static SpannableStringBuilder getTextFor(Resources res, TdApi.Message msg, UserHolder uh) {
+        Spannable userName = userColor(sGetNameForSenderOf(uh, msg));
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(userName)
+                .append(" ")
+                .append(res.getString(R.string.message_changed_group_photo));
+        return sb;
     }
 }

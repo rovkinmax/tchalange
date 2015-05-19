@@ -1,7 +1,6 @@
 package ru.korniltsev.telegram.core.rx;
 
 import android.util.SparseArray;
-import android.view.View;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.joda.time.DateTime;
 import rx.Observable;
@@ -150,12 +149,8 @@ public class RxChat implements UserHolder {
                     downloadedAll = true;
                 } else {
 
-
-                    for(int i = 0; i < portion.us.size(); i++) {
-                        TdApi.User obj = portion.us.get(
-                                portion.us.keyAt(i));
-                        holder.saveUser(obj);
-                    }
+                    SparseArray<TdApi.User> us = portion.us;
+                    holder.saveUsers(us);
                     if (!historyRequest) {
                         messages.clear();
                         chatListItems.clear();
@@ -167,6 +162,8 @@ public class RxChat implements UserHolder {
             }
         });
     }
+
+
 
     private void getUIDs(TdApi.Message message) {
         assertTrue(message.fromId != 0);

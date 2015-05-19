@@ -11,6 +11,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
+import ru.korniltsev.telegram.core.rx.UserHolder;
 import ru.korniltsev.telegram.core.utils.Colors;
 
 //something we can draw as a single textView
@@ -39,55 +40,82 @@ public class SingleTextViewVH extends RealBaseVH {
     public void bind(RxChat.ChatListItem item, long lastReadOutbox) {
         TdApi.Message msgRaw = ((RxChat.MessageItem) item).msg;
         TdApi.MessageContent msg = msgRaw.message;
+        CharSequence textFor = getTextFor(resources, msgRaw, msg, adapter.getUserHolder());
+        text.setText(textFor);
+    }
+
+    public   static CharSequence getTextFor(Resources res, TdApi.Message msgRaw, TdApi.MessageContent msg, UserHolder uh) {
         if (msg instanceof TdApi.MessageChatChangeTitle) {
-            bindChatChangedTitle(msgRaw);
+            TdApi.MessageChatChangeTitle create = (TdApi.MessageChatChangeTitle) msgRaw.message;
+            Spannable creator = userColor(sGetNameForSenderOf(uh, msgRaw));
+            Spannable title = userColor(create.title);
+
+            SpannableStringBuilder sb = new SpannableStringBuilder();
+            sb.append(creator)
+                    .append(" ")
+                    .append(res.getString(R.string.message_created_group))
+                    .append(" ")
+                    .append(title);
+            return sb;
         } else if (msg instanceof TdApi.MessageGroupChatCreate) {
-            bindChatCreated(msgRaw);
+            TdApi.MessageGroupChatCreate create = (TdApi.MessageGroupChatCreate) msgRaw.message;
+            Spannable creator = userColor(sGetNameForSenderOf(uh, msgRaw));
+            Spannable title = userColor(create.title);
+
+            SpannableStringBuilder sb = new SpannableStringBuilder();
+            sb.append(creator)
+                    .append(" ")
+                    .append(res.getString(R.string.message_created_group))
+                    .append(" ")
+                    .append(title);
+            return sb;
+            //        text.setText(sb);
         } else if (msg instanceof TdApi.MessageChatDeleteParticipant) {
-            bindChatDeleteParticipant(msgRaw);
+            TdApi.MessageChatDeleteParticipant kick = (TdApi.MessageChatDeleteParticipant) msgRaw.message;
+            Spannable inviter = userColor(sGetNameForSenderOf(uh, msgRaw));
+            Spannable newUser = userColor(Utils.uiName(kick.user));
+
+            SpannableStringBuilder sb = new SpannableStringBuilder();
+            sb.append(inviter)
+                    .append(" ")
+                    .append(res.getString(R.string.message_kicked))
+                    .append(" ")
+                    .append(newUser);
+
+            return sb;
+            //        text.setText(sb);
         } else if (msg instanceof TdApi.MessageChatAddParticipant) {
-            bindChatAddParticipant(msgRaw);
+
+            TdApi.MessageChatAddParticipant create = (TdApi.MessageChatAddParticipant) msgRaw.message;
+
+            //        String inviter = ;
+            Spannable inviter = userColor(
+                    sGetNameForSenderOf(uh, msgRaw));
+            Spannable newUser = userColor(
+                    Utils.uiName(create.user));
+
+            SpannableStringBuilder sb = new SpannableStringBuilder();
+            sb.append(inviter)
+                    .append(" ")
+                    .append(res.getString(R.string.message_ivited))
+                    .append(" ")
+                    .append(newUser);
+
+            return sb;
         } else if (msg instanceof TdApi.MessageDeleted){
-            bindDeleteMessage();
+            return res.getString(R.string.message_deleted);
         }  else if (msg instanceof TdApi.MessageChatDeletePhoto) {
-            bindChatDeletePhoto(msgRaw);
+            Spannable name = userColor(sGetNameForSenderOf(uh, msgRaw));
+            SpannableStringBuilder sb = new SpannableStringBuilder();
+            sb.append(name)
+                    .append(" ")
+                    .append(res.getString(R.string.message_removed_group_photo));
+            return sb;
         } else {
-            bindUnsupported();
+            return res.getString(R.string.message_unsupported);
         }
     }
 
-
-
-    private void bindChatDeletePhoto(TdApi.Message message) {
-        Spannable name = userColor(getNameForSenderOf(message));
-        SpannableStringBuilder sb = new SpannableStringBuilder();
-        sb.append(name)
-                .append(" ")
-                .append(resources.getString(R.string.message_removed_group_photo));
-        text.setText(sb);
-    }
-
-
-
-    private void bindChatAddParticipant(TdApi.Message item) {
-
-        TdApi.MessageChatAddParticipant create = (TdApi.MessageChatAddParticipant) item.message;
-
-//        String inviter = ;
-        Spannable inviter = userColor(
-                getNameForSenderOf(item));
-        Spannable newUser = userColor(
-                Utils.uiName(create.user));
-
-        SpannableStringBuilder sb = new SpannableStringBuilder();
-        sb.append(inviter)
-                .append(" ")
-                .append(resources.getString(R.string.message_ivited))
-                .append(" ")
-                .append(newUser);
-
-        text.setText(sb);
-    }
 
     public static Spannable userColor(String str){
         Spannable.Factory factory = Spannable.Factory.getInstance();
@@ -97,57 +125,7 @@ public class SingleTextViewVH extends RealBaseVH {
         return spannable;
     }
 
-    private void bindChatDeleteParticipant(TdApi.Message item) {
-        TdApi.MessageChatDeleteParticipant kick = (TdApi.MessageChatDeleteParticipant) item.message;
-        Spannable inviter = userColor(getNameForSenderOf(item));
-        Spannable newUser = userColor(Utils.uiName(kick.user));
 
-        SpannableStringBuilder sb = new SpannableStringBuilder();
-        sb.append(inviter)
-                .append(" ")
-                .append(resources.getString(R.string.message_kicked))
-                .append(" ")
-                .append(newUser);
-
-
-        text.setText(sb);
-    }
-
-    private void bindChatCreated(TdApi.Message item) {
-        TdApi.MessageGroupChatCreate create = (TdApi.MessageGroupChatCreate) item.message;
-        Spannable creator = userColor(getNameForSenderOf(item));
-        Spannable title = userColor(create.title);
-
-        SpannableStringBuilder sb = new SpannableStringBuilder();
-        sb.append(creator)
-                .append(" ")
-                .append(resources.getString(R.string.message_created_group))
-                .append(" ")
-                .append(title);
-        text.setText(sb);
-    }
-
-    private void bindChatChangedTitle(TdApi.Message item) {
-        TdApi.MessageChatChangeTitle create = (TdApi.MessageChatChangeTitle) item.message;
-        Spannable creator = userColor(getNameForSenderOf(item));
-        Spannable title = userColor(create.title);
-
-
-        SpannableStringBuilder sb = new SpannableStringBuilder();
-        sb.append(creator)
-                .append(" ")
-                .append(resources.getString(R.string.message_created_group))
-                .append(" ")
-                .append(title);
-        text.setText(sb);
-    }
-
-    private void bindUnsupported() {
-        text.setText(R.string.message_unsupported);
-    }
-    private void bindDeleteMessage() {
-        text.setText(R.string.message_deleted);
-    }
 
 
 }

@@ -2,7 +2,9 @@ package ru.korniltsev.telegram.chat_list;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,6 +13,8 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import ru.korniltsev.telegram.chat.adapter.ChatPhotoChangedVH;
+import ru.korniltsev.telegram.chat.adapter.SingleTextViewVH;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 import ru.korniltsev.telegram.core.rx.ChatDB;
@@ -25,8 +29,10 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
     private final Context ctx;
     private final int myId;
     private final Action1<TdApi.Chat> clicker;
+    private final Resources res;
     private ColorStateList COLOR_TEXT = ColorStateList.valueOf(0xff8a8a8a);
     final ChatDB chatDb;
+
     public Adapter(Context ctx, int myId, Action1<TdApi.Chat> clicker, ChatDB chat) {
         super(ctx);
         this.ctx = ctx;
@@ -34,6 +40,7 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
         this.clicker = clicker;
         this.chatDb = chat;
         setHasStableIds(true);
+        res = ctx.getResources();
     }
 
     @Override
@@ -70,7 +77,8 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
             holder.message.setText(text.textWithSmilesAndUserRefs);
             holder.message.setTextColor(COLOR_TEXT);
         } else {
-            holder.message.setText("system");
+            CharSequence t = getSystemText(message, chat.topMessage);
+            holder.message.setText(t.toString());//todo object allocations!
             holder.message.setTextColor(COLOR_SYSTEM);
         }
         if (chat.unreadCount > 0){
@@ -107,6 +115,54 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
 //            holder.iconTop.setVisibility(View.GONE);
 //        }
         loadAvatar(holder, chat);
+    }
+
+    private CharSequence getSystemText(TdApi.MessageContent m, TdApi.Message topMessage) {
+        /*
+                        MessageText extends MessageContent {
+                        MessageAudio extends MessageContent {
+                        MessageDocument extends MessageContent {
+                        MessageSticker extends MessageContent {
+                        MessagePhoto extends MessageContent {
+                        MessageVideo extends MessageContent {
+                        MessageGeoPoint extends MessageContent {
+                        MessageContact extends MessageContent {
+          MessageChatChangePhoto extends MessageContent {
+
+             MessageGroupChatCreate extends MessageContent {
+             MessageChatChangeTitle extends MessageContent {
+             MessageChatDeletePhoto extends MessageContent {
+             MessageChatAddParticipant extends MessageContent {
+             MessageChatDeleteParticipant extends MessageContent {
+             MessageDeleted extends MessageContent {
+             MessageUnsupported extends MessageContent {
+        * */
+        if (m instanceof TdApi.MessageAudio) {
+            return "Audio";
+        } else if (m instanceof TdApi.MessageDocument){
+            TdApi.Document doc = ((TdApi.MessageDocument) m).document;
+            if (TextUtils.isEmpty(doc.fileName)) {
+                return "File";
+            } else {
+                return doc.fileName;
+            }
+        } else if (m instanceof TdApi.MessageSticker) {
+            return "Sticker";
+        } else if (m instanceof TdApi.MessagePhoto) {
+            return "Photo";
+        } else if (m instanceof TdApi.MessageVideo) {
+            return "Video";
+        } else if (m instanceof TdApi.MessageGeoPoint) {
+            return "Geo Point";
+        } else if (m instanceof TdApi.MessageContact) {
+            return "Contact";
+        } else if (m instanceof TdApi.MessageChatChangePhoto) {
+            return ChatPhotoChangedVH.getTextFor(res, topMessage, chatDb);
+        } else {
+            return SingleTextViewVH.getTextFor(res, topMessage, m, chatDb);
+        }
+
+//        return null;
     }
 
     private void loadAvatar(VH holder, TdApi.Chat chat) {

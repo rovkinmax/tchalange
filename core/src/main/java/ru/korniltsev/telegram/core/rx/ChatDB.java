@@ -12,13 +12,16 @@ import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.subjects.PublishSubject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -62,7 +65,7 @@ public class ChatDB implements UserHolder {
     final RXClient client;
     final NotificationManager nm;
     EmojiParser parser;
-    private Observable<TdApi.Chats> chatsRequest;
+    private Observable<ChatPortion> chatsRequest;
     private boolean downloadedAllChats;
     private boolean atLeastOneResponseReturned;
     private Observable<TdApi.UpdateMessageId> messageIdsUpdates;
@@ -229,38 +232,76 @@ public class ChatDB implements UserHolder {
         }
     }
 
+    public void saveUsers(SparseArray<TdApi.User> us) {
+            for(int i = 0; i < us.size(); i++) {
+                TdApi.User obj = us.get(
+                        us.keyAt(i));
+                saveUser(obj);
+            }
+    }
 
+    class  ChatPortion {
+        final TdApi.Chats  cs ;
+        final SparseArray<TdApi.User> us;
 
+        public ChatPortion(TdApi.Chats cs, SparseArray<TdApi.User> us) {
+            this.cs = cs;
+            this.us = us;
+        }
+    }
     //request new portion
     public void requestPortion() {
         requestImpl(chatsList.size(), chatLimit, true);
     }
 
+    final Set<Integer> tmpIds = new HashSet<>();
     private void requestImpl(int offset, int limit, final boolean historyRequest) {
         Assert.assertNull(chatsRequest);
         chatsRequest = client.getChats(offset, limit)
-                .map(new Func1<TdApi.Chats, TdApi.Chats>() {
-                    @Override
-                    public TdApi.Chats call(TdApi.Chats chats) {
-                        checkNotMainThread();
-                        for (TdApi.Chat c : chats.chats) {
-                            parser.parse(c.topMessage);
-                        }
-                        return chats;
-                    }
-                })
+               .flatMap(new Func1<TdApi.Chats, Observable<ChatPortion>>() {
+                   @Override
+                   public Observable<ChatPortion> call(TdApi.Chats chats) {
+                       checkNotMainThread();
+                       for (TdApi.Chat chat : chats.chats) {
+                           parser.parse(chat.topMessage);
+                           tmpIds.add(chat.topMessage.fromId);
+                           if (chat.topMessage.forwardFromId != 0) {
+                               tmpIds.add(chat.topMessage.fromId);
+                           }
+                       }
+                       List<Observable<TdApi.User>> us = new ArrayList<Observable<TdApi.User>>();
+                       for (Integer id : tmpIds) {
+                           us.add(client.getUser(id));
+                       }
+                       Observable<List<TdApi.User>> users = Observable.merge(us)
+                               .toList();
+                       return Observable.zip(users, Observable.just(chats), new Func2<List<TdApi.User>, TdApi.Chats, ChatPortion>() {
+                           @Override
+                           public ChatPortion call(List<TdApi.User> users, TdApi.Chats chats) {
+                               SparseArray<TdApi.User> us = new SparseArray<>();
+                               for (TdApi.User user : users) {
+                                   us.put(user.id, user);
+                               }
+                               ChatPortion chatPortion = new ChatPortion(chats, us);
+                               return chatPortion;
+                           }
+                       });
+                   }
+               })
         .observeOn(mainThread());
 
-        chatsRequest.subscribe(new Action1<TdApi.Chats>() {
+
+
+        chatsRequest.subscribe(new Action1<ChatPortion>() {
             @Override
-            public void call(TdApi.Chats chats) {
+            public void call(ChatPortion p) {
+                saveUsers(p.us);
                 atLeastOneResponseReturned = true;
                 chatsRequest = null;
-                if (chats.chats.length == 0) {
+                if (p.cs.chats.length == 0) {
                     downloadedAllChats = true;
                 }
-                // todo parse smiles and refs
-                List<TdApi.Chat> csList = Arrays.asList(chats.chats);
+                List<TdApi.Chat> csList = Arrays.asList(p.cs.chats);
                 if (!historyRequest) {
                     chatsList.clear();
                 }
