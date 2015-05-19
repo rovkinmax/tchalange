@@ -228,6 +228,11 @@ public class RXClient {
                 new FilterAndCastToClass<>(TdApi.UpdateUserStatus.class));
     }
 
+    public Observable<TdApi.UpdateChatParticipantsCount> chatParticipantCount() {
+        return globalSubject2.compose(
+                new FilterAndCastToClass<>(TdApi.UpdateChatParticipantsCount.class));
+    }
+
     public Observable<TdApi.UpdateOption> getConnectedState() {
         return connectedState;
     }
@@ -275,12 +280,12 @@ public class RXClient {
 
     public Observable<TdApi.User> getUser(int id) {
 
-        return sendCachedRXUI(new TdApi.GetUser(id))
+        return sendRx(new TdApi.GetUser(id))
                 .map(CAST_TO_USER);
     }
 
     public Observable<TdApi.GroupChatFull> getGroupChatInfo(int id) {
-        return sendCachedRXUI(new TdApi.GetGroupChatFull(id))
+        return sendRx(new TdApi.GetGroupChatFull(id))
                 .map(new Func1<TLObject, TdApi.GroupChatFull>() {
                     @Override
                     public TdApi.GroupChatFull call(TLObject o) {

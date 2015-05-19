@@ -96,11 +96,7 @@ public class DocumentView extends LinearLayout{
 
             @Override
             public void play(TdApi.FileLocal e) {
-                try {
-                    documentThumb.setImageDrawable(new GifDrawable(new File(e.path)));
-                } catch (IOException ignore) {
-
-                }
+                openDocument(e);
             }
         }, this);
 

@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.chat;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import flow.Flow;
@@ -12,7 +13,6 @@ import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.ChatDB;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
+import static ru.korniltsev.telegram.core.utils.Preconditions.checkMainThread;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 @Singleton
@@ -38,6 +39,7 @@ public class Presenter extends ViewPresenter<ChatView>
     private final Observable<TdApi.GroupChatFull> fullChatInfoRequest;
     private final boolean isGroupChat;
     private CompositeSubscription subscription;
+    @Nullable private volatile TdApi.GroupChatFull mGroupChatFull;
 
     public Chat getPath() {
         return path;
@@ -52,7 +54,8 @@ public class Presenter extends ViewPresenter<ChatView>
 
         if (path.chat.type instanceof TdApi.GroupChatInfo) {
             TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) path.chat.type).groupChat;
-            fullChatInfoRequest = client.getGroupChatInfo(groupChat.id);
+            fullChatInfoRequest = client.getGroupChatInfo(groupChat.id)
+                    .observeOn(mainThread());
             isGroupChat = true;
         } else {
             fullChatInfoRequest = Observable.empty();
@@ -87,12 +90,16 @@ public class Presenter extends ViewPresenter<ChatView>
         TdApi.ChatInfo t = path.chat.type;
         if (t instanceof TdApi.PrivateChatInfo) {
             TdApi.User user = ((TdApi.PrivateChatInfo) t).user;
-            getView().setPrivateChatTitle(user);
-            getView().setPirvateChatSubtitle(user.status);
+            setViewTitle(user);
         } else {
             TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) t).groupChat;
             getView().setGroupChatTitle(groupChat);
         }
+    }
+
+    private void setViewTitle(TdApi.User user) {
+        getView().setPrivateChatTitle(user);
+        getView().setPirvateChatSubtitle(user.status);
     }
 
     @Override
@@ -131,15 +138,7 @@ public class Presenter extends ViewPresenter<ChatView>
                                    }
                         ));
 
-        subscription.add(
-                fullChatInfoRequest.subscribe(
-                        new Action1<TdApi.GroupChatFull>() {
-                            @Override
-                            public void call(TdApi.GroupChatFull groupChatFull) {
-                                updateOnlineStatus(groupChatFull);
-                            }
-                        }
-                ));
+        requestUpdateOnlineStatus();
 
         subscription.add(
                 nm.updatesForChat(path.chat)
@@ -173,6 +172,92 @@ public class Presenter extends ViewPresenter<ChatView>
                             }
                         })
         );
+
+        subscription.add(usersStatus()
+                .subscribe(new Action1<TdApi.UpdateUserStatus>() {
+                    @Override
+                    public void call(TdApi.UpdateUserStatus updateUserStatus) {
+                        requestUpdateOnlineStatus();
+                    }
+                }));
+
+        subscription.add(
+                updatesChatsParticipantCount()
+                        .subscribe(new Action1<TdApi.UpdateChatParticipantsCount>() {
+                            @Override
+                            public void call(TdApi.UpdateChatParticipantsCount updateChatParticipantsCount) {
+                                requestUpdateOnlineStatus();
+                            }
+                        }));
+    }
+
+    private Observable<TdApi.UpdateChatParticipantsCount> updatesChatsParticipantCount() {
+        return client.chatParticipantCount().filter(new Func1<TdApi.UpdateChatParticipantsCount, Boolean>() {
+            @Override
+            public Boolean call(TdApi.UpdateChatParticipantsCount upd) {
+                return upd.chatId == path.chat.id;
+            }
+        }).observeOn(mainThread());
+    }
+
+    private Observable<TdApi.UpdateUserStatus> usersStatus() {
+        return client.usersStatus()
+
+                .filter(new Func1<TdApi.UpdateUserStatus, Boolean>() {
+                    @Override
+                    public Boolean call(TdApi.UpdateUserStatus updateUserStatus) {
+                        if (isGroupChat) {
+                            TdApi.GroupChatFull mGroupChatFullCopy = Presenter.this.mGroupChatFull;
+                            if (mGroupChatFullCopy == null) {
+                                return true;
+                            }
+                            for (TdApi.ChatParticipant p : mGroupChatFullCopy.participants) {
+                                if (p.user.id == updateUserStatus.userId) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        } else {
+                            return getChatUserId() == updateUserStatus.userId;
+                        }
+                    }
+                }).observeOn(mainThread());
+    }
+
+    private int getChatUserId() {
+        if (isGroupChat) {
+            throw new IllegalStateException();
+        }
+        TdApi.PrivateChatInfo type = (TdApi.PrivateChatInfo) path.chat.type;
+        return type.user.id;
+    }
+
+    private void requestUpdateOnlineStatus() {
+        checkMainThread();
+        if (isGroupChat) {
+            subscription.add(
+                    fullChatInfoRequest.subscribe(
+                            new Action1<TdApi.GroupChatFull>() {
+                                @Override
+                                public void call(TdApi.GroupChatFull groupChatFull) {
+                                    mGroupChatFull = groupChatFull;
+                                    updateGroupChatOnlineStatus(groupChatFull);
+                                }
+                            }
+                    ));
+        } else {
+            subscription.add(
+                    getUser().subscribe(new Action1<TdApi.User>() {
+                        @Override
+                        public void call(TdApi.User user) {
+                            setViewTitle(user);
+                        }
+                    }));
+        }
+    }
+
+    private Observable<TdApi.User> getUser() {
+        return client.getUser(getChatUserId()).observeOn(mainThread());
     }
 
     private Observable<TdApi.UpdateChatReadOutbox> updateReadOutbox() {
@@ -184,7 +269,7 @@ public class Presenter extends ViewPresenter<ChatView>
         }).observeOn(mainThread());
     }
 
-    private void updateOnlineStatus(TdApi.GroupChatFull info) {
+    private void updateGroupChatOnlineStatus(TdApi.GroupChatFull info) {
         int online = 0;
         for (TdApi.ChatParticipant p : info.participants) {
             if (p.user.status instanceof TdApi.UserStatusOnline) {
