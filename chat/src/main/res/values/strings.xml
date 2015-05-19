@@ -15,9 +15,11 @@
     <!-- todo zeros members/online  look in original-->
     <string name="user_status_online">online</string>
     <!--<string name="user_status_offline">offline</string>-->
-    <string name="user_status_last_week">last week</string>
-    <string name="user_status_last_month">last month</string>
-    <string name="user_status_recently">recently</string>
+    <string name="user_status_last_week">last seen within a week</string>
+    <string name="user_status_last_month">last seen within a month</string>
+    <string name="user_status_recently">last seen recently</string>
+
+
     <string name="user_status_last_seen">last seen</string>
 
 
