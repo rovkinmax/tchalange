@@ -1,8 +1,8 @@
 package ru.korniltsev.telegram.core.emoji;
 
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 import javax.inject.Inject;
@@ -22,8 +22,27 @@ public class Stickers {
 
 
     @Inject
-    public Stickers(RXClient client) {
+    public Stickers(final RXClient client, final RXAuthState auth) {
         this.client = client;
+
+        handleState(auth.getState());
+        auth.listen()
+                .subscribe(new Action1<RXAuthState.AuthState>() {
+            @Override
+            public void call(RXAuthState.AuthState authState) {
+                handleState(authState);
+            }
+        });
+
+    }
+
+    private void handleState( RXAuthState.AuthState auth) {
+        if (auth instanceof RXAuthState.StateAuthorized){
+            requestStickers();
+        }
+    }
+
+    private void requestStickers() {
         client.sendRx(new TdApi.GetStickers(""))
                 .observeOn(mainThread())
                 .subscribe(new Action1<TdApi.TLObject>() {
