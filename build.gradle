@@ -11,7 +11,7 @@ ext {
 }
 subprojects {
 
-    if (project.name == "libpagerslidingtabstrip") {
+    if (project.name == "libgif") {
         return;
     }
 //    apply plugin: 'idea'
@@ -28,7 +28,7 @@ subprojects {
 
     repositories {
         jcenter()
-        mavenCentral()
+        //mavenCentral()
     }
 
     afterEvaluate {
@@ -81,6 +81,7 @@ subprojects {
         dagger_compiler = 'com.squareup.dagger:dagger-compiler:1.2.2'
         photo_view = 'com.github.chrisbanes.photoview:library:1.2.3'
         jodatime = 'net.danlew:android.joda:2.7.2'
+        gif_lib = 'pl.droidsonroids.gif:android-gif-drawable:1.1.+'
 
 
     }

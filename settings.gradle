@@ -1,14 +1,25 @@
-include 'libtd',
-        'libwebp',
-        'libopus',
-        'libpagerslidingtabstrip2'
-include 'core'
+
+include 'core', ':libgif'
 include 'main_lib'
-include 'provided_res'
+
 
 
 include 'auth'
 include 'chats_list'
 include 'chat'
-//include 'emoji'
+
 include 'photo_view'
+
+def libs = [
+        'libtd',
+        'libgif',
+        'libwebp',
+        'libopus',
+        'libpagerslidingtabstrip2',
+        'provided_res'
+]
+for (l in libs){
+        include l
+        project(":$l").projectDir = new File(rootProject.projectDir, "libs/$l")
+}
+

@@ -10,9 +10,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import junit.framework.Assert;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import pl.droidsonroids.gif.GifDrawable;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
@@ -20,6 +20,7 @@ import ru.korniltsev.telegram.core.views.DownloadView;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
 
 public class DocumentView extends LinearLayout{
 
@@ -89,13 +90,17 @@ public class DocumentView extends LinearLayout{
             }
 
             @Override
-            public void onFinished(TdApi.FileLocal e) {
+            public void onFinished(TdApi.FileLocal e, boolean b) {
                 documentProgress.setText(getResources().getString(R.string.downloaded_kb, kb(e.size)));
             }
 
             @Override
             public void play(TdApi.FileLocal e) {
-                openDocument(e);
+                try {
+                    documentThumb.setImageDrawable(new GifDrawable(new File(e.path)));
+                } catch (IOException ignore) {
+
+                }
             }
         }, this);
 

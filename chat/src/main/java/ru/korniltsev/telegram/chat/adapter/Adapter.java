@@ -29,6 +29,7 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
     public static final int VIEW_TYPE_DAY_SEPARATOR = 9;
     public static final int VIEW_TYPE_TEXT_FORWARD = 10;
     public static final int VIEW_TYPE_TEXT_FORWARD2 = 11;
+    public static final int VIEW_TYPE_GIF = 12;
 
 //    final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxGlide picasso;
@@ -111,7 +112,12 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
             } else if (message instanceof TdApi.MessageChatChangePhoto){
                 return VIEW_TYPE_CHAT_PHOTO_CHANGED;
             } else if (message instanceof TdApi.MessageDocument){
-                return VIEW_TYPE_DOCUMENT;
+                TdApi.Document doc = ((TdApi.MessageDocument) message).document;
+                if (doc.mimeType.equals("image/gif")){
+                    return VIEW_TYPE_GIF;
+                } else {
+                    return VIEW_TYPE_DOCUMENT;
+                }
             }else{
                 return VIEW_TYPE_SINGLE_TEXT_VIEW;
             }
@@ -168,6 +174,10 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
             case VIEW_TYPE_DOCUMENT: {
                 View view = inflate(R.layout.item_document, p);
                 return new DocumentVH(view, this);
+            }
+            case VIEW_TYPE_GIF: {
+                View view = inflate(R.layout.item_video, p);
+                return new GifDocumentVH(view, this);
             }
             case VIEW_TYPE_DAY_SEPARATOR:{
                 View view = inflate(R.layout.item_day_separator, p);

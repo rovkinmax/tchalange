@@ -5,12 +5,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
@@ -19,11 +16,9 @@ import android.util.Property;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import junit.framework.Assert;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
@@ -173,7 +168,7 @@ public class DownloadView extends FrameLayout {
                     public void call(RxDownloadManager.FileState fileState) {
                         if (fileState instanceof RxDownloadManager.FileDownloaded) {
                             final RxDownloadManager.FileDownloaded d = (RxDownloadManager.FileDownloaded) fileState;
-                            cb.onFinished(d.f);
+                            cb.onFinished(d.f, true);
                             animateProgress(1f);
                             animator.addListener(new AnimatorListenerAdapter() {
                                 @Override
@@ -243,7 +238,7 @@ public class DownloadView extends FrameLayout {
                 //show hight quality thumb
             }
             cb.onFinished(
-                    downloader.getDownloadedFile(f));
+                    downloader.getDownloadedFile(f), false);
         } else {
             TdApi.FileEmpty e = (TdApi.FileEmpty) f;
             if (downloader.isDownloading(e)) {
@@ -323,9 +318,9 @@ public class DownloadView extends FrameLayout {
         }
     }
 
-    public interface CallBack {
-        void onProgress(TdApi.UpdateFileProgress p);
-        void onFinished(TdApi.FileLocal e);
-        void play(TdApi.FileLocal e);
+    public static abstract class  CallBack {
+        public void onProgress(TdApi.UpdateFileProgress p){}
+        public void onFinished(TdApi.FileLocal e, boolean justDownloaded){}
+        public void play(TdApi.FileLocal e){}
     }
 }

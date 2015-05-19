@@ -1,11 +1,10 @@
 package ru.korniltsev.telegram.chat.adapter.view;
 
-import android.animation.ObjectAnimator;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Debug;
 import android.os.Environment;
 import android.util.AttributeSet;
 import android.view.View;
@@ -13,22 +12,19 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import pl.droidsonroids.gif.GifDrawable;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
-import ru.korniltsev.telegram.core.utils.PhotoUtils;
 import ru.korniltsev.telegram.core.views.DownloadView;
-import rx.Observable;
-import rx.Subscription;
-import rx.functions.Action1;
-import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
 
 import java.io.File;
+import java.io.IOException;
 
-import static rx.android.schedulers.AndroidSchedulers.mainThread;
+import static junit.framework.Assert.assertTrue;
 
 public class VideoView extends FrameLayout {
 
@@ -41,10 +37,11 @@ public class VideoView extends FrameLayout {
 //    private ImageView actionIcon;
     private ImageView preview;
 
-    private TdApi.Video msg;
+//    private TdApi.Video msg;
     private DownloadView downloadView;
     private int width;
     private int height;
+    private TdApi.PhotoSize thumb;
 
     public VideoView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -89,39 +86,86 @@ public class VideoView extends FrameLayout {
 
 
     public void set(TdApi.Video msg) {
-        this.msg = msg;
-        float ratio = (float)msg.thumb.width / msg.thumb.height;//PhotoUtils.getPhotoRation(msg.thumb.);
+//        this.msg = msg;
+        TdApi.PhotoSize thumb = msg.thumb;
+        TdApi.File file = msg.video;
+        bindGeneral(thumb, file, false);
+    }
+
+    public void set(TdApi.Document doc) {
+        assertTrue("image/gif".equals(doc.mimeType));
+        TdApi.PhotoSize thumb = doc.thumb;
+        TdApi.File file = doc.document;
+        bindGeneral(thumb, file, true);
+    }
+
+    private void bindGeneral(TdApi.PhotoSize thumb, TdApi.File file, final boolean gif) {
+        this.thumb = thumb;
+        float ratio = (float) thumb.width / thumb.height;
         if (ratio > 1) {
             width = dp207;
         } else {
             width = dp154;
         }
-        height = (int) ( width/ratio);
+        height = (int) (width / ratio);
+        showLowQualityThumb(thumb);
         requestLayout();
-        showLowQualityThumb();
+
         DownloadView.Config cfg = new DownloadView.Config(R.drawable.ic_play, false, false, 48);
-        downloadView.bind(msg.video, cfg, new DownloadView.CallBack() {
+        downloadView.setVisibility(View.VISIBLE);
+        downloadView.bind(file, cfg, new DownloadView.CallBack() {
             @Override
-            public void onProgress(TdApi.UpdateFileProgress p) {
-
-            }
-
-            @Override
-            public void onFinished(TdApi.FileLocal e) {
-
+            public void onFinished(TdApi.FileLocal e, boolean justDownloaded) {
+                if (gif && justDownloaded) {
+                    setAndPlayGif(e);
+                }
             }
 
             @Override
             public void play(TdApi.FileLocal e) {
-                playVideo(e);
+                if (gif) {
+                    Drawable drawable = preview.getDrawable();
+                    if (drawable instanceof GifDrawable){
+                        ((GifDrawable) drawable).pause();
+                        preview.setImageDrawable(null);
+                        showLowQualityThumb(VideoView.this.thumb);
+                        downloadView.setVisibility(View.VISIBLE);
+                    } else {
+                        setAndPlayGif(e);
+                    }
+                } else {
+                    playVideo(e);
+                }
             }
         }, this);
-
-
     }
 
-    private void showLowQualityThumb() {
-        picasso.loadPhoto(msg.thumb.photo, false)
+    private void setAndPlayGif(TdApi.FileLocal e) {
+        try {
+            preview.setImageDrawable(new GifDrawable(e.path));
+            downloadView.setVisibility(View.GONE);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private void playGif(TdApi.FileLocal e) {
+        Drawable drawable = preview.getDrawable();
+        if (drawable instanceof GifDrawable){
+            preview.setImageDrawable(null);
+            showLowQualityThumb(thumb);
+        } else {
+
+        }
+//        try {
+//            preview.setImageDrawable(new GifDrawable(e.path));
+//        } catch (IOException e1) {
+//            e1.printStackTrace();
+//        }
+    }
+
+    private void showLowQualityThumb(TdApi.PhotoSize thumb) {
+        picasso.loadPhoto(thumb.photo, false)
                 .resize(width, height)
                 .into(preview);
     }

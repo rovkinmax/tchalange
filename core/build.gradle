@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 //apply plugin: 'me.tatarka.retrolambda'
 
 dependencies {
+
     compile project.rx_java
     compile project.rx_android
     compile project.support_v4

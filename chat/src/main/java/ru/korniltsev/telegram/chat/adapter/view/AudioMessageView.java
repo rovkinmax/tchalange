@@ -3,7 +3,6 @@ package ru.korniltsev.telegram.chat.adapter.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
@@ -11,15 +10,11 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.audio.AudioPlayer;
 import ru.korniltsev.telegram.core.rx.RXClient;
-import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.views.DownloadView;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
-
-import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 public class AudioMessageView extends LinearLayout {
 
@@ -63,7 +58,7 @@ public class AudioMessageView extends LinearLayout {
             }
 
             @Override
-            public void onFinished(TdApi.FileLocal e) {
+            public void onFinished(TdApi.FileLocal e, boolean b) {
 
             }
 

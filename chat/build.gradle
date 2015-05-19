@@ -5,6 +5,9 @@ apply plugin: 'com.android.library'
 dependencies {
 
     compile project(":core")
+    compile project(':libgif')
+    //'pl.droidsonroids.gif:android-gif-drawable:1.1.+'
+
     compile project(":photo_view")
     provided project.dagger_compiler
 
