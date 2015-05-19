@@ -9,11 +9,9 @@ import org.drinkless.td.libcore.telegram.TdApi.TLObject;
 import ru.korniltsev.telegram.core.adapters.RequestHandlerAdapter;
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -176,14 +174,16 @@ public class RXClient {
     private Context ctx;
 
     private final Client client;
-    private final PublishSubject<TdApi.TLObject> globalSubject = PublishSubject.create();
+    private final PublishSubject<TdApi.TLObject> globalSubject2 = PublishSubject.create();
     private final PublishSubject<TdApi.UpdateFile> fileUpdates = PublishSubject.create();
     private final PublishSubject<TdApi.UpdateFileProgress> fileProgressUpdates = PublishSubject.create();
     private final BehaviorSubject<TdApi.UpdateOption> connectedState = BehaviorSubject.create(new TdApi.UpdateOption(OPTION_CONNECTION_STATE, new TdApi.OptionBoolean(false)));
+    private Observable<TLObject> globalObservableWithBackPressure;
 
     @Inject
     public RXClient(Context ctx) {
         this.ctx = ctx;
+        globalObservableWithBackPressure = globalSubject2.onBackpressureBuffer();
         TG.setUpdatesHandler(new Client.ResultHandler() {
             @Override
             public void onResult(TLObject object) {
@@ -198,12 +198,12 @@ public class RXClient {
 //                        Log.e("RxClientError", "error: ", e);
 //                    }
                 }
-                globalSubject.onNext(object);
+                globalSubject2.onNext(object);
             }
         });
         TG.setDir(ctx.getFilesDir().getAbsolutePath() + "/");
 
-        globalSubject.filter(ONLY_UPDATE_OPTION)
+        globalObservableWithBackPressure.filter(ONLY_UPDATE_OPTION)
                 .map(CAST_TO_UPDATE_OBJECT)
                 .filter(ONLY_CONNECTED_STATE_OPTION)
                 .subscribe(connectedState)
@@ -219,7 +219,6 @@ public class RXClient {
 
         this.client = TG.getClientInstance();
     }
-
 
     public Observable<TdApi.UpdateOption> getConnectedState() {
         return connectedState;
@@ -284,7 +283,8 @@ public class RXClient {
 
     // ui thread
     public Observable<TdApi.UpdateMessageId> messageIdsUpdates(final long chatId) {
-        return globalSubject.filter(ONLY_UPDATE_MESSAGE_ID)
+
+        return globalObservableWithBackPressure.filter(ONLY_UPDATE_MESSAGE_ID)
                 .map(CAST_TO_UPDATE_MESSAGE_ID)
                 .filter(new Func1<TdApi.UpdateMessageId, Boolean>() {
                     @Override
@@ -296,32 +296,38 @@ public class RXClient {
     }
 
     public Observable<TdApi.UpdateMessageId> updateMessageId() {
-        return globalSubject.filter(ONLY_UPDATE_MESSAGE_ID)
+
+        return globalObservableWithBackPressure.filter(ONLY_UPDATE_MESSAGE_ID)
                 .map(CAST_TO_UPDATE_MESSAGE_ID);
     }
 
     public Observable<TdApi.UpdateMessageDate> updateMessageDate() {
-        return globalSubject.filter(ONLY_UPDATE_MESSAGE_DATE)
+
+        return globalObservableWithBackPressure.filter(ONLY_UPDATE_MESSAGE_DATE)
                 .map(CAST_TO_UPDATE_MESSAGE_DATE);
     }
 
     public Observable<TdApi.UpdateChatReadInbox> updateChatReadInbox() {
-        return globalSubject.filter(ONLY_UPDATE_CHAT_READ_INBOX)
+
+        return globalObservableWithBackPressure.filter(ONLY_UPDATE_CHAT_READ_INBOX)
                 .map(CAST_UPDATE_CHAT_READ_INBOX);
     }
 
     public Observable<TdApi.UpdateChatReadOutbox> updateChatReadOutbox() {
-        return globalSubject.filter(ONLY_UPDATE_CHAT_READ_OUTBOX)
+
+        return globalObservableWithBackPressure.filter(ONLY_UPDATE_CHAT_READ_OUTBOX)
                 .map(CAST_UPDATE_CHAT_READ_OUTBOX);
     }
 
     public Observable<TdApi.UpdateDeleteMessages> updateDeleteMessages() {
-        return globalSubject.filter(ONLY_DELETE_MESSAGES)
+
+        return globalObservableWithBackPressure.filter(ONLY_DELETE_MESSAGES)
                 .map(CAST_TO_DELETE_MESSAGES);
     }
 
     public Observable<TdApi.UpdateMessageContent> updateMessageContent() {
-        return globalSubject.filter(ONLY_UPDATE_MESSAGE_CONTENT)
+
+        return globalObservableWithBackPressure.filter(ONLY_UPDATE_MESSAGE_CONTENT)
                 .map(CAST_TO_UPDATE_MESSAGE_CONTENT);
     }
 
@@ -349,7 +355,8 @@ public class RXClient {
     }
 
     public Observable<TdApi.UpdateNewMessage> updateNewMessages() {
-        return globalSubject
+
+        return globalObservableWithBackPressure
                 .filter(ONLY_NEW_MESSAGE_UPDATES)
                 .map(CAST_TO_NEW_MESSAGE_UPDATE);
     }
@@ -359,7 +366,8 @@ public class RXClient {
     }
 
     public Observable<TdApi.UpdateNotificationSettings> updateNotificationSettings() {
-        return globalSubject.filter(PREDICATE)
+
+        return globalObservableWithBackPressure.filter(PREDICATE)
                 .map(FUNC);
     }
     ////////////

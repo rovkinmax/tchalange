@@ -30,7 +30,7 @@ public class EmojiParser {
     }
 
     public void parse(TdApi.Message msg) {
-        checkNotMainThread();
+//        checkNotMainThread();
         if (msg.message instanceof TdApi.MessageText){
             TdApi.MessageText text = (TdApi.MessageText) msg.message;
             String key = text.text;
