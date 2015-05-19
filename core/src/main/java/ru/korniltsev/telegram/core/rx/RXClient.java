@@ -197,8 +197,9 @@ public class RXClient {
 //                    } catch (Exception e) {
 //                        Log.e("RxClientError", "error: ", e);
 //                    }
+                } else {
+                    globalSubject2.onNext(object);
                 }
-                globalSubject2.onNext(object);
             }
         });
         TG.setDir(ctx.getFilesDir().getAbsolutePath() + "/");
@@ -218,6 +219,13 @@ public class RXClient {
 //                });
 
         this.client = TG.getClientInstance();
+    }
+
+
+
+    public Observable<TdApi.UpdateUserStatus> usersStatus() {
+        return globalSubject2.compose(
+                new FilterAndCastToClass<>(TdApi.UpdateUserStatus.class));
     }
 
     public Observable<TdApi.UpdateOption> getConnectedState() {
@@ -385,5 +393,29 @@ public class RXClient {
     public Observable<TdApi.Messages> getMessages(final long chatId, final int fromId, final int offset, final int limit) {
         return sendRx(new TdApi.GetChatHistory(chatId, fromId, offset, limit))
                 .map(CAST_TO_MESSAGE);
+    }
+
+    private static class FilterAndCastToClass<T> implements Observable.Transformer<TLObject, T> {
+        final Class<T> cls;
+
+        public FilterAndCastToClass(Class<T> cls) {
+            this.cls = cls;
+        }
+
+        @Override
+        public Observable<T> call(Observable<TLObject> tlObjectObservable) {
+            return tlObjectObservable.filter(new Func1<TLObject, Boolean>() {
+                @Override
+                public Boolean call(TLObject tlObject) {
+                    return tlObject.getClass() == cls;//.isAssignableFrom(cls);
+                }
+            }).map(new Func1<TLObject, T>() {
+                @Override
+                public T call(TLObject tlObject) {
+                    //noinspection unchecked
+                    return (T) tlObject;
+                }
+            });
+        }
     }
 }
