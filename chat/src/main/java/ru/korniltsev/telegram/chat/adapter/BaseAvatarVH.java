@@ -13,6 +13,7 @@ import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.utils.Colors;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 abstract class BaseAvatarVH extends RealBaseVH {
@@ -32,6 +33,8 @@ abstract class BaseAvatarVH extends RealBaseVH {
         iconRight = (ImageView) itemView.findViewById(R.id.icon_right);
 
         colorizeNick(nick);
+        nick.setLines(1);
+        nick.setSingleLine();
         //todo blue dot
         //todo message set status
     }
@@ -83,11 +86,16 @@ abstract class BaseAvatarVH extends RealBaseVH {
 
     }
 
+    static SimpleDateFormat fuckRuFormatter = new SimpleDateFormat("kk:mm", Locale.US);
     public static String format(TdApi.Message msg) {
 //        Locale l = Locale.getDefault();
 //        if (l)
         long timeInMillis = Utils.dateToMillis(msg.date);
         long local = DateTimeZone.UTC.convertUTCToLocal(timeInMillis);
-        return MESSAGE_TIME_FORMAT.print(local);
+        if (Locale.getDefault().getCountry().equals("RU")){
+            return fuckRuFormatter.format(local);
+        } else {
+            return MESSAGE_TIME_FORMAT.print(local);
+        }
     }
 }

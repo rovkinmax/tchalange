@@ -22,7 +22,11 @@ import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.views.AvatarView;
 import rx.functions.Action1;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
+    static SimpleDateFormat fuckRuFormatter = new SimpleDateFormat("kk:mm", Locale.US);
     public static final DateTimeFormatter MESSAGE_TIME_FORMAT = DateTimeFormat.forPattern("K:mm a");
     public static final ColorStateList COLOR_SYSTEM = ColorStateList.valueOf(0xff6b9cc2);
 
@@ -70,7 +74,13 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
 
         long timeInMillis = Utils.dateToMillis(chat.topMessage.date);
         long local = DateTimeZone.UTC.convertUTCToLocal(timeInMillis);
-        holder.time.setText(MESSAGE_TIME_FORMAT.print(local));
+//        long local = DateTimeZone.UTC.convertUTCToLocal(timeInMillis);
+        if (Locale.getDefault().getCountry().equals("RU")){
+            holder.time.setText(fuckRuFormatter.format(local));
+        } else {
+            holder.time.setText(MESSAGE_TIME_FORMAT.print(local));
+        }
+
 
         if (message instanceof TdApi.MessageText) {
             TdApi.MessageText text = (TdApi.MessageText) message;
