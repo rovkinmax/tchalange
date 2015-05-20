@@ -14,6 +14,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import com.astuetz.PagerSlidingTabStrip;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
@@ -323,12 +325,23 @@ public class EmojiKeyboardView extends LinearLayout {
             return vh.img;
         }
 
-        private void onBindVH(VH vh, int position) {
-            TdApi.Sticker s = getItem(position);
-            picasso.loadPhoto(s.sticker, true)
-//                    .fit()
-//                    .centerInside()
-                    .into(vh.img);
+        private void onBindVH(final VH vh, int position) {
+            final TdApi.Sticker s = getItem(position);
+            picasso.loadPhoto(s.thumb.photo, true)
+                    .priority(Picasso.Priority.HIGH)
+                    .into(vh.img, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            picasso.loadPhoto(s.sticker, true)
+                                    .placeholder(vh.img.getDrawable())
+                                    .into(vh.img);
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
         }
     }
 }
