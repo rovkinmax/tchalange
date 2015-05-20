@@ -43,8 +43,9 @@
                 android:layout_height="wrap_content"
                 android:textSize="17sp"
                 android:textColor="#222222"
-                android:fontFamily="me"
                 android:gravity="bottom"
+                android:singleLine="true"
+                android:lines="1"
                 />
 
         <ImageView
