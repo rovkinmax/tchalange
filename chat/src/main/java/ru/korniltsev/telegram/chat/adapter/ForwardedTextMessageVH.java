@@ -43,9 +43,7 @@ class ForwardedTextMessageVH extends BaseAvatarVH {
         avatar.loadAvatarFor(user);
         nick.setText(
                 Utils.uiName(user));
-        long forwardDateInMillis = Utils.dateToMillis(rawMsg.forwardDate );
-        long local = DateTimeZone.UTC.convertUTCToLocal(forwardDateInMillis);
-        message_time.setText(MESSAGE_TIME_FORMAT.print(local));
+        message_time.setText(BaseAvatarVH.format(rawMsg));
 
 
 

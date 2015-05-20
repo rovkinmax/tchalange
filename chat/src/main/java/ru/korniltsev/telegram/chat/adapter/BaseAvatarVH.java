@@ -13,8 +13,11 @@ import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.utils.Colors;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
+import java.util.Locale;
+
 abstract class BaseAvatarVH extends RealBaseVH {
-    public static final DateTimeFormatter MESSAGE_TIME_FORMAT = DateTimeFormat.forPattern("K:mm a");
+    private static final DateTimeFormatter MESSAGE_TIME_FORMAT = DateTimeFormat.forPattern("K:mm a")
+            .withLocale(Locale.US);
     public static final int MSG_WITHOUT_VALID_ID = 1000000000;
     private final AvatarView avatar;
     private final TextView nick;
@@ -45,9 +48,8 @@ abstract class BaseAvatarVH extends RealBaseVH {
             String name = Utils.uiName(user);
             nick.setText(name);
         }
-        long timeInMillis = Utils.dateToMillis(msg.date);
-        long local = DateTimeZone.UTC.convertUTCToLocal(timeInMillis);
-        time.setText(MESSAGE_TIME_FORMAT.print(local));
+        String print = format(msg);
+        time.setText(print);
         switch (adapter.chat.getMessageState(msg, lastReadOutbox, myId)){
             case RxChat.MESSAGE_STATE_READ:
                 iconRight.setVisibility(View.GONE);
@@ -81,4 +83,11 @@ abstract class BaseAvatarVH extends RealBaseVH {
 
     }
 
+    public static String format(TdApi.Message msg) {
+//        Locale l = Locale.getDefault();
+//        if (l)
+        long timeInMillis = Utils.dateToMillis(msg.date);
+        long local = DateTimeZone.UTC.convertUTCToLocal(timeInMillis);
+        return MESSAGE_TIME_FORMAT.print(local);
+    }
 }
