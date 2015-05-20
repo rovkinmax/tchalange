@@ -31,7 +31,7 @@ public class MainActivity extends ActionBarActivity {
     RXAuthState authState;
     private Subscription subscription;
     private ActivityOwner activityOwner;
-    boolean firstRun = true;
+    private static boolean firstRun = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
