@@ -46,6 +46,10 @@ public class DownloadView extends FrameLayout {
     public static final int BG_BLUE = 0xffecf4F9;
     public static final int BG_BLACK = 0xB1000000;
     public static final int BG_DARKEN_BLUE = 0xff579cda;
+    public static final int DARKEN_BLUE_DURATION = 208;
+    public static final int FADE_PROGRESS_DURATION = 208;
+    public static final int SCALE_DOWN_DURATION = 80;
+    public static final int SCALE_UP_DURAION = 80;
 
     //size of visible part of view
 //    private final int size;
@@ -77,6 +81,7 @@ public class DownloadView extends FrameLayout {
     private int size;
     private View clickTarget;
     private AnimatorSet currentAnimation;
+    private ObjectAnimator bgColorAnimator;
 
     public DownloadView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -130,6 +135,10 @@ public class DownloadView extends FrameLayout {
     public Float getProgressAlpha() {
         float alpha = p.getAlpha();
         return alpha/255;
+    }
+
+    public Integer getBgColor() {
+        return bgPaint.getColor();
     }
 
     public static class Config {
@@ -195,6 +204,9 @@ public class DownloadView extends FrameLayout {
                                     } else {
                                         bind(d.f, cfg, cb, clickTarget, true);
                                         fadeProgress();
+                                        if (cfg.darkenBlue){
+                                            animateDarkenBlue();
+                                        }
                                     }
                                 }
                             });
@@ -208,13 +220,21 @@ public class DownloadView extends FrameLayout {
                 });
     }
 
+    private void animateDarkenBlue() {
+        bgPaint.setColor(BG_BLUE);
+        bgColorAnimator =  ObjectAnimator.ofInt(this, bgColorProperty, BG_DARKEN_BLUE);
+        bgColorAnimator.setEvaluator(ArgbEvaluator.getInstance());
+        bgColorAnimator.setDuration(DARKEN_BLUE_DURATION);
+        bgColorAnimator.start();
+    }
+
     private void fadeProgress() {
         if (progressAlphaAnimator != null){
             progressAlphaAnimator.cancel();
         }
         drawProgress = true;
         progressAlphaAnimator = ObjectAnimator.ofFloat(this, progressAlphaProperty, 0)
-                .setDuration(240);
+                .setDuration(FADE_PROGRESS_DURATION);
         progressAlphaAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -227,6 +247,7 @@ public class DownloadView extends FrameLayout {
 
     ProgressProperty property = new ProgressProperty();
     ProgressAlphaProperty progressAlphaProperty = new ProgressAlphaProperty();
+    BgColorProperty bgColorProperty = new BgColorProperty();
 
     private void animateProgress(float progress) {
 
@@ -259,6 +280,9 @@ public class DownloadView extends FrameLayout {
         }
         if (progressAlphaAnimator != null) {
             progressAlphaAnimator.cancel();
+        }
+        if (bgColorAnimator != null){
+            bgColorAnimator.cancel();
         }
         this.file = f;
         subscription.unsubscribe();
@@ -347,7 +371,7 @@ public class DownloadView extends FrameLayout {
         }
 
         AnimatorSet scaleDown = new AnimatorSet()
-                .setDuration(100);
+                .setDuration(SCALE_DOWN_DURATION);
 //        icon.setScaleX(1);
 //        icon.setScaleY(1);
         scaleDown.playTogether(
@@ -361,7 +385,7 @@ public class DownloadView extends FrameLayout {
             }
         });
         AnimatorSet scaleUp = new AnimatorSet()
-                .setDuration(100);
+                .setDuration(SCALE_UP_DURAION);
         scaleUp.playTogether(
                 ObjectAnimator.ofFloat(icon, View.SCALE_X, 0.1f, 1f),
                 ObjectAnimator.ofFloat(icon, View.SCALE_Y, 0.1f, 1f));
@@ -426,7 +450,30 @@ public class DownloadView extends FrameLayout {
     }
 
     private void setProgressAlpha(Float value) {
-        p.setAlpha((int) (255*value));
+        p.setAlpha((int) (255 * value));
+        invalidate();
+
+//        ObjectAnimator.ofArg
+    }
+
+    final class BgColorProperty extends Property<DownloadView, Integer>{
+        public BgColorProperty() {
+            super(Integer.class, "progress alpha property");
+        }
+
+        @Override
+        public void set(DownloadView object, Integer value) {
+            object.setBgColor(value);
+        }
+
+        @Override
+        public Integer get(DownloadView object) {
+            return object.getBgColor();
+        }
+    }
+
+    private void setBgColor(Integer value) {
+        bgPaint.setColor(value);
         invalidate();
     }
 
