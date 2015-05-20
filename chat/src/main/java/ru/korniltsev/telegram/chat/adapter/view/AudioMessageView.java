@@ -76,11 +76,11 @@ public class AudioMessageView extends LinearLayout {
 
     public void setAudio(TdApi.Audio a) {
         this.audio = a;
+        progress.setProgress(0);
         long secs = a.duration;
         Period p = new Duration(secs * 1000)
                 .toPeriod();
 
-        String format = String.format("%d:%02d", p.getMinutes(), p.getSeconds());
         this.duration.setText(DURATION_FORMATTER.print(p));
         DownloadView.Config cfg = new DownloadView.Config(R.drawable.ic_play, R.drawable.ic_pause, true, true, 38);
         download_view.bind(a.audio, cfg, new DownloadView.CallBack() {
