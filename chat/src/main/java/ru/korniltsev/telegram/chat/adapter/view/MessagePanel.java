@@ -1,9 +1,14 @@
 package ru.korniltsev.telegram.chat.adapter.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LevelListDrawable;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.util.AttributeSet;
@@ -14,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
-import flow.path.Path;
 import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.chat.Chat;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
@@ -40,6 +44,8 @@ public class MessagePanel extends LinearLayout {
     public static final int LEVEL_SMILE = 0;
     public static final int LEVEL_KB = 1;
     public static final int LEVEL_ARROW = 2;
+    private static final long SCALE_UP_DURAION = 80;
+    private static final long SCALE_DOWN_DURATION = 80;
     private final int dip1;
     private ImageView btnLeft;
     private ImageView btnRight;
@@ -71,6 +77,7 @@ public class MessagePanel extends LinearLayout {
             rxChat.sendSticker(stickerFilePath);
         }
     };
+    private AnimatorSet currentAnimation;
 
     public MessagePanel(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -93,9 +100,9 @@ public class MessagePanel extends LinearLayout {
             @Override
             public void afterTextChanged(Editable s) {
                 if (s.length() == 0) {
-                    btnRight.setImageLevel(LEVEL_ATTACH);
+                    animateLevel(LEVEL_ATTACH);
                 } else {
-                    btnRight.setImageLevel(LEVEL_SEND);
+                    animateLevel(LEVEL_SEND);
                 }
             }
         });
@@ -143,6 +150,42 @@ public class MessagePanel extends LinearLayout {
                 }
             }
         });
+    }
+
+    private void animateLevel(final int level) {
+        LevelListDrawable drawable = (LevelListDrawable) btnRight.getDrawable();
+        if (drawable.getLevel() == level){
+            return;
+        }
+        if (currentAnimation != null){
+            currentAnimation.cancel();
+        }
+
+
+//        if (drawable)
+
+        AnimatorSet scaleDown = (AnimatorSet) new AnimatorSet()
+                .setDuration(SCALE_DOWN_DURATION);
+        scaleDown.playTogether(
+                ObjectAnimator.ofFloat(btnRight, View.SCALE_X, 1f, 0.1f),
+                ObjectAnimator.ofFloat(btnRight, View.SCALE_Y, 1f, 0.1f))
+        ;
+        scaleDown.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                btnRight.setImageLevel(level);
+            }
+        });
+        AnimatorSet scaleUp = new AnimatorSet()
+                .setDuration(SCALE_UP_DURAION);
+        scaleUp.playTogether(
+                ObjectAnimator.ofFloat(btnRight, View.SCALE_X, 0.1f, 1f),
+                ObjectAnimator.ofFloat(btnRight, View.SCALE_Y, 0.1f, 1f));
+        currentAnimation = new AnimatorSet();
+        currentAnimation.playSequentially(scaleDown, scaleUp);
+        currentAnimation.start();
+
+//        btnRight.setImageLevel(level);
     }
 
     private ObservableLinearLayout getParentView() {

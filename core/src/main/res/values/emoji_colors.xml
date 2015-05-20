@@ -4,5 +4,5 @@
 
     <color name="bg_tab_selected">#579cda</color>
     <color name="tab_divider">#d9dcdf</color>
-    <color name="ripple_color">#ffaeaeae</color>
+    <color name="ripple_color">#ffc2c2c2</color>
 </resources>

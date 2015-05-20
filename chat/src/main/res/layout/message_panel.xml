@@ -17,6 +17,7 @@
             android:layout_height="48dp"
             android:src="@drawable/ic_keyboard_emoji_hide_levels"
             android:scaleType="center"
+            android:background="@drawable/bg_keyboard_tab"
             />
 
     <EditText
@@ -42,6 +43,6 @@
             android:layout_height="48dp"
             android:src="@drawable/ic_send_attach_levels"
             android:scaleType="center"
-
+            android:background="@drawable/bg_keyboard_tab"
             />
 </ru.korniltsev.telegram.chat.adapter.view.MessagePanel>
