@@ -10,6 +10,7 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/avatar"
             android:textStyle="bold"
+            android:singleLine="true"
             />
 
     <TextView
