@@ -210,6 +210,10 @@ public class RXClient {
                 } else {
                     globalSubject2.onNext(object);
                 }
+
+                if (object instanceof TdApi.UpdateStickers) {
+                    Log.e("FindStickerBug", "client UpdateStickers" );
+                }
             }
         });
         TG.setDir(ctx.getFilesDir().getAbsolutePath() + "/");
@@ -227,8 +231,20 @@ public class RXClient {
         //                        Log.e("Update", "probably unhandled update\n" + tlObject);
         //                    }
         //                });
-
+//        globalSubject2.filter(new Func1<TLObject, Boolean>() {
+//            @Override
+//            public Boolean call(TLObject tlObject) {
+//                return tlObject instanceof TdApi.UpdateStickers;
+//            }
+//        }).subscribe(new Action1<TLObject>() {
+//            @Override
+//            public void call(TLObject tlObject) {
+//                throw new IllegalStateException();
+//            }
+//        });
         this.client = TG.getClientInstance();
+
+
     }
 
 
@@ -442,7 +458,7 @@ public class RXClient {
                 .map(CAST_TO_MESSAGE);
     }
 
-    private static class FilterAndCastToClass<T> implements Observable.Transformer<TLObject, T> {
+    public static class FilterAndCastToClass<T> implements Observable.Transformer<TLObject, T> {
         final Class<T> cls;
 
         public FilterAndCastToClass(Class<T> cls) {
@@ -464,5 +480,9 @@ public class RXClient {
                 }
             });
         }
+    }
+
+    public Observable<TdApi.UpdateStickers> stickerUpdates() {
+        return globalObservableWithBackPressure.compose(new FilterAndCastToClass<>(TdApi.UpdateStickers.class));
     }
 }

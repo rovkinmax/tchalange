@@ -12,6 +12,7 @@ import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.views.AvatarView;
 import ru.korniltsev.telegram.core.views.RoundTransformation;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,7 +33,7 @@ public class RxGlide {
     private Context ctx;
 
     @Inject
-    public RxGlide(Context ctx, RxDownloadManager downlaoder, RXAuthState auth) {
+    public RxGlide(Context ctx, RxDownloadManager downlaoder, final RXAuthState auth) {
         this.ctx = ctx;
 
         cache = new LruCache(Utils.calculateMemoryCacheSize(ctx));
@@ -41,14 +42,19 @@ public class RxGlide {
                 .addRequestHandler(new TDFileRequestHandler(downlaoder))
                 .build();
 
-        auth.listen().subscribe(new Action1<RXAuthState.AuthState>() {
-            @Override
-            public void call(RXAuthState.AuthState authState) {
-                if (authState instanceof RXAuthState.StateLogout){
-                    cache.clear();
-                }
-            }
-        });
+        auth.listen()
+                .filter(new Func1<RXAuthState.AuthState, Boolean>() {
+                    @Override
+                    public Boolean call(RXAuthState.AuthState authState) {
+                        return authState instanceof RXAuthState.StateLogout;
+                    }
+                })
+                .subscribe(new Action1<RXAuthState.AuthState>() {
+                    @Override
+                    public void call(RXAuthState.AuthState authState) {
+                        cache.clear();
+                    }
+                });
     }
 
     private static final RxGlide.StubAware<TdApi.GroupChat> STUB_AWARE_GROUP_CHAT = new StubAware<TdApi.GroupChat>() {
@@ -88,7 +94,7 @@ public class RxGlide {
         if (file instanceof TdApi.FileEmpty) {
             boolean stub = ((TdApi.FileEmpty) file).id == 0;
             if (stub) {
-                loadStub(u, size,avatarView);
+                loadStub(u, size, avatarView);
                 return;
             }
         }
@@ -100,7 +106,6 @@ public class RxGlide {
     }
 
     /**
-     *
      * @param u
      * @param size in px
      * @return
@@ -212,21 +217,18 @@ public class RxGlide {
         }
     }
 
-
-
     public RequestCreator loadPhoto(TdApi.File f, boolean webp) {
-        if (f instanceof TdApi.FileEmpty){
+        if (f instanceof TdApi.FileEmpty) {
             TdApi.FileEmpty e = (TdApi.FileEmpty) f;
             assertTrue(e.id != 0);
         }
         return picasso.load(TDFileRequestHandler.load(f, webp))
                 .stableKey(stableKeyForTdApiFile(f, webp));
-
     }
 
     private String stableKeyForTdApiFile(TdApi.File f, boolean webp) {
         int id;
-        if (f instanceof TdApi.FileLocal){
+        if (f instanceof TdApi.FileLocal) {
             id = ((TdApi.FileLocal) f).id;
         } else {
             id = ((TdApi.FileEmpty) f).id;
