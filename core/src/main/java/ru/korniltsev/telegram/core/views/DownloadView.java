@@ -34,9 +34,13 @@ import javax.inject.Inject;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 public class DownloadView extends FrameLayout {
+
+    //todo split the view
+    //todo make it not responsible for downloading - only displaying progress, icons, bg
     public static final int LEVE_DOWNLOAD = 0;
-    public static final int LEVEL_PAUSE = 1;
-    public static final int LEVEL_EMPTY = 2;
+    public static final int LEVEL_DOWNLOAD_PAUSE = 1;
+    public static final int LEVEL_PLAY = 2;
+    public static final int LEVEL_PAUSE = 3;
     public static final Interpolator INTERPOLATOR = new AccelerateDecelerateInterpolator();
     public static final int BG_BLUE = 0xffecf4F9;
     public static final int BG_BLACK = 0xB1000000;
@@ -120,13 +124,15 @@ public class DownloadView extends FrameLayout {
 
     public static class Config {
         public static final int FINAL_ICON_EMPTY = -1;
-        public final int finalIcon;
+        public final int playIconIcon;
+        public final int pauseIconIcon;
         public final boolean blue;
         public final boolean darkenBlue;
         final int sizeDp;
 
-        public Config(int finalIcon, boolean blue, boolean darkenBlue, int size) {
-            this.finalIcon = finalIcon;
+        public Config(int finalIcon, int pauseIconIcon, boolean blue, boolean darkenBlue, int size) {
+            this.playIconIcon = finalIcon;
+            this.pauseIconIcon = pauseIconIcon;
             this.blue = blue;
             this.darkenBlue = darkenBlue;
             this.sizeDp = size;
@@ -173,7 +179,7 @@ public class DownloadView extends FrameLayout {
                             animator.addListener(new AnimatorListenerAdapter() {
                                 @Override
                                 public void onAnimationEnd(Animator animation) {
-                                    if (cfg.finalIcon == Config.FINAL_ICON_EMPTY) {
+                                    if (cfg.playIconIcon == Config.FINAL_ICON_EMPTY) {
                                         animate()
                                                 .alpha(0f);
                                     } else {
@@ -226,10 +232,10 @@ public class DownloadView extends FrameLayout {
         float alpha = 1f;
 
         if (downloader.isDownloaded(f)) {
-            if (cfg.finalIcon == Config.FINAL_ICON_EMPTY) {
+            if (cfg.playIconIcon == Config.FINAL_ICON_EMPTY) {
                 alpha = 0f;
             } else {
-                icon.setImageLevel(LEVEL_EMPTY);
+                icon.setImageLevel(LEVEL_PLAY);
                 if (cfg.darkenBlue) {
                     bgPaint.setColor(BG_DARKEN_BLUE);
                 }
@@ -242,7 +248,7 @@ public class DownloadView extends FrameLayout {
         } else {
             TdApi.FileEmpty e = (TdApi.FileEmpty) f;
             if (downloader.isDownloading(e)) {
-                icon.setImageLevel(LEVEL_PAUSE);
+                icon.setImageLevel(LEVEL_DOWNLOAD_PAUSE);
                 setEnabled(false);
                 subscribeForFileDownload(e);
                 drawProgress = true;
@@ -271,13 +277,19 @@ public class DownloadView extends FrameLayout {
         Drawable icDownload = cfg.blue? downloadBlue: download;
         ls.addLevel(0, LEVE_DOWNLOAD, icDownload);
         Drawable icPause = cfg.blue? pauseBlue:ause;
-        ls.addLevel(0, LEVEL_PAUSE, icPause);
+        ls.addLevel(0, LEVEL_DOWNLOAD_PAUSE, icPause);
         Resources res = getResources();
-        if (cfg.finalIcon == Config.FINAL_ICON_EMPTY) {
+        if (cfg.playIconIcon == Config.FINAL_ICON_EMPTY) {
             Drawable empty = res.getDrawable(R.drawable.empty);
-            ls.addLevel(0, LEVEL_EMPTY, empty);
+            ls.addLevel(0, LEVEL_PLAY, empty);
         } else {
-            ls.addLevel(0, LEVEL_EMPTY, res.getDrawable(cfg.finalIcon));
+            ls.addLevel(0, LEVEL_PLAY, res.getDrawable(cfg.playIconIcon));
+        }
+        if (cfg.pauseIconIcon == Config.FINAL_ICON_EMPTY){
+            Drawable empty = res.getDrawable(R.drawable.empty);
+            ls.addLevel(0, LEVEL_PAUSE, empty);
+        } else {
+            ls.addLevel(0, LEVEL_PAUSE, res.getDrawable(cfg.pauseIconIcon));
         }
         icon.setImageDrawable(ls);
         if (cfg.blue){
@@ -289,6 +301,10 @@ public class DownloadView extends FrameLayout {
         }
 
         invalidate();
+    }
+
+    public void setLevel(int level){
+        icon.setImageLevel(level);
     }
 
     public float getProgress() {

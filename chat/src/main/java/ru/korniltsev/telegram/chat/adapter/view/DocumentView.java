@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
-import pl.droidsonroids.gif.GifDrawable;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
@@ -20,7 +19,8 @@ import ru.korniltsev.telegram.core.views.DownloadView;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
+
+import static ru.korniltsev.telegram.core.views.DownloadView.Config.FINAL_ICON_EMPTY;
 
 public class DocumentView extends LinearLayout{
 
@@ -79,9 +79,9 @@ public class DocumentView extends LinearLayout{
         documentProgress.setText("");
         DownloadView.Config cfg;
         if (image){
-            cfg = new DownloadView.Config(DownloadView.Config.FINAL_ICON_EMPTY, false, false, 48);
+            cfg = new DownloadView.Config(FINAL_ICON_EMPTY, FINAL_ICON_EMPTY, false, false, 48);
         } else {
-            cfg = new DownloadView.Config(R.drawable.ic_file, true, false, 38);
+            cfg = new DownloadView.Config(R.drawable.ic_file, FINAL_ICON_EMPTY, true, false, 38);
         }
         downloadView.bind(d.document, cfg, new DownloadView.CallBack() {
             @Override

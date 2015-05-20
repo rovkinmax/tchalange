@@ -13,6 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/item_content_with_margins"
+            android:layout_marginTop="3dp"
             >
         <ru.korniltsev.telegram.core.views.DownloadView
                 android:id="@+id/download_view"
@@ -21,17 +22,25 @@
                 />
 
 
-        <View
+        <SeekBar
                 android:id="@+id/progress"
                 android:layout_width="0dp"
-                android:layout_height="2dp"
-                android:background="#ef0"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:thumb="@drawable/seekbar_thumb"
+                android:maxHeight="100dp"
+                android:thumbOffset="0dp"
+                android:progressDrawable="@drawable/seekbar_progress"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp"
                 />
         <TextView
                 android:id="@+id/duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+
                 />
 
     </ru.korniltsev.telegram.chat.adapter.view.AudioMessageView>

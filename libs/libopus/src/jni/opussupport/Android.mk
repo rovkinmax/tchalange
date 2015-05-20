@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := opussupport
+LOCAL_MODULE := opussupport2
 
 LOCAL_SRC_FILES := \
 	jni_load.cpp  \
@@ -25,7 +25,7 @@ LOCAL_C_INCLUDES    := \
 #	$(LOCAL_PATH)/../opus/include \
 #	$(LOCAL_PATH)/../opus/
 
-LOCAL_STATIC_LIBRARIES := opus
+LOCAL_STATIC_LIBRARIES := opus2
 
 LOCAL_LDLIBS := -llog
 

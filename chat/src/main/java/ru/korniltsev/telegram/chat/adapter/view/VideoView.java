@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static junit.framework.Assert.assertTrue;
+import static ru.korniltsev.telegram.core.views.DownloadView.Config.FINAL_ICON_EMPTY;
 
 public class VideoView extends FrameLayout {
 
@@ -111,7 +112,7 @@ public class VideoView extends FrameLayout {
         showLowQualityThumb(thumb);
         requestLayout();
 
-        DownloadView.Config cfg = new DownloadView.Config(R.drawable.ic_play, false, false, 48);
+        DownloadView.Config cfg = new DownloadView.Config(R.drawable.ic_play, FINAL_ICON_EMPTY, false, false, 48);
         downloadView.setVisibility(View.VISIBLE);
         downloadView.bind(file, cfg, new DownloadView.CallBack() {
             @Override

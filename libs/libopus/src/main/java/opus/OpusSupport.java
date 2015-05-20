@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 public class OpusSupport {
     static {
-        System.loadLibrary("opussupport");
+        System.loadLibrary("opussupport2");
     }
     public static native boolean nativeIsOpusFile(String path);
     public static native boolean nativeOpenOpusFile(String path);
