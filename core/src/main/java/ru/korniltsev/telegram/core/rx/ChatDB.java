@@ -270,6 +270,7 @@ public class ChatDB implements UserHolder {
                            }
                        }
                        List<Observable<TdApi.User>> us = new ArrayList<Observable<TdApi.User>>();
+                       tmpIds.remove(0);//todo who ads it here
                        for (Integer id : tmpIds) {
                            us.add(client.getUser(id));
                        }

@@ -10,6 +10,8 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:paddingLeft="20dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:textColor="@color/text_dark_gray"
             />
 
@@ -19,6 +21,8 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
+            android:textSize="16sp"
+
             android:textColor="@color/text_black"
             />
 
@@ -28,6 +32,8 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:textColor="@color/text_blue"
+            android:textSize="16sp"
+
             android:paddingRight="26dp"
             />
 </LinearLayout>
