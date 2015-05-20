@@ -31,9 +31,14 @@ public class MainActivity extends ActionBarActivity {
     RXAuthState authState;
     private Subscription subscription;
     private ActivityOwner activityOwner;
+    boolean firstRun = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (firstRun) {
+            savedInstanceState = null;
+            firstRun = false;//todo remove when libtd has stable ids across process instances
+        }
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.root_layout);
