@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
@@ -21,7 +22,7 @@ import static ru.korniltsev.telegram.core.Utils.textFrom;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 import static rx.android.view.ViewObservable.clicks;
 
-public class EnterPhoneView extends RelativeLayout {
+public class EnterPhoneView extends LinearLayout {
     private EditText btnSelectCountry;
     private EditText phoneCode;
     private EditText userPhone;

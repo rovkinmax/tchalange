@@ -50,4 +50,8 @@
     </style>
 
     <color name="foo">#ffff0000</color>
+
+    <style name="ToolbarShadow">
+        <item name="android:foreground">@drawable/bottom_shadow</item>
+    </style>
 </resources>

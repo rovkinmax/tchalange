@@ -278,7 +278,7 @@ public class RXClient {
                                     }
                                 });
                             } else {
-                                s.onError(new RxClientException(err));
+                                s.onError(new RxClientException(err, function));
                             }
                         } else {
                             s.onNext(object);
@@ -392,10 +392,11 @@ public class RXClient {
 
     static class RxClientException extends Exception {
         public final TdApi.Error error;
-
-        public RxClientException(TdApi.Error error) {
-            super(error.text);
+        public final TdApi.TLFunction f;
+        public RxClientException(TdApi.Error error, TdApi.TLFunction f) {
+            super(error.text + " " + f.toString());
             this.error = error;
+            this.f = f;
         }
     }
 

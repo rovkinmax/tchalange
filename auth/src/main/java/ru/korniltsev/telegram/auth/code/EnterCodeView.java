@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
@@ -16,7 +17,7 @@ import static ru.korniltsev.telegram.core.Utils.hideKeyboard;
 import static ru.korniltsev.telegram.core.Utils.textFrom;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
-public class EnterCodeView extends RelativeLayout {
+public class EnterCodeView extends LinearLayout {
     @Inject EnterCode.Presenter presenter;
     private EditText smsCode;
 

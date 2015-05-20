@@ -1,65 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ru.korniltsev.telegram.auth.phone.EnterPhoneView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-        style="@style/PathRoot"
+                                                  android:orientation="vertical"
+                                                  android:layout_width="match_parent"
+                                                  android:layout_height="match_parent"
+                                                  style="@style/PathRoot"
 
         >
 
-
     <include
             android:id="@+id/toolbar"
-            layout="@layout/toolbar"/>
+            layout="@layout/toolbar"
+            />
 
-    <EditText
-            android:id="@+id/btn_select_country"
+    <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar"
-            android:editable="false"
-            android:focusable="false"
-            style="@style/Widget.AppCompat.EditText"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
-            />
-    <EditText
-            android:id="@+id/country_phone_code"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_select_country"
-            style="@style/Widget.AppCompat.EditText"
-            android:layout_marginLeft="16dp"
-            android:inputType="phone"
-            android:imeOptions="actionNext"
-            />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            style="@style/ToolbarShadow"
+            >
 
-    <EditText
-            android:id="@+id/user_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_select_country"
-            android:layout_toRightOf="@id/country_phone_code"
-            android:inputType="phone"
-            style="@style/Widget.AppCompat.EditText"
-            android:layout_marginRight="16dp"
-            android:hint="@string/phone_number_hint"
-            android:layout_marginLeft="16dp"
-            android:singleLine="true"
-            android:digits="0123456789"
-            android:imeOptions="actionDone"
-            />
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
+                <EditText
+                        android:id="@+id/btn_select_country"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:editable="false"
+                        android:focusable="false"
+                        style="@style/Widget.AppCompat.EditText"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp"
+                        />
 
-    <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/country_phone_code"
-            android:text="@string/we_will_send"
-            android:layout_margin="18dp"
-            android:singleLine="true"
+                <EditText
+                        android:id="@+id/country_phone_code"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/btn_select_country"
+                        style="@style/Widget.AppCompat.EditText"
+                        android:layout_marginLeft="16dp"
+                        android:inputType="phone"
+                        android:imeOptions="actionNext"
+                        />
 
-            />
+                <EditText
+                        android:id="@+id/user_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/btn_select_country"
+                        android:layout_toRightOf="@id/country_phone_code"
+                        android:inputType="phone"
+                        style="@style/Widget.AppCompat.EditText"
+                        android:layout_marginRight="16dp"
+                        android:hint="@string/phone_number_hint"
+                        android:layout_marginLeft="16dp"
+                        android:singleLine="true"
+                        android:digits="0123456789"
+                        android:imeOptions="actionDone"
+                        />
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/country_phone_code"
+                        android:text="@string/we_will_send"
+                        android:layout_margin="18dp"
+                        android:singleLine="true"
+
+                        />
+        </RelativeLayout>
+    </FrameLayout>
+
+
 
 </ru.korniltsev.telegram.auth.phone.EnterPhoneView>

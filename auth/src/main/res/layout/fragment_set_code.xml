@@ -1,39 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ru.korniltsev.telegram.auth.code.EnterCodeView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                                                android:orientation="vertical"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
                                                 style="@style/PathRoot"
         >
 
-
     <include
             android:id="@+id/toolbar"
-            layout="@layout/toolbar"/>
+            layout="@layout/toolbar"
+            />
 
-    <TextView
-            android:id="@+id/we_have_sent"
-
+    <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="18dp"
-            android:layout_marginRight="18dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:layout_below="@id/toolbar"
-            />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            style="@style/ToolbarShadow"
+            >
 
-    <EditText
-            android:id="@+id/sms_code"
-            android:layout_width="144dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/we_have_sent"
-            android:inputType="number"
-            android:digits="0123456789"
-            android:layout_marginLeft="16dp"
-            android:imeOptions="actionDone"
-            />
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
 
+            <TextView
+                    android:id="@+id/we_have_sent"
 
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="18dp"
+                    android:layout_marginRight="18dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+
+                    />
+
+            <EditText
+                    android:id="@+id/sms_code"
+                    android:layout_width="144dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/we_have_sent"
+                    android:inputType="number"
+                    android:digits="0123456789"
+                    android:layout_marginLeft="16dp"
+                    android:imeOptions="actionDone"
+                    />
+
+        </RelativeLayout>
+
+    </FrameLayout>
 
 </ru.korniltsev.telegram.auth.code.EnterCodeView>

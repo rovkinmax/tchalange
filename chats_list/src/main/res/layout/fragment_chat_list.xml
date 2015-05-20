@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ru.korniltsev.telegram.chat_list.ChatListView
-        android:id="@+id/drawer"
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         style="@style/PathRoot"
         >
 
@@ -17,12 +17,21 @@
 
         <include layout="@layout/toolbar"/>
 
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/list"
+        <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                />
+                style="@style/ToolbarShadow"
+                >
+
+            <android.support.v7.widget.RecyclerView
+                    android:id="@+id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    />
+        </FrameLayout>
+
     </LinearLayout>
 
     <LinearLayout
@@ -76,7 +85,8 @@
                 android:layout_weight="1"
                 android:background="@color/bg_white"
                 android:orientation="vertical"
-                android:paddingTop="4dp">
+                android:paddingTop="4dp"
+                >
 
             <TextView
                     android:id="@+id/btn_logout"
@@ -91,7 +101,6 @@
                     android:textColor="#222222"
                     android:textSize="16sp"
                     />
-
 
         </LinearLayout>
     </LinearLayout>
