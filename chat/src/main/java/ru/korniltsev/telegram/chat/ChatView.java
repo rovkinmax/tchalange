@@ -256,4 +256,6 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
             messagePanel.setVisibility(View.VISIBLE);
         }
     }
+
+
 }

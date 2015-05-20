@@ -8,6 +8,7 @@ import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
+import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.NotificationManager;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxChat;
@@ -111,6 +112,7 @@ public class Presenter extends ViewPresenter<ChatView>
     public void dropView(ChatView view) {
         super.dropView(view);
         subscription.unsubscribe();
+//        Utils.hideKeyboard(view);
     }
 
     private void subscribe() {

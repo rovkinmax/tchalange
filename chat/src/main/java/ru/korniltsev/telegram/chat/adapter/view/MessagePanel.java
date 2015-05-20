@@ -231,4 +231,11 @@ public class MessagePanel extends LinearLayout {
         super.onDraw(canvas);
         canvas.drawRect(0, 0, getWidth(), dip1, p);
     }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        Utils.hideKeyboard(input);
+
+    }
 }

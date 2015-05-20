@@ -11,6 +11,8 @@
             android:layout_toRightOf="@id/avatar"
             android:textStyle="bold"
             android:singleLine="true"
+            android:lines="1"
+            android:ellipsize="end"
             />
 
     <TextView
