@@ -92,7 +92,7 @@ public class AudioMessageView extends LinearLayout {
             @Override
             public void onFinished(TdApi.FileLocal e, boolean b) {
                 if (player.isPLaying(e.path)) {
-                    download_view.setLevel(DownloadView.LEVEL_PAUSE);
+                    download_view.setLevel(DownloadView.LEVEL_PAUSE, false);
                     //show pause
                     //subscribe
                     player.current()
@@ -104,12 +104,12 @@ public class AudioMessageView extends LinearLayout {
             public void play(TdApi.FileLocal e) {
                 if (player.isPLaying(e.path)) {
                     player.pause(e.path);
-                    download_view.setLevel(DownloadView.LEVEL_PLAY);
+                    download_view.setLevel(DownloadView.LEVEL_PLAY, true);
                 } else if (player.isPaused(e.path)) {
                     player.resume(e.path);
-                    download_view.setLevel(DownloadView.LEVEL_PAUSE);
+                    download_view.setLevel(DownloadView.LEVEL_PAUSE, true);
                 } else{
-                    download_view.setLevel(DownloadView.LEVEL_PAUSE);
+                    download_view.setLevel(DownloadView.LEVEL_PAUSE, true);
                     subscription = player.play(e)
                             .subscribe(updateProgress());
                 }
@@ -132,7 +132,7 @@ public class AudioMessageView extends LinearLayout {
         progress.setMax(trackState.duration);
         if (!trackState.playing || trackState.duration == trackState.head){
             progress.setProgress(0);
-            download_view.setLevel(DownloadView.LEVEL_PLAY);
+            download_view.setLevel(DownloadView.LEVEL_PLAY, true);
         } else {
             progress.setProgress(trackState.head);
         }
