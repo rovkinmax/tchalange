@@ -177,6 +177,15 @@ public class RxGlide {
 
     private final Map<StubKey, StubDrawable> stubs = new HashMap<>();
 
+    public void fetch(TdApi.File sticker) {
+        if (sticker instanceof TdApi.FileLocal) {
+            return;
+        }
+//        TdApi.FileEmpty sticker1 = (TdApi.FileEmpty) sticker;
+        picasso.load(TDFileRequestHandler.load(sticker, true))
+                .fetch();
+    }
+
     public class StubKey {
         final int id;
         final String chars;

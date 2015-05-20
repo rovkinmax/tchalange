@@ -158,7 +158,7 @@ public class EmojiKeyboardView extends LinearLayout {
                 res.setVerticalSpacing(calc.dp(16));
                 res.setClipToPadding(false);
                 int dip8 = calc.dp(8);
-                res.setPadding(0, dip8, 0, dip8);
+                res.setPadding(dip8/2, dip8, dip8/2, dip8);
                 res.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -183,15 +183,22 @@ public class EmojiKeyboardView extends LinearLayout {
         }
 
         private void stickerClicked(TdApi.Sticker sticker) {
-            if (downloader.isDownloaded(sticker.sticker)) {
-                downloader.downloadWithoutProgress(sticker.sticker)
-                        .subscribe(new Action1<TdApi.FileLocal>() {
-                            @Override
-                            public void call(TdApi.FileLocal fileLocal) {
-                                callback.stickerCLicked(fileLocal.path);
-                            }
-                        });
-            }
+            downloader.downloadWithoutProgress(sticker.sticker)
+                    .subscribe(new Action1<TdApi.FileLocal>() {
+                        @Override
+                        public void call(TdApi.FileLocal fileLocal) {
+                            callback.stickerCLicked(fileLocal.path);
+                        }
+                    });
+//            if (downloader.isDownloaded(sticker.thumb.photo)) {
+//                downloader.downloadWithoutProgress(sticker.thumb.photo)
+//                        .subscribe(new Action1<TdApi.FileLocal>() {
+//                            @Override
+//                            public void call(TdApi.FileLocal fileLocal) {
+//
+//                            }
+//                        });
+//            }
         }
 
         private GridView createGridPage(ViewGroup container, int position1, BaseAdapter adapter, int columnSizeResId) {
@@ -329,19 +336,22 @@ public class EmojiKeyboardView extends LinearLayout {
             final TdApi.Sticker s = getItem(position);
             picasso.loadPhoto(s.thumb.photo, true)
                     .priority(Picasso.Priority.HIGH)
-                    .into(vh.img, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            picasso.loadPhoto(s.sticker, true)
-                                    .placeholder(vh.img.getDrawable())
-                                    .into(vh.img);
-                        }
+                    .into(vh.img);
+            picasso.fetch(s.sticker);
 
-                        @Override
-                        public void onError() {
-
-                        }
-                    });
+//                    , new Callback() {
+//                        @Override
+//                        public void onSuccess() {
+//                            picasso.loadPhoto(s.sticker, true)
+//                                    .placeholder(vh.img.getDrawable())
+//                                    .into(vh.img);
+//                        }
+//
+//                        @Override
+//                        public void onError() {
+//
+//                        }
+//                    });
         }
     }
 }
