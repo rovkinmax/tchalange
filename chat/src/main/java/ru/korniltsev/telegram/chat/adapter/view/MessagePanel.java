@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 import flow.path.Path;
 import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.chat.Chat;
@@ -153,7 +154,7 @@ public class MessagePanel extends LinearLayout {
     //    }
 
     private void showAttachPopup() {
-
+        Toast.makeText(getContext(), "Unimplemented ;(", Toast.LENGTH_LONG).show();
     }
 
     OnSendListener listener;

@@ -84,6 +84,11 @@ public class Presenter extends ViewPresenter<ChatView>
         }
         getView().updateData(rxChat);
         subscribe();
+        if (isGroupChat){
+            TdApi.GroupChatInfo g = (TdApi.GroupChatInfo) path.chat.type;
+            showMessagePanel(g.groupChat);
+
+        }
     }
 
     private void setViewSubtitle() {
@@ -241,6 +246,7 @@ public class Presenter extends ViewPresenter<ChatView>
                                 @Override
                                 public void call(TdApi.GroupChatFull groupChatFull) {
                                     mGroupChatFull = groupChatFull;
+                                    showMessagePanel(mGroupChatFull.groupChat);
                                     updateGroupChatOnlineStatus(groupChatFull);
                                 }
                             }
@@ -254,6 +260,12 @@ public class Presenter extends ViewPresenter<ChatView>
                         }
                     }));
         }
+    }
+
+    private void showMessagePanel(TdApi.GroupChat groupChat) {
+//        if (g.groupChat.left){
+            getView().showMessagePanel(groupChat.left);
+//        }
     }
 
     private Observable<TdApi.User> getUser() {
