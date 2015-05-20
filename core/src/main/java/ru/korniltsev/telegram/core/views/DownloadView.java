@@ -17,6 +17,7 @@ import android.util.Property;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -249,17 +250,28 @@ public class DownloadView extends FrameLayout {
     ProgressAlphaProperty progressAlphaProperty = new ProgressAlphaProperty();
     BgColorProperty bgColorProperty = new BgColorProperty();
 
-    private void animateProgress(float progress) {
-
-        if (progressAnimator != null) {
-            progressAnimator.cancel();
+    float animationProgress = 0f;
+    private void animateProgress(final float progress) {
+        animationProgress = progress;
+        if (progressAnimator != null && progressAnimator.isRunning()) {
+            return;
+            //            progressAnimator.cancel();
         }
         float diff = progress - getProgress();
-        long duration = (long) (diff * 600);
-        duration = Math.max(duration, 16*8);
+        long duration = 512;//(long) (diff * 600);
+//        long duration = (long) (diff * 600);
+//        duration = Math.max(duration, 16 * 8);
         progressAnimator = ObjectAnimator.ofFloat(this, property, progress);
         progressAnimator.setInterpolator(INTERPOLATOR);
         progressAnimator.setDuration(duration);
+        progressAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (DownloadView.this.progress != animationProgress) {
+                    animateProgress(animationProgress);
+                }
+            }
+        });
         progressAnimator.start();
 
         //        setProgress(progress);
