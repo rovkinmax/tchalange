@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_delete">Удалить</string>
+    <string name="menu_save_to_gallery">Сохранить в галерею</string>
+</resources>

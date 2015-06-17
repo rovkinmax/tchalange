@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="downloaded_kb">%1$s</string>
+    <string name="downloading_kb">Загружено %1$s из %2$s</string>
+</resources>

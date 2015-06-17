@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="user_status_recently">last seen recently</string>
+    <string name="clear_history">Удалить историю</string>
+    <string name="empty_chat">Нет сообщений...</string>
+    <string name="hint_message_panel">Сообщение</string>
+    <string name="leave_group">Покинуть группу</string>
+    <string name="message_changed_group_photo">изменил(а) картинку группового чата</string>
+    <string name="message_created_group">создал(а) групповой чат</string>
+    <string name="message_deleted">Удаленное сообщение</string>
+    <string name="message_ivited">пригласил</string>
+    <string name="message_kicked">выкинул</string>
+    <string name="message_removed_group_photo">удалил(а) картинку группового чата</string>
+    <string name="message_renamed_group">изменил(а) название группового чата</string>
+    <string name="message_unsupported">Неподдерживаемое сообщение</string>
+    <string name="mute">Отключить уведомления</string>
+    <string name="unmute">Включить уведомления</string>
+    <string name="user_status_last_month">был(а) в сети в этом месяце</string>
+    <string name="user_status_last_week">был(а) в сети на этой неделе</string>
+    <string name="user_status_online">в сети</string>
+    <string name="user_status_last_seen">был в сети</string>
+</resources>

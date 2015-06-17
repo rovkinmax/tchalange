@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="country">Страна</string>
+    <string name="activation_code">Код активации</string>
+    <string name="check_code">Проверьте код активации</string>
+    <string name="phone_number">Номер телефона</string>
+    <string name="phone_number_hint">Номер телефона</string>
+    <string name="send_code">Отправить код активации</string>
+    <string name="we_ve_sent">Мы отправили СМС с кодом активации на ваш номер %1$s</string>
+    <string name="we_will_send">Мы отправим СМС с кодом активации на ваш номер</string>
+</resources>
