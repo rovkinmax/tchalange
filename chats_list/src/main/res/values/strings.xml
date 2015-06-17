@@ -5,4 +5,11 @@
     <string name="navigation_drawer_open">open</string>
     <string name="navigation_drawer_close">close</string>
     <string name="logout">Log Out</string>
+    <string name="Аудио">Audio</string>
+    <string name="file">File</string>
+    <string name="sticker">Sticker</string>
+    <string name="photo">Photo</string>
+    <string name="video">Video</string>
+    <string name="geo">Geo Point</string>
+    <string name="contact">Contact</string>
 </resources>

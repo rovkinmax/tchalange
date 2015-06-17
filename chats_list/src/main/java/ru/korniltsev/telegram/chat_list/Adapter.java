@@ -148,24 +148,24 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
              MessageUnsupported extends MessageContent {
         * */
         if (m instanceof TdApi.MessageAudio) {
-            return "Audio";
+            return ctx.getString(R.string.Аудио);
         } else if (m instanceof TdApi.MessageDocument){
             TdApi.Document doc = ((TdApi.MessageDocument) m).document;
             if (TextUtils.isEmpty(doc.fileName)) {
-                return "File";
+                return ctx.getString(R.string.file);
             } else {
                 return doc.fileName;
             }
         } else if (m instanceof TdApi.MessageSticker) {
-            return "Sticker";
+            return ctx.getString(R.string.sticker);
         } else if (m instanceof TdApi.MessagePhoto) {
-            return "Photo";
+            return ctx.getString(R.string.photo);
         } else if (m instanceof TdApi.MessageVideo) {
-            return "Video";
+            return ctx.getString(R.string.video);
         } else if (m instanceof TdApi.MessageGeoPoint) {
-            return "Geo Point";
+            return ctx.getString(R.string.geo);
         } else if (m instanceof TdApi.MessageContact) {
-            return "Contact";
+            return ctx.getString(R.string.contact);
         } else if (m instanceof TdApi.MessageChatChangePhoto) {
             return ChatPhotoChangedVH.getTextFor(res, topMessage, chatDb);
         } else {

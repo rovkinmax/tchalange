@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="messages">Messages</string>
+    <string name="messages">Сообщения</string>
     <string name="logout">Выход</string>
     <string name="navigation_drawer_close">закрыть</string>
     <string name="navigation_drawer_open">открыть</string>
     <string name="waiting_for_connection">Ожидаем подключения...</string>
+    <string name="file">Файл</string>
+    <string name="contact">Контакт</string>
+    <string name="geo">Точка на карте</string>
+    <string name="photo">Фото</string>
+    <string name="sticker">Стикер</string>
+    <string name="video">Видео</string>
+    <string name="Аудио">Аудио</string>
 </resources>
