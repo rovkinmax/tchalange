@@ -2,7 +2,11 @@ package ru.korniltsev.telegram.auth.code;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.provider.Telephony;
 import dagger.Provides;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -15,6 +19,7 @@ import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -23,6 +28,10 @@ import rx.subscriptions.Subscriptions;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.fail;
@@ -35,6 +44,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 @WithModule(EnterCode.Module.class)
 public class EnterCode extends BasePath implements Serializable{
 
+    private static Subscription smsSubscription;
     public final String phoneNumber;
 
     public EnterCode(String phoneNumber) {
@@ -86,12 +96,38 @@ public class EnterCode extends BasePath implements Serializable{
             if (request != null){
                 subscribe();
             }
+            smsSubscription = ContentObservable.fromBroadcast(
+                    getView().getContext(),
+                    new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION))
+                    .subscribe(new Action1<Intent>() {
+                        @Override
+                        public void call(Intent intent) {
+                            handleSms(intent);
+                        }
+                    });
+        }
+
+        private void handleSms(Intent intent) {
+            List<String> messages = SMSReceiver.getMessages(intent);
+            Pattern p = Pattern.compile("Telegram code (\\d+)");
+            for (String msg : messages) {
+                Matcher m = p.matcher(msg);
+                if (m.matches()){
+                    String code = m.group(1);
+                    if (getView().getSmsCode().getText().length() == 0){
+                        checkCode(code);
+                    }
+                    System.out.println(code);
+                    break;
+                }
+            }
         }
 
         @Override
         public void dropView(EnterCodeView view) {
             super.dropView(view);
             subscription.unsubscribe();
+            smsSubscription.unsubscribe();
             if (pd != null){
                 pd.dismiss();
             }

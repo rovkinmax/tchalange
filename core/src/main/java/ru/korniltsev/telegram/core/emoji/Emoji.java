@@ -410,6 +410,9 @@ public class Emoji {
 
         public EmojiDrawable(DrawableInfo i) {
             info = i;
+            if ( i == null) {
+                throw new NullPointerException();
+            }
         }
 
 //        public DrawableInfo getDrawableInfo() {
