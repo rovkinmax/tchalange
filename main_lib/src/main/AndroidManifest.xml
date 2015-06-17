@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <application
             android:label="@string/app_name"
+            android:icon="@drawable/ic_launcher"
             android:name=".core.app.MyApp"
             android:theme="@style/AppTheme"
             android:hardwareAccelerated='true'>

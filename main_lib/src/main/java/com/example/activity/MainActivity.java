@@ -69,7 +69,6 @@ public class MainActivity extends ActionBarActivity {
 
         getBundleServiceRunner(activityScope).onCreate(savedInstanceState);
 
-
         getWindow().getDecorView().setBackgroundDrawable(null);
     }
 
