@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.view.InflateException;
+import com.splunk.mint.Mint;
 import dagger.ObjectGraph;
 import mortar.MortarScope;
 import mortar.dagger1support.ObjectGraphService;
@@ -24,6 +25,7 @@ public class MyApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Mint.initAndStartSession(this, "8d68f8fd");
         JodaTimeAndroid.init(this);
         initClient();
 
