@@ -11,8 +11,27 @@ dependencies {
 
 android {
     defaultConfig {
-        renderscriptTargetApi 18
-        renderscriptSupportModeEnabled true
+        versionName "1.0.0"
+        versionCode 1
+//        renderscriptTargetApi 18
+//        renderscriptSupportModeEnabled true
+    }
+
+    signingConfigs {
+        release {
+            storeFile new File(System.getenv("KSTOREPATH"))
+            storePassword System.getenv("KSTOREPWD")
+            keyPassword System.getenv("KEYPWD")
+            keyAlias "telegram.tdlib.chalange"
+
+        }
+    }
+
+    buildTypes{
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+        }
     }
 }
 
