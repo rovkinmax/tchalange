@@ -250,12 +250,12 @@ public class RXClient {
 
 
     public Observable<TdApi.UpdateUserStatus> usersStatus() {
-        return globalSubject2.compose(
+        return globalObservableWithBackPressure.compose(
                 new FilterAndCastToClass<>(TdApi.UpdateUserStatus.class));
     }
 
     public Observable<TdApi.UpdateChatParticipantsCount> chatParticipantCount() {
-        return globalSubject2.compose(
+        return globalObservableWithBackPressure.compose(
                 new FilterAndCastToClass<>(TdApi.UpdateChatParticipantsCount.class));
     }
 
