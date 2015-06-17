@@ -9,6 +9,7 @@ import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.Utils;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.rx.NotificationManager;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxChat;
@@ -244,12 +245,17 @@ public class Presenter extends ViewPresenter<ChatView>
         if (isGroupChat) {
             subscription.add(
                     fullChatInfoRequest.subscribe(
-                            new Action1<TdApi.GroupChatFull>() {
+                            new ObserverAdapter<TdApi.GroupChatFull>(){
                                 @Override
-                                public void call(TdApi.GroupChatFull groupChatFull) {
+                                public void onNext(TdApi.GroupChatFull groupChatFull) {
                                     mGroupChatFull = groupChatFull;
                                     showMessagePanel(mGroupChatFull.groupChat);
                                     updateGroupChatOnlineStatus(groupChatFull);
+                                }
+
+                                @Override
+                                public void onError(Throwable th) {
+                                    //todo
                                 }
                             }
                     ));
