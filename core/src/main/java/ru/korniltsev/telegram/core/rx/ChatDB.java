@@ -198,21 +198,13 @@ public class ChatDB implements UserHolder {
 
     private void prepareForUpdateNewMessage() {
         client.updateNewMessages()
-                .map(new Func1<TdApi.UpdateNewMessage, TdApi.UpdateNewMessage>() {
-                    @Override
-                    public TdApi.UpdateNewMessage call(TdApi.UpdateNewMessage updateNewMessage) {
-                        parser.parse(updateNewMessage.message);
-                        return updateNewMessage;
-                    }
-                })
                 .observeOn(mainThread())
                 .subscribe(new Action1<TdApi.UpdateNewMessage>() {
                     @Override
                     public void call(TdApi.UpdateNewMessage updateNewMessage) {
-                        getRxChat(updateNewMessage.message.chatId)
-                                .handleNewMessage(updateNewMessage.message);
-                        nm.notifyNewMessage(updateNewMessage.message);
+                        updateChatMessageList(updateNewMessage.message.chatId);
                         updateCurrentChatList();
+                        nm.notifyNewMessage(updateNewMessage.message);
                     }
                 });
     }
