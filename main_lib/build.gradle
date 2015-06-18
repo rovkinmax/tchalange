@@ -51,4 +51,5 @@ android {
 play {
     serviceAccountEmail = '439599534250-riaefvs9asg2aqcd63lrq8olkaoais37@developer.gserviceaccount.com'
     pk12File = new File("/Users/korniltsev/keystores/service_account.p12")
+    track = 'production'
 }
