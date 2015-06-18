@@ -3,9 +3,9 @@ package ru.korniltsev.telegram.core.app;
 import android.app.Application;
 import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.view.InflateException;
-import com.splunk.mint.Mint;
+import com.crashlytics.android.Crashlytics;
 import dagger.ObjectGraph;
+import io.fabric.sdk.android.Fabric;
 import mortar.MortarScope;
 import mortar.dagger1support.ObjectGraphService;
 import net.danlew.android.joda.JodaTimeAndroid;
@@ -25,21 +25,10 @@ public class MyApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Mint.initAndStartSession(this, "8d68f8fd");
+        Fabric.with(this, new Crashlytics());
         JodaTimeAndroid.init(this);
         initClient();
 
-        final Thread.UncaughtExceptionHandler w = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable ex) {
-                if (ex instanceof InflateException) {
-                    w.uncaughtException(thread, ex.getCause().getCause());
-                } else {
-                    w.uncaughtException(thread, ex);
-                }
-            }
-        });
     }
 
     @Override public Object getSystemService(String name) {

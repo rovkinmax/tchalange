@@ -27,7 +27,9 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:1.9.5"
-    compile files("libs/mint-4.2.1.jar")
+    compile('com.crashlytics.sdk.android:crashlytics:2.3.2@aar') {
+        transitive = true;
+    }
 }
 
 //android {
