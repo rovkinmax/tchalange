@@ -18,5 +18,5 @@
     <string name="user_status_last_month">был(а) в сети в этом месяце</string>
     <string name="user_status_last_week">был(а) в сети на этой неделе</string>
     <string name="user_status_online">в сети</string>
-    <string name="user_status_last_seen">был в сети</string>
+    <string name="user_status_last_seen">был(а) в сети</string>
 </resources>
