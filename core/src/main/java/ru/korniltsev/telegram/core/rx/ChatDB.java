@@ -42,29 +42,11 @@ public class ChatDB implements UserHolder {
     final PublishSubject<List<TdApi.Chat>> currentChatList = PublishSubject.create();
 
 
-    /*
 
-                        UpdateDeleteMessages extends Update {
-                        UpdateNewMessage extends Update
-
-                        UpdateMessageId extends Update {
-                        UpdateMessageDate extends Update {
-
-
-                        UpdateChatReadInbox extends Update {
-                        UpdateChatReadOutbox extends Update {
-                        UpdateMessageContent extends Update {
-                        UpdateChatTitle extends Update {
-                        UpdateChatParticipantsCount extends Update {
-
-                        todo what is this UpdateNotificationSettings extends Update {
-
-
-     */
 
     final RXClient client;
     final NotificationManager nm;
-    EmojiParser parser;
+    final EmojiParser parser;
     private Observable<ChatPortion> chatsRequest;
     private boolean downloadedAllChats;
     private boolean atLeastOneResponseReturned;
@@ -80,7 +62,7 @@ public class ChatDB implements UserHolder {
     }
 
     @Inject
-    public ChatDB(final Context ctx, final RXClient client, EmojiParser parser, DpCalculator calc, NotificationManager nm) {
+    public ChatDB(final Context ctx, final RXClient client, EmojiParser parser, DpCalculator calc, NotificationManager nm, RXAuthState auth) {
         this.client = client;
         this.parser = parser;
         this.nm = nm;
@@ -103,6 +85,21 @@ public class ChatDB implements UserHolder {
         int aproxMessageHeight = calc.dp(41);
         limit = (int) (1.5 * maxSize / aproxMessageHeight);
         messageLimit = Math.max(limit, 20);
+        auth.listen()
+                .subscribe(new Action1<RXAuthState.AuthState>() {
+                    @Override
+                    public void call(RXAuthState.AuthState authState) {
+                        if (authState instanceof RXAuthState.StateAuthorized){
+                        } else {
+                            userIdToUser.clear();
+                            chatIdToRxChat.clear();
+                            chatsList.clear();
+                            downloadedAllChats = false;
+                            atLeastOneResponseReturned = false;
+                        }
+
+                    }
+                });
     }
 
 

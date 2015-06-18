@@ -355,6 +355,14 @@ public class Presenter extends ViewPresenter<ChatView>
 
     @Override
     public void sendText(String text) {
+        getView().scrollToBottom();
         rxChat.sendMessage(text);
+    }
+
+    public void sendSticker(String stickerFilePath) {
+//        Chat c = Chat.get(getContext());
+//        RxChat rxChat = chat.getRxChat(c.chat.id);
+        getView().scrollToBottom();
+        rxChat.sendSticker(stickerFilePath);
     }
 }

@@ -21,6 +21,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.chat.Chat;
+import ru.korniltsev.telegram.chat.Presenter;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.core.emoji.Emoji;
 import ru.korniltsev.telegram.core.emoji.EmojiKeyboardView;
@@ -51,6 +52,7 @@ public class MessagePanel extends LinearLayout {
     private ImageView btnRight;
     private EditText input;
 
+    @Inject Presenter presenter;
     @Inject ActivityOwner activityOwner;
     @Inject Emoji emoji;
     @Inject DpCalculator calc;
@@ -72,9 +74,8 @@ public class MessagePanel extends LinearLayout {
 
         @Override
         public void stickerCLicked(String stickerFilePath) {
-            Chat c = Chat.get(getContext());
-            RxChat rxChat = chat.getRxChat(c.chat.id);
-            rxChat.sendSticker(stickerFilePath);
+            presenter.sendSticker(stickerFilePath);
+
         }
     };
     private AnimatorSet currentAnimation;

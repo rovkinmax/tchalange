@@ -257,5 +257,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
         }
     }
 
-
+    public void scrollToBottom() {
+        layout.scrollToPosition(0);
+    }
 }

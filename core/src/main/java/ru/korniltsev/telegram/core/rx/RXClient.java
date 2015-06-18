@@ -147,7 +147,7 @@ public class RXClient {
         @Override
         public Boolean call(TdApi.UpdateOption updateOption) {
             return updateOption.value instanceof TdApi.OptionString
-                && updateOption.name.equals(OPTION_CONNECTION_STATE);
+                    && updateOption.name.equals(OPTION_CONNECTION_STATE);
         }
     };
     public static final Func1<TLObject, Boolean> ONLY_UPDATE_OPTION = new Func1<TLObject, Boolean>() {
@@ -184,9 +184,7 @@ public class RXClient {
     private final BehaviorSubject<TdApi.UpdateOption> connectedState = BehaviorSubject.create(new TdApi.UpdateOption(OPTION_CONNECTION_STATE, new TdApi.OptionBoolean(false)));
     private Observable<TLObject> globalObservableWithBackPressure;
 
-
-    BehaviorSubject<TdApi.AuthState> authStateLogut ;
-
+    BehaviorSubject<TdApi.AuthState> authStateLogut;
 
     @Inject
     public RXClient(Context ctx, RXAuthState auth) {
@@ -213,7 +211,7 @@ public class RXClient {
                 }
 
                 if (object instanceof TdApi.UpdateStickers) {
-                    Log.e("FindStickerBug", "client UpdateStickers" );
+                    Log.e("FindStickerBug", "client UpdateStickers");
                 }
             }
         });
@@ -232,23 +230,19 @@ public class RXClient {
         //                        Log.e("Update", "probably unhandled update\n" + tlObject);
         //                    }
         //                });
-//        globalSubject2.filter(new Func1<TLObject, Boolean>() {
-//            @Override
-//            public Boolean call(TLObject tlObject) {
-//                return tlObject instanceof TdApi.UpdateStickers;
-//            }
-//        }).subscribe(new Action1<TLObject>() {
-//            @Override
-//            public void call(TLObject tlObject) {
-//                throw new IllegalStateException();
-//            }
-//        });
+        //        globalSubject2.filter(new Func1<TLObject, Boolean>() {
+        //            @Override
+        //            public Boolean call(TLObject tlObject) {
+        //                return tlObject instanceof TdApi.UpdateStickers;
+        //            }
+        //        }).subscribe(new Action1<TLObject>() {
+        //            @Override
+        //            public void call(TLObject tlObject) {
+        //                throw new IllegalStateException();
+        //            }
+        //        });
         this.client = TG.getClientInstance();
-
-
     }
-
-
 
     public Observable<TdApi.UpdateUserStatus> usersStatus() {
         return globalObservableWithBackPressure.compose(
@@ -277,6 +271,7 @@ public class RXClient {
     }
 
     public Observable<TLObject> sendRx(final TdApi.TLFunction function) {
+        final Throwable th = new Throwable();
         return Observable.create(new Observable.OnSubscribe<TLObject>() {
             @Override
             public void call(final Subscriber<? super TLObject> s) {
@@ -284,29 +279,12 @@ public class RXClient {
                 client.send(function, new Client.ResultHandler() {
                     @Override
                     public void onResult(TLObject object) {
-                        if (object instanceof TdApi.Error) {
-                            TdApi.Error err = (TdApi.Error) object;
-                            Log.e("RxClient", (err).text);
-                            if (err.text.equals("no auth")//todo error code?
-                                    || err.text.contains("need user authorization")) {
-                                Preconditions.MAIN_HANDLER.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        logout();
-                                    }
-                                });
-                            } else {
-                                try {
-                                    s.onError(new RxClientException(err, function));
-                                } catch (Exception e) {
-                                    Log.e("ObserverAdapter", "error dispatching error", e);
-                                    CrashlyticsCore.getInstance()
-                                            .logException(e);
-                                }
-                            }
-                        } else {
-                            s.onNext(object);
-                            s.onCompleted();
+                        try {
+                            dispatchResult(object, s, function, th);
+                        } catch (Exception e) {
+                            Log.e("ObserverAdapter", "error dispatching error", e);
+                            CrashlyticsCore.getInstance()
+                                    .logException(e);
                         }
                     }
                 });
@@ -314,19 +292,37 @@ public class RXClient {
         });
     }
 
-
-
+    private void dispatchResult(TLObject object, Subscriber<? super TLObject> s, TdApi.TLFunction function, Throwable th) {
+        if (object instanceof TdApi.Error) {
+            TdApi.Error err = (TdApi.Error) object;
+            Log.e("RxClient", (err).text);
+            if (err.text.equals("no auth")//todo error code?
+                    || err.text.contains("need user authorization")) {
+                Preconditions.MAIN_HANDLER.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        logout();
+                    }
+                });
+            } else {
+                s.onError(new RxClientException(err, function, th));
+            }
+        } else {
+            s.onNext(object);
+            s.onCompleted();
+        }
+    }
 
     public void logout() {
         Preconditions.checkMainThread();
         authStateLogut.onNext(new TdApi.AuthStateOk());
         sendRx(new TdApi.AuthReset())
-            .subscribe(new Action1<TLObject>() {
-                @Override
-                public void call(TLObject tlObject) {
-                    authStateLogut.onNext((TdApi.AuthState) tlObject);
-                }
-            });
+                .subscribe(new Action1<TLObject>() {
+                    @Override
+                    public void call(TLObject tlObject) {
+                        authStateLogut.onNext((TdApi.AuthState) tlObject);
+                    }
+                });
 
         auth.logout();
     }
@@ -336,10 +332,10 @@ public class RXClient {
     }
 
     public void sendSilently(final TdApi.TLFunction function) {
-//        if (function instanceof TdApi.DownloadFile) {
-//            int fileId = ((TdApi.DownloadFile) function).fileId;
-//            Log.e("DownloadFile", "begin id:" + coolTagForFileId(fileId));
-//        }
+        //        if (function instanceof TdApi.DownloadFile) {
+        //            int fileId = ((TdApi.DownloadFile) function).fileId;
+        //            Log.e("DownloadFile", "begin id:" + coolTagForFileId(fileId));
+        //        }
         client.send(function, RequestHandlerAdapter.INSTANCE);
     }
 
@@ -417,8 +413,9 @@ public class RXClient {
     static class RxClientException extends Exception {
         public final TdApi.Error error;
         public final TdApi.TLFunction f;
-        public RxClientException(TdApi.Error error, TdApi.TLFunction f) {
-            super(error.text + " " + f.toString());
+
+        public RxClientException(TdApi.Error error, TdApi.TLFunction f, Throwable th) {
+            super(error.text + " " + f.toString(), th);
             this.error = error;
             this.f = f;
         }
@@ -429,7 +426,7 @@ public class RXClient {
         return fileUpdates;
     }
 
-    public Observable<TdApi.UpdateFileProgress> fileProgress(){
+    public Observable<TdApi.UpdateFileProgress> fileProgress() {
         return fileProgressUpdates;
     }
 
