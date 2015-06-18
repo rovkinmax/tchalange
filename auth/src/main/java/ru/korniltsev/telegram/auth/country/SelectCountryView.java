@@ -30,8 +30,8 @@ public class SelectCountryView extends LinearLayout {
                 .pop();
         list = (RecyclerView) findViewById(R.id.list);
         list.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<Countries.Entry> countries = new Countries(getContext())
-                .getData();
+        List<Countries.Entry> countries = new Countries()
+                .getData(getContext());
         list.setAdapter(new Adapter(getContext(), countries, new Adapter.CountryClickListener() {
             @Override
             public void clicked(Countries.Entry c) {

@@ -12,28 +12,28 @@ import java.util.*;
  */
 public class Countries {
     public static final String RU_CODE = "RU";
-    final Context ctx;
+
     private List<Entry> data;
     private Map<String, Entry> countryCodeToCountry = new HashMap<String, Entry>();
 
 
-    public Countries(Context ctx) {
-        this.ctx = ctx;
+    public Countries() {
+
     }
 
-    public Entry getForCode(String code) {
-        getData();
+    public Entry getForCode(String code, Context ctx) {
+        getData(ctx);
         return countryCodeToCountry.get(code);
     }
 
-    public List<Entry> getData() {
+    public List<Entry> getData(Context ctx) {
         if (data == null) {
-            parse();
+            parse(ctx);
         }
         return data;
     }
 
-    private void parse() {
+    private void parse(Context ctx) {
         InputStream is = null;
         try {
             is = ctx.getAssets().open("countries.txt");
@@ -63,7 +63,7 @@ public class Countries {
 
     }
 
-    public class Entry implements Comparable<Entry> , Serializable{
+    public static class Entry implements Comparable<Entry> , Serializable{
         public final String phoneCode;
         public final String code;
         public final String name;

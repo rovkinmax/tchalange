@@ -1,11 +1,11 @@
 package ru.korniltsev.telegram.auth.phone;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.widget.Toast;
 import flow.Flow;
-import junit.framework.Assert;
 import mortar.MortarScope;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -22,7 +22,6 @@ import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
@@ -73,13 +72,14 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
         @Override
         protected void onLoad(Bundle savedInstanceState) {
             super.onLoad(savedInstanceState);
-            EnterPhoneFragment f = get(getView().getContext());
+            Context ctx = getView().getContext();
+            EnterPhoneFragment f = get(ctx);
             Countries.Entry country;//todo save selected to pref
             if (f.c != null) {
                 country = f.c;
             } else {
-                country = new Countries(getView().getContext())//todo new
-                        .getForCode(Countries.RU_CODE);
+                country = new Countries()//todo new
+                        .getForCode(Countries.RU_CODE, ctx);
             }
             getView().countrySelected(country);
             if (sendPhoneRequest != null) {
