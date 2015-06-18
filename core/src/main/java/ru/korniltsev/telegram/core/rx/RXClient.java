@@ -2,6 +2,7 @@ package ru.korniltsev.telegram.core.rx;
 
 import android.content.Context;
 import android.util.Log;
+import com.crashlytics.android.core.CrashlyticsCore;
 import org.drinkless.td.libcore.telegram.Client;
 import org.drinkless.td.libcore.telegram.TG;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -286,7 +287,8 @@ public class RXClient {
                         if (object instanceof TdApi.Error) {
                             TdApi.Error err = (TdApi.Error) object;
                             Log.e("RxClient", (err).text);
-                            if (err.text.equals("no auth")) {
+                            if (err.text.equals("no auth")//todo error code?
+                                    || err.text.contains("need user authorization")) {
                                 Preconditions.MAIN_HANDLER.post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -294,7 +296,13 @@ public class RXClient {
                                     }
                                 });
                             } else {
-                                s.onError(new RxClientException(err, function));
+                                try {
+                                    s.onError(new RxClientException(err, function));
+                                } catch (Exception e) {
+                                    Log.e("ObserverAdapter", "error dispatching error", e);
+                                    CrashlyticsCore.getInstance()
+                                            .logException(e);
+                                }
                             }
                         } else {
                             s.onNext(object);

@@ -2,6 +2,7 @@ package ru.korniltsev.telegram.core.emoji;
 
 import android.util.Log;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.functions.Action1;
@@ -60,11 +61,10 @@ public class Stickers {
     private void requestStickers() {
         client.sendRx(new TdApi.GetStickers(""))
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.TLObject>() {
+                .subscribe(new ObserverAdapter<TdApi.TLObject>() {
                     @Override
-                    public void call(TdApi.TLObject tlObject) {
-
-                        updateStickers((TdApi.Stickers) tlObject);
+                    public void onNext(TdApi.TLObject response) {
+                        updateStickers((TdApi.Stickers) response);
                     }
                 });
     }

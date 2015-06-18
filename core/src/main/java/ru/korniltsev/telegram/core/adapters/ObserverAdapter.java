@@ -1,5 +1,7 @@
 package ru.korniltsev.telegram.core.adapters;
 
+import android.util.Log;
+import com.crashlytics.android.core.CrashlyticsCore;
 import junit.framework.Assert;
 import rx.Observer;
 
@@ -14,11 +16,12 @@ public class ObserverAdapter<T> implements Observer<T> {
 
     @Override
     public void onError(Throwable th) {
-        throw new RuntimeException(th);
+        CrashlyticsCore.getInstance().logException(th);
+        Log.e("ObserverAdapter", "err", th);
     }
 
     @Override
     public void onNext(T response) {
-        Assert.fail("unhandled response: " + response );
+
     }
 }
