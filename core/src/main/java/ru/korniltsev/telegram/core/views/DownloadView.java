@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.utils.R;
@@ -189,9 +190,9 @@ public class DownloadView extends FrameLayout {
         Observable<RxDownloadManager.FileState> request = downloader.nonMainThreadObservableFor(file);
         subscription = request
                 .observeOn(mainThread())
-                .subscribe(new Action1<RxDownloadManager.FileState>() {
+                .subscribe(new ObserverAdapter<RxDownloadManager.FileState>() {
                     @Override
-                    public void call(RxDownloadManager.FileState fileState) {
+                    public void onNext(RxDownloadManager.FileState fileState) {
                         if (fileState instanceof RxDownloadManager.FileDownloaded) {
                             final RxDownloadManager.FileDownloaded d = (RxDownloadManager.FileDownloaded) fileState;
                             cb.onFinished(d.f, true);

@@ -13,6 +13,7 @@ import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.R;
 import ru.korniltsev.telegram.auth.phone.EnterPhoneFragment;
 import ru.korniltsev.telegram.chat_list.ChatList;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.flow.SerializableParceler;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.mortar.core.MortarScreenSwitcherFrame;
@@ -87,9 +88,9 @@ public class MainActivity extends ActionBarActivity {
         super.onResume();
         flow.onResume();
         subscription = authState.listen()
-                .subscribe(new Action1<RXAuthState.AuthState>() {
+                .subscribe(new ObserverAdapter<RXAuthState.AuthState>() {
                     @Override
-                    public void call(RXAuthState.AuthState s) {
+                    public void onNext(RXAuthState.AuthState s) {
                         History history = History.single(
                                 MainActivity.this.getScreenForAuthState(s));
                         Flow.get(MainActivity.this)

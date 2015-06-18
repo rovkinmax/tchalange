@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.Utils;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -48,23 +49,22 @@ public class RxDownloadManager {
         this.client = client;
 //        client
         client.filesUpdates()
-                .subscribe(new Action1<TdApi.UpdateFile>() {
+                .subscribe(new ObserverAdapter<TdApi.UpdateFile>() {
                     @Override
-                    public void call(TdApi.UpdateFile updateFile) {
+                    public void onNext(TdApi.UpdateFile updateFile) {
                         updateFile(updateFile);
                     }
                 });
 
-        client.fileProgress().subscribe(new Action1<TdApi.UpdateFileProgress>() {
+        client.fileProgress().subscribe(new ObserverAdapter<TdApi.UpdateFileProgress>() {
             @Override
-            public void call(TdApi.UpdateFileProgress upd) {
-                //                SystemClock.sleep(400);
+            public void onNext(TdApi.UpdateFileProgress upd) {
                 updateFileProgress(upd);
             }
         });
-        auth.listen().subscribe(new Action1<RXAuthState.AuthState>() {
+        auth.listen().subscribe(new ObserverAdapter<RXAuthState.AuthState>() {
             @Override
-            public void call(RXAuthState.AuthState authState) {
+            public void onNext(RXAuthState.AuthState authState) {
                 if (authState instanceof RXAuthState.StateLogout) {
                     cleanup();
                 }

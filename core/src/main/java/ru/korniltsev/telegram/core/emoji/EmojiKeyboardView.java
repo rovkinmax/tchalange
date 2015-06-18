@@ -20,6 +20,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.utils.R;
@@ -186,9 +187,9 @@ public class EmojiKeyboardView extends LinearLayout {
 
         private void stickerClicked(TdApi.Sticker sticker) {
             downloader.downloadWithoutProgress(sticker.sticker)
-                    .subscribe(new Action1<TdApi.FileLocal>() {
+                    .subscribe(new ObserverAdapter<TdApi.FileLocal>() {
                         @Override
-                        public void call(TdApi.FileLocal fileLocal) {
+                        public void onNext(TdApi.FileLocal fileLocal) {
                             callback.stickerCLicked(fileLocal.path);
                         }
                     });

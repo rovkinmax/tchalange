@@ -8,6 +8,7 @@ import dagger.Provides;
 import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
@@ -122,9 +123,9 @@ public class PhotoViewer extends BasePath implements Serializable {
         private void subscribeForDeletition() {
             if (deleteRequest != null) {
                 subs.add(
-                        deleteRequest.subscribe(new Action1<TdApi.TLObject>() {
+                        deleteRequest.subscribe(new ObserverAdapter<TdApi.TLObject>() {
                             @Override
-                            public void call(TdApi.TLObject tlObject) {
+                            public void onNext(TdApi.TLObject response) {
                                 Flow.get(getView())
                                         .goBack();
                             }

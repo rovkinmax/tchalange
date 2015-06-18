@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.ColorFilter;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -52,12 +53,13 @@ public class EnterPhoneView extends LinearLayout {
                             }
                         }
                 );
-        clicks(btnSelectCountry).subscribe(new Action1<OnClickEvent>() {
+        btnSelectCountry.setOnClickListener(new OnClickListener() {
             @Override
-            public void call(OnClickEvent e) {
+            public void onClick(View v) {
                 presenter.selectCountry();
             }
         });
+
 
         userPhone.requestFocus();
         userPhone.setOnEditorActionListener(new TextView.OnEditorActionListener() {

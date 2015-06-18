@@ -7,6 +7,7 @@ import org.drinkless.td.libcore.telegram.Client;
 import org.drinkless.td.libcore.telegram.TG;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.drinkless.td.libcore.telegram.TdApi.TLObject;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.adapters.RequestHandlerAdapter;
 import ru.korniltsev.telegram.core.utils.Preconditions;
 import rx.Observable;
@@ -317,9 +318,9 @@ public class RXClient {
         Preconditions.checkMainThread();
         authStateLogut.onNext(new TdApi.AuthStateOk());
         sendRx(new TdApi.AuthReset())
-                .subscribe(new Action1<TLObject>() {
+                .subscribe(new ObserverAdapter<TLObject>() {
                     @Override
-                    public void call(TLObject tlObject) {
+                    public void onNext(TLObject tlObject) {
                         authStateLogut.onNext((TdApi.AuthState) tlObject);
                     }
                 });

@@ -12,6 +12,7 @@ import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.Chat;
 import ru.korniltsev.telegram.chat_list.view.DividerRelativeLayout;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.emoji.Emoji;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
@@ -125,34 +126,34 @@ public class ChatList extends BasePath implements Serializable {
         private void subscribe() {
             subscription = new CompositeSubscription();
             subscription.add(
-                    chatDB.chatList().subscribe(new Action1<List<TdApi.Chat>>() {
+                    chatDB.chatList().subscribe(new ObserverAdapter<List<TdApi.Chat>>() {
                         @Override
-                        public void call(List<TdApi.Chat> chats) {
+                        public void onNext(List<TdApi.Chat> chats) {
                             getView()
                                     .setData(chats);
                         }
                     }));
 
             subscription.add(
-                    meRequest.subscribe(new Action1<TdApi.User>() {
+                    meRequest.subscribe(new ObserverAdapter<TdApi.User>() {
                         @Override
-                        public void call(TdApi.User user) {
+                        public void onNext(TdApi.User user) {
                             Presenter.this.getView()
                                     .showMe(user);
                             me = user;
                         }
                     }));
             subscription.add(
-                    networkState.subscribe(new Action1<TdApi.UpdateOption>() {
+                    networkState.subscribe(new ObserverAdapter<TdApi.UpdateOption>() {
                         @Override
-                        public void call(TdApi.UpdateOption o) {
+                        public void onNext(TdApi.UpdateOption o) {
                             TdApi.OptionString b = (TdApi.OptionString) o.value;
                             boolean connected ;
                             switch (b.value){
                                 case "Waiting for network":
                                 case "Connecting":
                                     connected = false;
-                                 break;
+                                    break;
                                 default:
                                     connected = true;
                                     break;
@@ -162,9 +163,9 @@ public class ChatList extends BasePath implements Serializable {
                         }
                     }));
             subscription.add(emoji.pageLoaded()
-                    .subscribe(new Action1<Bitmap>() {
+                    .subscribe(new ObserverAdapter<Bitmap>() {
                         @Override
-                        public void call(Bitmap bitmap) {
+                        public void onNext(Bitmap response) {
                             getView()
                                     .invalidate();
                         }

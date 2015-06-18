@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.SystemClock;
 import android.util.Log;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -42,13 +43,13 @@ public class NotificationManager {
                     }
                 })
                 .observeOn(mainThread());
-        settingsUpdate.subscribe(new Action1<TdApi.UpdateNotificationSettings>() {
+        settingsUpdate.subscribe(new ObserverAdapter<TdApi.UpdateNotificationSettings>() {
             @Override
-            public void call(TdApi.UpdateNotificationSettings upd) {
+            public void onNext(TdApi.UpdateNotificationSettings upd) {
                 if (upd.scope instanceof TdApi.NotificationSettingsForChat) {
                     TdApi.NotificationSettingsForChat scope = (TdApi.NotificationSettingsForChat) upd.scope;
                     settings.put(scope.chatId, upd.notificationSettings);
-//                    calculate(scope.chatId, upd.notificationSettings);
+                    //                    calculate(scope.chatId, upd.notificationSettings);
                 } //else todo
             }
         });

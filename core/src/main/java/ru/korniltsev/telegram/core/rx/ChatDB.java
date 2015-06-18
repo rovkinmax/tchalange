@@ -8,6 +8,7 @@ import android.util.SparseArray;
 import android.view.WindowManager;
 import junit.framework.Assert;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import rx.Observable;
 import rx.functions.Action1;
@@ -86,9 +87,9 @@ public class ChatDB implements UserHolder {
         limit = (int) (1.5 * maxSize / aproxMessageHeight);
         messageLimit = Math.max(limit, 20);
         auth.listen()
-                .subscribe(new Action1<RXAuthState.AuthState>() {
+                .subscribe(new ObserverAdapter<RXAuthState.AuthState>() {
                     @Override
-                    public void call(RXAuthState.AuthState authState) {
+                    public void onNext(RXAuthState.AuthState authState) {
                         if (authState instanceof RXAuthState.StateAuthorized){
                         } else {
                             userIdToUser.clear();
@@ -97,7 +98,6 @@ public class ChatDB implements UserHolder {
                             downloadedAllChats = false;
                             atLeastOneResponseReturned = false;
                         }
-
                     }
                 });
     }
@@ -121,9 +121,9 @@ public class ChatDB implements UserHolder {
     private void prepareForUpdateMessageContent() {
         client.updateMessageContent()
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.UpdateMessageContent>() {
+                .subscribe(new ObserverAdapter<TdApi.UpdateMessageContent>() {
                     @Override
-                    public void call(TdApi.UpdateMessageContent updateMessageContent) {
+                    public void onNext(TdApi.UpdateMessageContent updateMessageContent) {
                         updateChatMessageList(updateMessageContent.chatId);
                         updateCurrentChatList();
                     }
@@ -133,9 +133,9 @@ public class ChatDB implements UserHolder {
     private void prepareForUpdateChatReadOutbox() {
         client.updateChatReadOutbox()
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.UpdateChatReadOutbox>() {
+                .subscribe(new ObserverAdapter<TdApi.UpdateChatReadOutbox>() {
                     @Override
-                    public void call(TdApi.UpdateChatReadOutbox updateChatReadInbox) {
+                    public void onNext(TdApi.UpdateChatReadOutbox response) {
 //                        updateChatMessageList(updateChatReadInbox.chatId);
                         updateCurrentChatList();
                     }
@@ -145,9 +145,9 @@ public class ChatDB implements UserHolder {
     private void prepareForUpdateChatReadInbox() {
         client.updateChatReadInbox()
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.UpdateChatReadInbox>() {
+                .subscribe(new ObserverAdapter<TdApi.UpdateChatReadInbox>() {
                     @Override
-                    public void call(TdApi.UpdateChatReadInbox updateChatReadInbox) {
+                    public void onNext(TdApi.UpdateChatReadInbox updateChatReadInbox) {
                         updateChatMessageList(updateChatReadInbox.chatId);
                         updateCurrentChatList();
                     }
@@ -157,9 +157,9 @@ public class ChatDB implements UserHolder {
     private void prepareForUpdateMessageDate() {
         client.updateMessageDate()
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.UpdateMessageDate>() {
+                .subscribe(new ObserverAdapter<TdApi.UpdateMessageDate>() {
                     @Override
-                    public void call(TdApi.UpdateMessageDate updateMessageDate) {
+                    public void onNext(TdApi.UpdateMessageDate updateMessageDate) {
                         updateChatMessageList(updateMessageDate.chatId);
                         updateCurrentChatList();
                     }
@@ -184,9 +184,9 @@ public class ChatDB implements UserHolder {
     private void prepareForUpdateDeleteMessages() {
         client.updateDeleteMessages()
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.UpdateDeleteMessages>() {
+                .subscribe(new ObserverAdapter<TdApi.UpdateDeleteMessages>() {
                     @Override
-                    public void call(TdApi.UpdateDeleteMessages messages) {
+                    public void onNext(TdApi.UpdateDeleteMessages messages) {
                         updateChatMessageList(messages.chatId);
                         updateCurrentChatList();
                     }
@@ -203,9 +203,9 @@ public class ChatDB implements UserHolder {
                     }
                 })
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.UpdateNewMessage>() {
+                .subscribe(new ObserverAdapter<TdApi.UpdateNewMessage>() {
                     @Override
-                    public void call(TdApi.UpdateNewMessage updateNewMessage) {
+                    public void onNext(TdApi.UpdateNewMessage updateNewMessage) {
                         getRxChat(updateNewMessage.message.chatId)
                                 .handleNewMessage(updateNewMessage.message);
                         nm.notifyNewMessage(updateNewMessage.message);
@@ -290,9 +290,9 @@ public class ChatDB implements UserHolder {
 
 
 
-        chatsRequest.subscribe(new Action1<ChatPortion>() {
+        chatsRequest.subscribe(new ObserverAdapter<ChatPortion>() {
             @Override
-            public void call(ChatPortion p) {
+            public void onNext(ChatPortion p) {
                 saveUsers(p.us);
                 atLeastOneResponseReturned = true;
                 chatsRequest = null;

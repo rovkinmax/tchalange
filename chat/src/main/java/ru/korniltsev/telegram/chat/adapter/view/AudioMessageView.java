@@ -14,6 +14,7 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import ru.korniltsev.telegram.chat.R;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.audio.AudioPlayer;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.views.DownloadView;
@@ -118,10 +119,10 @@ public class AudioMessageView extends LinearLayout {
         }, download_view);
     }
 
-    private Action1<AudioPlayer.TrackState> updateProgress() {
-        return new Action1<AudioPlayer.TrackState>() {
+    private ObserverAdapter<AudioPlayer.TrackState> updateProgress() {
+        return new ObserverAdapter<AudioPlayer.TrackState>() {
             @Override
-            public void call(AudioPlayer.TrackState trackState) {
+            public void onNext(AudioPlayer.TrackState trackState) {
                 updateProgress(trackState);
             }
         };

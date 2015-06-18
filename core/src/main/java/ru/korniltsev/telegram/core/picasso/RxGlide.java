@@ -7,6 +7,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.Utils;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.views.AvatarView;
@@ -49,9 +50,9 @@ public class RxGlide {
                         return authState instanceof RXAuthState.StateLogout;
                     }
                 })
-                .subscribe(new Action1<RXAuthState.AuthState>() {
+                .subscribe(new ObserverAdapter<RXAuthState.AuthState>() {
                     @Override
-                    public void call(RXAuthState.AuthState authState) {
+                    public void onNext(RXAuthState.AuthState response) {
                         cache.clear();
                     }
                 });

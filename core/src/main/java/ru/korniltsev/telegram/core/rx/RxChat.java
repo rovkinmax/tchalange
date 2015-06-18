@@ -3,6 +3,7 @@ package ru.korniltsev.telegram.core.rx;
 import android.util.SparseArray;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.joda.time.DateTime;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -45,9 +46,9 @@ public class RxChat implements UserHolder {
             return msg;
         }
     };
-    private Action1<TdApi.Message> HANDLE_NEW_MESSAGE = new Action1<TdApi.Message>() {
+    private ObserverAdapter<TdApi.Message> HANDLE_NEW_MESSAGE = new ObserverAdapter<TdApi.Message>() {
         @Override
-        public void call(TdApi.Message tlObject) {
+        public void onNext(TdApi.Message tlObject) {
             handleNewMessage(tlObject);
         }
     };
@@ -139,9 +140,9 @@ public class RxChat implements UserHolder {
                 })
                 .observeOn(mainThread());
 
-        request.subscribe(new Action1<ChatDB.Portion>() {
+        request.subscribe(new ObserverAdapter<ChatDB.Portion>() {
             @Override
-            public void call(ChatDB.Portion portion) {
+            public void onNext(ChatDB.Portion portion) {
                 checkMainThread();
                 request = null;
                 atLeastOneRequestCompleted = true;
@@ -245,9 +246,9 @@ public class RxChat implements UserHolder {
     public void deleteHistory() {
         client.sendRx(new TdApi.DeleteChatHistory(id))
                 .observeOn(mainThread())
-                .subscribe(new Action1<TdApi.TLObject>() {
+                .subscribe(new ObserverAdapter<TdApi.TLObject>() {
                     @Override
-                    public void call(TdApi.TLObject o) {
+                    public void onNext(TdApi.TLObject response) {
                         messages.clear();
                         chatListItems.clear();
                         subject.onNext(chatListItems);
@@ -325,12 +326,7 @@ public class RxChat implements UserHolder {
     public void hackToReadTheMessage(List<ChatListItem> chatListItems) {
         MessageItem msg = (MessageItem) chatListItems.get(0);
         client.sendRx(new TdApi.GetChatHistory(id, msg.msg.id, -1, 1))
-        .subscribe(new Action1<TdApi.TLObject>() {
-            @Override
-            public void call(TdApi.TLObject tlObject) {
-
-            }
-        });
+        .subscribe(new ObserverAdapter<TdApi.TLObject>());
 
     }
 

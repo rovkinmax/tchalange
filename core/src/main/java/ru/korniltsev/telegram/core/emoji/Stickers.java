@@ -30,23 +30,21 @@ public class Stickers {
 
         handleState(auth.getState());
         auth.listen()
-                .subscribe(new Action1<RXAuthState.AuthState>() {
+                .subscribe(new ObserverAdapter<RXAuthState.AuthState>() {
                     @Override
-                    public void call(RXAuthState.AuthState authState) {
+                    public void onNext(RXAuthState.AuthState authState) {
                         if (authState instanceof RXAuthState.StateAuthorized){
-//                            client.sendSilently(new TdApi.GetContacts());
+                            //                            client.sendSilently(new TdApi.GetContacts());
                         } else {
                             ss.clear();
                         }
-
                     }
                 });
 
         client.stickerUpdates()
-                .subscribe(new Action1<TdApi.UpdateStickers>() {
+                .subscribe(new ObserverAdapter<TdApi.UpdateStickers>() {
                     @Override
-                    public void call(TdApi.UpdateStickers updateStickers) {
-                        Log.e("FindStickerBug", "got update sticker");
+                    public void onNext(TdApi.UpdateStickers response) {
                         requestStickers();
                     }
                 });

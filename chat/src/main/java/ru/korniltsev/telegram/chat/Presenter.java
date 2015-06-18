@@ -125,9 +125,9 @@ public class Presenter extends ViewPresenter<ChatView>
         //todo show progressBar
         subscription.add(
                 rxChat.messageList()
-                        .subscribe(new Action1<List<RxChat.ChatListItem>>() {
+                        .subscribe(new ObserverAdapter<List<RxChat.ChatListItem>>() {
                             @Override
-                            public void call(List<RxChat.ChatListItem> messages) {
+                            public void onNext(List<RxChat.ChatListItem> messages) {
                                 getView()
                                         .getAdapter()
                                         .setData(messages);
@@ -136,9 +136,9 @@ public class Presenter extends ViewPresenter<ChatView>
 
         subscription.add(
                 rxChat.newMessage()
-                        .subscribe(new Action1<List<RxChat.ChatListItem>>() {
+                        .subscribe(new ObserverAdapter<List<RxChat.ChatListItem>>() {
                                        @Override
-                                       public void call(List<RxChat.ChatListItem> chatListItems) {
+                                       public void onNext(List<RxChat.ChatListItem> chatListItems) {
                                            getView()
                                                    .addNewMessage(chatListItems);
                                            rxChat.hackToReadTheMessage(chatListItems);
@@ -150,9 +150,9 @@ public class Presenter extends ViewPresenter<ChatView>
 
         subscription.add(
                 nm.updatesForChat(path.chat)
-                        .subscribe(new Action1<TdApi.NotificationSettings>() {
+                        .subscribe(new ObserverAdapter<TdApi.NotificationSettings>() {
                                        @Override
-                                       public void call(TdApi.NotificationSettings s) {
+                                       public void onNext(TdApi.NotificationSettings s) {
                                            getView().initMenu(isGroupChat, nm.isMuted(s));
                                        }
                                    }
@@ -160,20 +160,20 @@ public class Presenter extends ViewPresenter<ChatView>
 
         subscription.add(
                 updateReadOutbox()
-                        .subscribe(new Action1<TdApi.UpdateChatReadOutbox>() {
+                        .subscribe(new ObserverAdapter<TdApi.UpdateChatReadOutbox>() {
                             @Override
-                            public void call(TdApi.UpdateChatReadOutbox upd) {
+                            public void onNext(TdApi.UpdateChatReadOutbox response) {
                                 getView()
                                         .getAdapter()
-                                        .setLastReadOutbox(upd.lastRead);
+                                        .setLastReadOutbox(response.lastRead);
                             }
                         }));
 
         subscription.add(
                 rxChat.holder.getMessageIdsUpdates(path.chat.id)
-                        .subscribe(new Action1<TdApi.UpdateMessageId>() {
+                        .subscribe(new ObserverAdapter<TdApi.UpdateMessageId>() {
                             @Override
-                            public void call(TdApi.UpdateMessageId updateMessageId) {
+                            public void onNext(TdApi.UpdateMessageId response) {
                                 getView()
                                         .getAdapter()
                                         .notifyDataSetChanged();
@@ -182,18 +182,18 @@ public class Presenter extends ViewPresenter<ChatView>
         );
 
         subscription.add(usersStatus()
-                .subscribe(new Action1<TdApi.UpdateUserStatus>() {
+                .subscribe(new ObserverAdapter<TdApi.UpdateUserStatus>() {
                     @Override
-                    public void call(TdApi.UpdateUserStatus updateUserStatus) {
+                    public void onNext(TdApi.UpdateUserStatus response) {
                         requestUpdateOnlineStatus();
                     }
                 }));
 
         subscription.add(
                 updatesChatsParticipantCount()
-                        .subscribe(new Action1<TdApi.UpdateChatParticipantsCount>() {
+                        .subscribe(new ObserverAdapter<TdApi.UpdateChatParticipantsCount>() {
                             @Override
-                            public void call(TdApi.UpdateChatParticipantsCount updateChatParticipantsCount) {
+                            public void onNext(TdApi.UpdateChatParticipantsCount response) {
                                 requestUpdateOnlineStatus();
                             }
                         }));
@@ -261,9 +261,9 @@ public class Presenter extends ViewPresenter<ChatView>
                     ));
         } else {
             subscription.add(
-                    getUser().subscribe(new Action1<TdApi.User>() {
+                    getUser().subscribe(new ObserverAdapter<TdApi.User>() {
                         @Override
-                        public void call(TdApi.User user) {
+                        public void onNext(TdApi.User user) {
                             setViewTitle(user);
                         }
                     }));
@@ -343,9 +343,9 @@ public class Presenter extends ViewPresenter<ChatView>
         subscription.add(
                 client.sendCachedRXUI(
                         new TdApi.DeleteChatParticipant(path.chat.id, path.me.id)
-                ).subscribe(new Action1<TdApi.TLObject>() {
+                ).subscribe(new ObserverAdapter<TdApi.TLObject>() {
                     @Override
-                    public void call(TdApi.TLObject o) {
+                    public void onNext(TdApi.TLObject response) {
                         Flow.get(getView().getContext())
                                 .goBack();
                     }

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import rx.Subscription;
 import rx.functions.Action1;
 
@@ -23,9 +24,9 @@ public class EmojiTextView extends TextView{
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        s = emoji.pageLoaded().subscribe(new Action1<Bitmap>() {
+        s = emoji.pageLoaded().subscribe(new ObserverAdapter<Bitmap>() {
             @Override
-            public void call(Bitmap bitmap) {
+            public void onNext(Bitmap response) {
                 invalidate();
             }
         });

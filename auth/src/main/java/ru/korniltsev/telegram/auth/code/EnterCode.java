@@ -18,6 +18,7 @@ import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -99,9 +100,9 @@ public class EnterCode extends BasePath implements Serializable{
             smsSubscription = ContentObservable.fromBroadcast(
                     getView().getContext(),
                     new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION))
-                    .subscribe(new Action1<Intent>() {
+                    .subscribe(new ObserverAdapter<Intent>() {
                         @Override
-                        public void call(Intent intent) {
+                        public void onNext(Intent intent) {
                             handleSms(intent);
                         }
                     });
