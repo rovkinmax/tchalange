@@ -225,6 +225,12 @@ public class RxChat implements UserHolder {
 
 
     public void handleNewMessage(TdApi.Message tlObject) {
+        for (int i = 0, messagesSize = messages.size(); i < messagesSize; i++) {
+            TdApi.Message message = messages.get(i);
+            if (message.id == tlObject.id){
+                return;
+            }
+        }
         messages.add(0, tlObject);
 
         List<ChatListItem> prepend = splitter.prepend(tlObject, chatListItems);

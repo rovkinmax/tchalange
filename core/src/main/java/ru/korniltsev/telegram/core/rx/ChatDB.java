@@ -198,13 +198,21 @@ public class ChatDB implements UserHolder {
 
     private void prepareForUpdateNewMessage() {
         client.updateNewMessages()
+                .map(new Func1<TdApi.UpdateNewMessage, TdApi.UpdateNewMessage>() {
+                    @Override
+                    public TdApi.UpdateNewMessage call(TdApi.UpdateNewMessage updateNewMessage) {
+                        parser.parse(updateNewMessage.message);
+                        return updateNewMessage;
+                    }
+                })
                 .observeOn(mainThread())
                 .subscribe(new Action1<TdApi.UpdateNewMessage>() {
                     @Override
                     public void call(TdApi.UpdateNewMessage updateNewMessage) {
-                        updateChatMessageList(updateNewMessage.message.chatId);
-                        updateCurrentChatList();
+                        getRxChat(updateNewMessage.message.chatId)
+                                .handleNewMessage(updateNewMessage.message);
                         nm.notifyNewMessage(updateNewMessage.message);
+                        updateCurrentChatList();
                     }
                 });
     }
@@ -225,11 +233,11 @@ public class ChatDB implements UserHolder {
     }
 
     public void saveUsers(SparseArray<TdApi.User> us) {
-            for(int i = 0; i < us.size(); i++) {
-                TdApi.User obj = us.get(
-                        us.keyAt(i));
-                saveUser(obj);
-            }
+        for(int i = 0; i < us.size(); i++) {
+            TdApi.User obj = us.get(
+                    us.keyAt(i));
+            saveUser(obj);
+        }
     }
 
     class  ChatPortion {
@@ -250,38 +258,38 @@ public class ChatDB implements UserHolder {
     private void requestImpl(int offset, int limit, final boolean historyRequest) {
         Assert.assertNull(chatsRequest);
         chatsRequest = client.getChats(offset, limit)
-               .flatMap(new Func1<TdApi.Chats, Observable<ChatPortion>>() {
-                   @Override
-                   public Observable<ChatPortion> call(TdApi.Chats chats) {
-                       checkNotMainThread();
-                       for (TdApi.Chat chat : chats.chats) {
-                           parser.parse(chat.topMessage);
-                           tmpIds.add(chat.topMessage.fromId);
-                           if (chat.topMessage.forwardFromId != 0) {
-                               tmpIds.add(chat.topMessage.fromId);
-                           }
-                       }
-                       List<Observable<TdApi.User>> us = new ArrayList<Observable<TdApi.User>>();
-                       tmpIds.remove(0);//todo who ads it here
-                       for (Integer id : tmpIds) {
-                           us.add(client.getUser(id));
-                       }
-                       Observable<List<TdApi.User>> users = Observable.merge(us)
-                               .toList();
-                       return Observable.zip(users, Observable.just(chats), new Func2<List<TdApi.User>, TdApi.Chats, ChatPortion>() {
-                           @Override
-                           public ChatPortion call(List<TdApi.User> users, TdApi.Chats chats) {
-                               SparseArray<TdApi.User> us = new SparseArray<>();
-                               for (TdApi.User user : users) {
-                                   us.put(user.id, user);
-                               }
-                               ChatPortion chatPortion = new ChatPortion(chats, us);
-                               return chatPortion;
-                           }
-                       });
-                   }
-               })
-        .observeOn(mainThread());
+                .flatMap(new Func1<TdApi.Chats, Observable<ChatPortion>>() {
+                    @Override
+                    public Observable<ChatPortion> call(TdApi.Chats chats) {
+                        checkNotMainThread();
+                        for (TdApi.Chat chat : chats.chats) {
+                            parser.parse(chat.topMessage);
+                            tmpIds.add(chat.topMessage.fromId);
+                            if (chat.topMessage.forwardFromId != 0) {
+                                tmpIds.add(chat.topMessage.fromId);
+                            }
+                        }
+                        List<Observable<TdApi.User>> us = new ArrayList<Observable<TdApi.User>>();
+                        tmpIds.remove(0);//todo who ads it here
+                        for (Integer id : tmpIds) {
+                            us.add(client.getUser(id));
+                        }
+                        Observable<List<TdApi.User>> users = Observable.merge(us)
+                                .toList();
+                        return Observable.zip(users, Observable.just(chats), new Func2<List<TdApi.User>, TdApi.Chats, ChatPortion>() {
+                            @Override
+                            public ChatPortion call(List<TdApi.User> users, TdApi.Chats chats) {
+                                SparseArray<TdApi.User> us = new SparseArray<>();
+                                for (TdApi.User user : users) {
+                                    us.put(user.id, user);
+                                }
+                                ChatPortion chatPortion = new ChatPortion(chats, us);
+                                return chatPortion;
+                            }
+                        });
+                    }
+                })
+                .observeOn(mainThread());
 
 
 
