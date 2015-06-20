@@ -28,7 +28,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
 
-                    android:inputType="text"
+                    android:inputType="textCapWords"
                     android:imeOptions="actionNext"
                     android:hint="@string/hint_first_name"
                     style="@style/Widget.AppCompat.EditText"
@@ -40,6 +40,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:inputType="textCapWords"
+
                     android:imeOptions="actionDone"
                     android:hint="@string/hint_last_name"
                     style="@style/Widget.AppCompat.EditText"
