@@ -94,7 +94,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
         adapter = new Adapter(getContext(), picasso, presenter.getPath().chat.lastReadOutboxMessageId, presenter.getPath().me.id);
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
-        btnScrollDown.setVisibility(View.INVISIBLE);
+        btnScrollDown.setAlpha(0f);
         list.setOnScrollListener(
                 new EndlessOnScrollListener(layout, adapter, /*waitForLastItem*/  new Runnable() {
                     @Override
@@ -114,7 +114,8 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
             public void onClick(View v) {
                 layout.scrollToPosition(0);
                 list.stopScroll();
-                btnScrollDown.setVisibility(View.INVISIBLE);
+                btnScrollDown.clearAnimation();
+                btnScrollDown.setAlpha(0);
             }
         });
         emptyView = findViewById(R.id.empty_view);
@@ -135,11 +136,14 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
         });
     }
 
+    boolean scrollDownButtonIsVisible = false;
     private void updateBtnScrollDown() {
-        if (layout.findFirstVisibleItemPosition() >= SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT){
-            btnScrollDown.setVisibility(View.VISIBLE);
-        } else {
-            btnScrollDown.setVisibility(View.INVISIBLE);
+        boolean newVisible = layout.findFirstVisibleItemPosition() >= SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT;
+        if (newVisible != scrollDownButtonIsVisible){
+            btnScrollDown.clearAnimation();
+            btnScrollDown.animate()
+                    .alpha(newVisible ? 1f : 0f);
+            scrollDownButtonIsVisible = newVisible;
         }
     }
 
