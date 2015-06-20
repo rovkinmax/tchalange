@@ -250,7 +250,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
 
     @Override
     public boolean onBackPressed() {
-        return messagePanel.dissmissEmojiPopup();
+        return messagePanel.onBackPressed();
     }
 
     public void showMessagePanel(boolean left) {
@@ -263,5 +263,9 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
 
     public void scrollToBottom() {
         layout.scrollToPosition(0);
+    }
+
+    public void hideAttachPannel() {
+        messagePanel.hideAttachPannel();
     }
 }

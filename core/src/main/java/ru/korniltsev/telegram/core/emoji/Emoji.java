@@ -384,6 +384,9 @@ public class Emoji {
     private final WeakHashMap<EmojiDrawable, Object> weakness = new WeakHashMap<>();
     public EmojiDrawable getEmojiDrawable(long code) {
         DrawableInfo info = rects.get(code);
+        if (info == null) {
+            throw new NullPointerException("no info for code " + code);
+        }
         EmojiDrawable ed = new EmojiDrawable(info);
         ed.setBounds(0, 0, drawImgSize, drawImgSize);
         synchronized (weakness) {

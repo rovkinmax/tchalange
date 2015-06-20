@@ -20,6 +20,7 @@ public class PhotoUtils {
     public static final List<String> boxes = Arrays.asList("s", "m", "x", "y", "w");
     public static final List<String> crops = Arrays.asList("a", "b", "c", "d");
     public static final List<String> all = new ArrayList<>();
+    public static final String I_SIZE_TYPE = "i";
 
     static {
         all.addAll(boxes);
@@ -68,7 +69,11 @@ public class PhotoUtils {
                 return s;
             }
         }
-        throw new IllegalStateException("wtf");
+        TdApi.PhotoSize i = getSizeByType(photo, I_SIZE_TYPE);
+        if (i != null) {
+            return i;
+        }
+        throw new IllegalStateException("failed to find size for photo " + photo);
     }
 
     public static float getPhotoRation(TdApi.Photo photo) {

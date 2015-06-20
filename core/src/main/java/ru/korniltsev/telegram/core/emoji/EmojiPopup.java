@@ -6,16 +6,16 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 import mortar.dagger1support.ObjectGraphService;
+import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.utils.R;
 
 import javax.inject.Inject;
-import java.util.SortedSet;
-import java.util.TreeSet;
+
+import static ru.korniltsev.telegram.core.Utils.exactly;
 
 public class EmojiPopup extends PopupWindow implements ObservableLinearLayout.CallBack {
     public static final String PREF_RECENT_SMILES = "recent_smiles";
@@ -111,10 +111,6 @@ public class EmojiPopup extends PopupWindow implements ObservableLinearLayout.Ca
         res.showAtLocation(ctx.getWindow().getDecorView(), Gravity.BOTTOM | Gravity.LEFT, 0, 0);
 
         return res;
-    }
-
-    private static int exactly(int size) {
-        return View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY);
     }
 
     @Override

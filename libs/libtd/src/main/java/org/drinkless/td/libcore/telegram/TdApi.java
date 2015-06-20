@@ -1019,6 +1019,7 @@ public class TdApi {
 
     public static class MessagePhoto extends MessageContent {
         public Photo photo;
+//        final Throwable th = new Throwable();
 
         public MessagePhoto() {
         }

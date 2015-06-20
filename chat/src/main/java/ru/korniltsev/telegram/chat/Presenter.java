@@ -1,27 +1,36 @@
 package ru.korniltsev.telegram.chat;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.attach_panel.AttachPanelPopup;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
+import ru.korniltsev.telegram.core.mortar.ActivityOwner;
+import ru.korniltsev.telegram.core.mortar.ActivityResult;
 import ru.korniltsev.telegram.core.rx.NotificationManager;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.ChatDB;
 import rx.Observable;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import java.io.File;
 import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
@@ -31,8 +40,13 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 @Singleton
 public class Presenter extends ViewPresenter<ChatView>
         implements Toolbar.OnMenuItemClickListener,
-        MessagePanel.OnSendListener {
+        MessagePanel.OnSendListener,
+        AttachPanelPopup.Callback
 
+{
+
+    public static final int REQUEST_CHOOS_FROM_GALLERY = 1;
+    public static final int REQUEST_TAKE_PHOTO = 2;
     private final Chat path;
     private final RXClient client;
     private final RxChat rxChat;
@@ -47,11 +61,14 @@ public class Presenter extends ViewPresenter<ChatView>
         return path;
     }
 
+    private final ActivityOwner owner;
+
     @Inject
-    public Presenter(Chat c, RXClient client, ChatDB chatDB, NotificationManager nm) {
+    public Presenter(Chat c, RXClient client, ChatDB chatDB, NotificationManager nm, ActivityOwner owner) {
         path = c;
         this.client = client;
         this.nm = nm;
+        this.owner = owner;
         rxChat = chatDB.getRxChat(path.chat.id);
 
         if (path.chat.type instanceof TdApi.GroupChatInfo) {
@@ -86,10 +103,9 @@ public class Presenter extends ViewPresenter<ChatView>
         }
         getView().updateData(rxChat);
         subscribe();
-        if (isGroupChat){
+        if (isGroupChat) {
             TdApi.GroupChatInfo g = (TdApi.GroupChatInfo) path.chat.type;
             showMessagePanel(g.groupChat);
-
         }
     }
 
@@ -113,7 +129,7 @@ public class Presenter extends ViewPresenter<ChatView>
     public void dropView(ChatView view) {
         super.dropView(view);
         subscription.unsubscribe();
-//        Utils.hideKeyboard(view);
+        //        Utils.hideKeyboard(view);
     }
 
     private void subscribe() {
@@ -197,6 +213,15 @@ public class Presenter extends ViewPresenter<ChatView>
                                 requestUpdateOnlineStatus();
                             }
                         }));
+
+        subscription.add(
+                owner.activityResult()
+                        .subscribe(new ObserverAdapter<ActivityResult>() {
+                            @Override
+                            public void onNext(ActivityResult response) {
+                                onActivityResult(response.request, response.result, response.data);
+                            }
+                        }));
     }
 
     private Observable<TdApi.UpdateChatParticipantsCount> updatesChatsParticipantCount() {
@@ -245,7 +270,7 @@ public class Presenter extends ViewPresenter<ChatView>
         if (isGroupChat) {
             subscription.add(
                     fullChatInfoRequest.subscribe(
-                            new ObserverAdapter<TdApi.GroupChatFull>(){
+                            new ObserverAdapter<TdApi.GroupChatFull>() {
                                 @Override
                                 public void onNext(TdApi.GroupChatFull groupChatFull) {
                                     mGroupChatFull = groupChatFull;
@@ -271,9 +296,9 @@ public class Presenter extends ViewPresenter<ChatView>
     }
 
     private void showMessagePanel(TdApi.GroupChat groupChat) {
-//        if (g.groupChat.left){
-            getView().showMessagePanel(groupChat.left);
-//        }
+        //        if (g.groupChat.left){
+        getView().showMessagePanel(groupChat.left);
+        //        }
     }
 
     private Observable<TdApi.User> getUser() {
@@ -354,15 +379,80 @@ public class Presenter extends ViewPresenter<ChatView>
     }
 
     @Override
-    public void sendText(String text) {
+    public void sendText(final String text) {
         getView().scrollToBottom();
-        rxChat.sendMessage(text);
+        getView().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                rxChat.sendMessage(text);
+            }
+        }, 32);
     }
 
-    public void sendSticker(String stickerFilePath) {
-//        Chat c = Chat.get(getContext());
-//        RxChat rxChat = chat.getRxChat(c.chat.id);
+    public void sendSticker(final String stickerFilePath) {
+        //        Chat c = Chat.get(getContext());
+        //        RxChat rxChat = chat.getRxChat(c.chat.id);
         getView().scrollToBottom();
-        rxChat.sendSticker(stickerFilePath);
+        getView().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                rxChat.sendSticker(stickerFilePath);
+            }
+        }, 32);
+    }
+
+    @Override
+    public void sendImages(List<String> selecteImages) {
+        for (String img : selecteImages) {
+            rxChat.sendImage(img);
+        }
+        getView()
+                .hideAttachPannel();
+    }
+
+    @Override
+    public void chooseFromGallery() {
+        String title = getView().getContext().getString(R.string.select_picture);
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        owner.expose()
+                .startActivityForResult(Intent.createChooser(intent, title), REQUEST_CHOOS_FROM_GALLERY);
+    }
+
+    @Override
+    public void takePhoto() {
+        File f = getTmpFileForCamera();
+        f.delete();
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+        owner.expose()
+                .startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+    }
+
+    @NonNull
+    private File getTmpFileForCamera() {
+        return new File(Environment.getExternalStorageDirectory(), "temp.jpg");
+    }
+
+    public void onActivityResult(int request, int result, Intent data) {
+        if (result != Activity.RESULT_OK) {
+            return;
+        }
+        if (request == REQUEST_TAKE_PHOTO) {
+            File f = getTmpFileForCamera();
+            if (f.exists()) {
+                rxChat.sendImage(f.getAbsolutePath());
+                getView()
+                        .hideAttachPannel();
+            }
+        } else if (request == REQUEST_CHOOS_FROM_GALLERY) {
+            String picturePath = Utils.getGalleryPickedFilePath(getView().getContext(), data);
+            if (picturePath != null){
+                rxChat.sendImage(picturePath);
+                getView()
+                        .hideAttachPannel();
+            }
+        }
     }
 }

@@ -83,7 +83,11 @@ public class RxDownloadManager {
     private void updateFileProgress(TdApi.UpdateFileProgress upd) {
         synchronized (lock){
             BehaviorSubject<FileState> s = allRequests.get(upd.fileId);
-            s.onNext(new FileProgress(upd));
+            if (s != null){
+                s.onNext(new FileProgress(upd));
+            } else {
+                //update is for uploaded file
+            }
         }
     }
 

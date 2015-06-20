@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="choose_from_gallery">Choose from gallery</string>
+    <string name="take_photo">Take photo</string>
+    <plurals name="n_photos">
+        <item quantity="one">1 photo</item>
+        <item quantity="other">%1$d photos</item>
+    </plurals>
+    <string name="send">Send</string>
+
+</resources>

@@ -1,14 +1,11 @@
 
-include 'core', ':libgif'
+include 'core'
 include 'main_lib'
-
-
-
 include 'auth'
 include 'chats_list'
 include 'chat'
-
 include 'photo_view'
+include 'attach_panel'
 
 def libs = [
         'libtd',

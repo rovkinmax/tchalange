@@ -330,6 +330,11 @@ public class RxChat implements UserHolder {
 
     }
 
+    public void sendImage(String imageFilePath) {
+
+        sendMessageImpl(new TdApi.InputMessagePhoto(imageFilePath));
+    }
+
     public static abstract class ChatListItem {
 
     }

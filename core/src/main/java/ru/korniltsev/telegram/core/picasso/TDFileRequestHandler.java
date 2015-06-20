@@ -55,7 +55,12 @@ public class TDFileRequestHandler extends RequestHandler {
 
     @Override
     public boolean canHandleRequest(Request data) {
-        return data.uri.getScheme().equals(TD_FILE);
+
+        String scheme = data.uri.getScheme();
+        if (scheme == null) {
+            return false;
+        }
+        return scheme.equals(TD_FILE);
     }
 
     @Override

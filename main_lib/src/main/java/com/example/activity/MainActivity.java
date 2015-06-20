@@ -1,6 +1,7 @@
 package com.example.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import dagger.ObjectGraph;
@@ -16,14 +17,17 @@ import ru.korniltsev.telegram.chat_list.ChatList;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.flow.SerializableParceler;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
+import ru.korniltsev.telegram.core.mortar.ActivityResult;
 import ru.korniltsev.telegram.core.mortar.core.MortarScreenSwitcherFrame;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
+import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
+import rx.subjects.PublishSubject;
 
 import static mortar.bundler.BundleServiceRunner.getBundleServiceRunner;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements ActivityOwner.AnActivity {
 
     private MortarScreenSwitcherFrame container;
     private FlowDelegate flow;
@@ -152,5 +156,21 @@ public class MainActivity extends ActionBarActivity {
         super.onDestroy();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        activityResult.onNext(new ActivityResult(requestCode, resultCode, data));
+    }
 
+
+    private PublishSubject<ActivityResult> activityResult = PublishSubject.create();
+
+    @Override
+    public Activity expose() {
+        return this;
+    }
+
+    @Override
+    public Observable<ActivityResult> activityResult() {
+        return activityResult;
+    }
 }

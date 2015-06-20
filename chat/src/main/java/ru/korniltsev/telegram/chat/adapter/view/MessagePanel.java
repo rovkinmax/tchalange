@@ -7,7 +7,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -18,9 +17,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.Toast;
 import mortar.dagger1support.ObjectGraphService;
-import ru.korniltsev.telegram.chat.Chat;
+import ru.korniltsev.telegram.attach_panel.AttachPanelPopup;
 import ru.korniltsev.telegram.chat.Presenter;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.core.emoji.Emoji;
@@ -32,7 +30,7 @@ import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.TextWatcherAdapter;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.rx.ChatDB;
-import ru.korniltsev.telegram.core.rx.RxChat;
+
 
 import javax.inject.Inject;
 
@@ -79,6 +77,7 @@ public class MessagePanel extends LinearLayout {
         }
     };
     private AnimatorSet currentAnimation;
+    private AttachPanelPopup attachPanelPopup;
 
     public MessagePanel(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -198,7 +197,7 @@ public class MessagePanel extends LinearLayout {
     //    }
 
     private void showAttachPopup() {
-        Toast.makeText(getContext(), "Unimplemented ;(", Toast.LENGTH_LONG).show();
+        attachPanelPopup = AttachPanelPopup.create(activityOwner.expose(), presenter);
     }
 
     OnSendListener listener;
@@ -207,14 +206,26 @@ public class MessagePanel extends LinearLayout {
         this.listener = listener;
     }
 
-    public boolean dissmissEmojiPopup() {
-        if (emojiPopup == null) {
-            return false;
+    public boolean onBackPressed() {
+        if (attachPanelPopup != null){
+            attachPanelPopup.dismiss();
+            attachPanelPopup = null;
+            return true;
         }
-        emojiPopup.dismiss();
-        emojiPopup = null;
-        Utils.hideKeyboard(input);
-        return true;
+        if (emojiPopup != null) {
+            emojiPopup.dismiss();
+            emojiPopup = null;
+            Utils.hideKeyboard(input);
+            return true;
+        }
+        return false;
+    }
+
+    public void hideAttachPannel() {
+        if (attachPanelPopup != null){
+            attachPanelPopup.dismiss();
+            attachPanelPopup = null;
+        }
     }
 
     public interface OnSendListener {

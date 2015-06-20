@@ -1,7 +1,16 @@
 package ru.korniltsev.telegram.core;
 
 import android.app.ActivityManager;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.support.annotation.Nullable;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -59,6 +68,9 @@ public class Utils {
     }
 
     public static String uiName(TdApi.User user) {//todo
+        if (user == null) {
+            return "";
+        }
         String firstName = user.firstName;
         String lastName = user.lastName;
         String name = uiName(firstName, lastName);
@@ -91,5 +103,43 @@ public class Utils {
 
     public static long dateToMillis(long date) {
         return date * 1000;
+    }
+
+    public static int exactly(int size) {
+        return View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY);
+    }
+
+    @Nullable
+    public static String getGalleryPickedFilePath(Context ctx, Intent data) {
+        Uri selectedImage = data.getData();
+        // h=1;
+        //imgui = selectedImage;
+        ContentResolver contentResolver = ctx.getContentResolver();
+
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor c;
+        if(SDK_INT >= 19)
+        {
+            // Will return "image:x*"
+            String wholeID = DocumentsContract.getDocumentId(selectedImage);
+            // Split at colon, use second item in the array
+            String id = wholeID.split(":")[1];
+            // where id is equal to
+            String sel = MediaStore.Images.Media._ID + "=?";
+            c = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    projection, sel, new String[]{id}, null);
+        } else {
+            c = contentResolver.query(selectedImage, projection, null, null, null);
+        }
+        String picturePath;
+        if (c.moveToNext()) {
+            picturePath = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));
+
+
+        } else {
+            picturePath = null;
+        }
+        c.close();
+        return picturePath;
     }
 }

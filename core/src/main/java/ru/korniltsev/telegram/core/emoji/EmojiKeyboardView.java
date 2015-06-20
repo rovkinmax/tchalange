@@ -88,28 +88,7 @@ public class EmojiKeyboardView extends LinearLayout {
         void stickerCLicked(String stickerFilePath);
     }
 
-    public static class CallbackWrapper implements CallBack{
-        final CallBack delegate;
 
-        public CallbackWrapper(CallBack delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public void backspaceClicked() {
-            delegate.backspaceClicked();
-        }
-
-        @Override
-        public void emojiClicked(long code) {
-            delegate.emojiClicked(code);
-        }
-
-        @Override
-        public void stickerCLicked(String stickerFilePath) {
-            delegate.stickerCLicked(stickerFilePath);
-        }
-    }
 
 
     class Adapter extends PagerAdapter implements PagerSlidingTabStrip.IconTabProvider{
