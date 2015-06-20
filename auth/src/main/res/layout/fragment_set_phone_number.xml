@@ -69,7 +69,7 @@
                         android:layout_below="@id/country_phone_code"
                         android:text="@string/we_will_send"
                         android:layout_margin="18dp"
-                        android:singleLine="true"
+
 
                         />
         </RelativeLayout>

@@ -14,15 +14,17 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SMSReceiver /*extends BroadcastReceiver*/ {
+public class SMSUtils  {
     public static List<String> getMessages( Intent intent) {
         Bundle bundle = intent.getExtras();
 
         if (null == bundle) {
             return Collections.emptyList();
         }
-        Object messages[];
-        messages = (Object[]) bundle.get("pdus");
+        Object messages[] = (Object[]) bundle.get("pdus");
+        if (messages == null) {
+            return Collections.emptyList();
+        }
         Map<String, String> smses = new HashMap<>();
         for (Object message : messages) {
             SmsMessage sms = SmsMessage.createFromPdu((byte[]) message);

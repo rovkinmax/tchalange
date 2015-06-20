@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.provider.Telephony;
 import dagger.Provides;
@@ -18,11 +17,8 @@ import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.android.content.ContentObservable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
@@ -30,7 +26,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,7 +104,7 @@ public class EnterCode extends BasePath implements Serializable{
         }
 
         private void handleSms(Intent intent) {
-            List<String> messages = SMSReceiver.getMessages(intent);
+            List<String> messages = SMSUtils.getMessages(intent);
             Pattern p = Pattern.compile("Telegram code (\\d+)");
             for (String msg : messages) {
                 Matcher m = p.matcher(msg);

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ru.korniltsev.telegram.auth.name.EnterNameView xmlns:android="http://schemas.android.com/apk/res/android"
+                                                android:orientation="vertical"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
+                                                style="@style/PathRoot"
+
+        >
+
+    <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar"
+            />
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            style="@style/ToolbarShadow"
+            >
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp">
+            <EditText
+                    android:id="@+id/first_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:inputType="text"
+                    android:imeOptions="actionNext"
+                    android:hint="@string/hint_first_name"
+                    style="@style/Widget.AppCompat.EditText"
+                    />
+
+            <EditText
+                    android:id="@+id/last_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:inputType="textCapWords"
+                    android:imeOptions="actionDone"
+                    android:hint="@string/hint_last_name"
+                    style="@style/Widget.AppCompat.EditText"
+                    />
+        </LinearLayout>
+
+    </FrameLayout>
+
+</ru.korniltsev.telegram.auth.name.EnterNameView>

@@ -8,4 +8,9 @@
     <string name="send_code">Отправить код активации</string>
     <string name="we_ve_sent">Мы отправили СМС с кодом активации на ваш номер %1$s</string>
     <string name="we_will_send">Мы отправим СМС с кодом активации на ваш номер</string>
+    <string name="enter_name">Имя</string>
+    <string name="hint_first_name">Имя</string>
+    <string name="hint_last_name">Фамилия</string>
+    <string name="invalid_code">Неверный код активации</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
 </resources>

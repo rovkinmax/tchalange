@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="phone_number">Phone number</string>
+    <string name="enter_name">Name</string>
     <string name="country">Country</string>
     <string name="send_code">Send activation code</string>
     <string name="check_code">Check activation code</string>
@@ -8,4 +9,8 @@
     <string name="we_will_send">We will send an SMS with a confirmation code to your phone number</string>
     <string name="phone_number_hint">Phone number</string>
     <string name="we_ve_sent">We\'ve sent an SMS with an activation code to your phone number %1$s</string>
+    <string name="hint_first_name">Fist name</string>
+    <string name="hint_last_name">Last name</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="invalid_code">Activation code is not valid</string>
 </resources>

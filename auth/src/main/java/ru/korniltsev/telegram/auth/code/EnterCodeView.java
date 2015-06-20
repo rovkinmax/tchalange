@@ -6,24 +6,28 @@ import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.auth.R;
 
 import javax.inject.Inject;
 
-import static ru.korniltsev.telegram.core.Utils.hideKeyboard;
+import static android.text.TextUtils.isEmpty;
 import static ru.korniltsev.telegram.core.Utils.textFrom;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class EnterCodeView extends LinearLayout {
+    public static final String PHONE_CODE_INVALID = "PHONE_CODE_INVALID";
+    private final String errorMessageUnknown;
+    private final String errorMessageInvalidCode;
     @Inject EnterCode.Presenter presenter;
     private EditText smsCode;
 
-    public EnterCodeView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        ObjectGraphService.inject(context, this);
+    public EnterCodeView(Context ctx, AttributeSet attrs) {
+        super(ctx, attrs);
+        ObjectGraphService.inject(ctx, this);
+        errorMessageUnknown = ctx.getString(R.string.unknown_error);
+        errorMessageInvalidCode = ctx.getString(R.string.invalid_code);
     }
 
     @Override
@@ -37,8 +41,6 @@ public class EnterCodeView extends LinearLayout {
                         new Runnable() {
                             @Override
                             public void run() {
-                                //presenter.sendCode(getPhoneNumber());
-
                                 sendCode();
                             }
                         }
@@ -58,9 +60,6 @@ public class EnterCodeView extends LinearLayout {
                 return false;
             }
         });
-//        clicks(btnSelectCountry).subscribe(e -> {
-//            presenter.selectCountry();
-//        });
     }
 
     private void sendCode() {
@@ -84,7 +83,18 @@ public class EnterCodeView extends LinearLayout {
     }
 
     public void showError(Throwable th) {
-        smsCode.setError(th.getMessage());
+        smsCode.setError(gerErrorMessageForException(th));
         smsCode.requestFocus();
+    }
+
+    private String gerErrorMessageForException(Throwable th) {
+        String message = th.getMessage();
+        if (isEmpty(message)) {
+            return errorMessageUnknown;
+        } else if (message.contains(PHONE_CODE_INVALID)) {
+            return errorMessageInvalidCode;
+        } else {
+            return message;
+        }
     }
 }

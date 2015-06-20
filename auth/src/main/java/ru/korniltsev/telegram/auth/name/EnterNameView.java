@@ -1,15 +1,13 @@
-package ru.korniltsev.telegram.auth.phone;
+package ru.korniltsev.telegram.auth.name;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
-import ru.korniltsev.telegram.auth.country.Countries;
 import ru.korniltsev.telegram.auth.R;
 
 import javax.inject.Inject;
@@ -17,13 +15,15 @@ import javax.inject.Inject;
 import static ru.korniltsev.telegram.core.Utils.textFrom;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
-public class EnterPhoneView extends LinearLayout {
-    private EditText btnSelectCountry;
-    private EditText phoneCode;
-    private EditText userPhone;
-    @Inject EnterPhoneFragment.Presenter presenter;
+public class EnterNameView extends LinearLayout {
+//    private EditText btnSelectCountry;
+//    private EditText phoneCode;
+    private EditText name;
+    @Inject EnterName.Presenter presenter;
+    private EditText lastName;
+    //    @Inject ActivityOwner owner;
 
-    public EnterPhoneView(Context context, AttributeSet attrs) {
+    public EnterNameView(Context context, AttributeSet attrs) {
         super(context, attrs);
         ObjectGraphService.inject(context, this);
     }
@@ -31,35 +31,27 @@ public class EnterPhoneView extends LinearLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        btnSelectCountry = (EditText) findViewById(R.id.btn_select_country);
-        phoneCode = (EditText) findViewById(R.id.country_phone_code);//todo editable
-        userPhone = (EditText) findViewById(R.id.user_phone);
         initToolbar(this)
-                .setTitle(R.string.phone_number)
+                .setTitle(R.string.enter_name)
                 .addMenuItem(
                         R.menu.send_code,
                         R.id.menu_send_code,
                         new Runnable() {
                             @Override
                             public void run() {
-                                sendCode();
+                                setName();
                             }
                         }
                 );
-        btnSelectCountry.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.selectCountry();
-            }
-        });
+        name = (EditText) findViewById(R.id.first_name);
+        lastName = (EditText) findViewById(R.id.last_name);
 
-
-        userPhone.requestFocus();
-        userPhone.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        name.requestFocus();
+        lastName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    sendCode();
+                    setName();
                     return true;
                 }
                 return false;
@@ -67,13 +59,13 @@ public class EnterPhoneView extends LinearLayout {
         });
     }
 
-    private void sendCode() {
-        presenter.sendCode(EnterPhoneView.this.getPhoneNumber());
+    private void setName() {
+        String strName = textFrom(name);
+        String strLastName = textFrom(lastName);
+        presenter.setName(strName, strLastName);
     }
 
-    private String getPhoneNumber() {
-        return textFrom(phoneCode) + textFrom(userPhone);
-    }
+
 
     @Override
     protected void onAttachedToWindow() {
@@ -87,16 +79,9 @@ public class EnterPhoneView extends LinearLayout {
         presenter.dropView(this);
     }
 
-    public void countrySelected(Countries.Entry c) {
-        btnSelectCountry.setText(c.name);
-        phoneCode.setText(c.phoneCode);
-    }
 
-    public EditText getPhoneCode() {
-        return phoneCode;
-    }
 
     public void showError(String message) {
-        userPhone.setError(message);
+        name.setError(message);
     }
 }

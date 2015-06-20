@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.widget.Toast;
+import com.crashlytics.android.core.CrashlyticsCore;
 import flow.Flow;
 import mortar.MortarScope;
 import mortar.ViewPresenter;
@@ -13,6 +14,7 @@ import ru.korniltsev.telegram.auth.R;
 import ru.korniltsev.telegram.auth.code.EnterCode;
 import ru.korniltsev.telegram.auth.country.Countries;
 import ru.korniltsev.telegram.auth.country.SelectCountry;
+import ru.korniltsev.telegram.auth.name.EnterName;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.app.RootModule;
@@ -134,12 +136,11 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
             subscribtion = sendPhoneRequest.subscribe(new ObserverAdapter<TdApi.TLObject>() {
                 @Override
                 public void onNext(TdApi.TLObject response) {
-
+                    Flow flow = Flow.get(getView().getContext());
                     if (response instanceof TdApi.AuthStateWaitSetCode) {
-                        Flow.get(Presenter.this.getView().getContext())
-                                .set(new EnterCode(sentPhonenumber));
-                    } else {
-                        Toast.makeText(getView().getContext(), "Registration is not implemented", Toast.LENGTH_LONG).show();
+                        flow.set(new EnterCode(sentPhonenumber));
+                    } else if (response instanceof TdApi.AuthStateWaitSetName){
+                        flow.set(new EnterName(sentPhonenumber));
                     }
                     sendPhoneRequest = null;
                     pd.dismiss();
@@ -173,71 +174,5 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
         }
     }
 
-    //    private EditText btnSelectCountry;
-    //    private EditText phoneCode;
-    //    private EditText userPhone;
-    //    private Toolbar toolbar;
-    //
-    //    @Override
-    //    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    //        return inflater.inflate(R.layout.fragment_set_phone_number, container, false);
-    //    }
-    //
-    //    @Override
-    //    public void onViewCreated(View view, Bundle savedInstanceState) {
-    //        initToolbar(view)
-    //                .setTitle(R.string.phone_number)
-    //                .addMenuItem(R.menu.send_code, R.id.menu_send_code, new Runnable() {
-    //                    @Override
-    //                    public void run() {
-    //                        sendCode();
-    //                    }
-    //                });
-    //
-    //        btnSelectCountry = (EditText) view.findViewById(R.id.btn_select_country);
-    //        phoneCode = (EditText) view.findViewById(R.id.country_phone_code);//todo editable
-    //        userPhone = (EditText) view.findViewById(R.id.user_phone);
-    //        btnSelectCountry.setOnClickListener(new View.OnClickListener() {
-    //            @Override
-    //            public void onClick(View view) {
-    //                openCountrySelection();
-    //            }
-    //        });
-    //        Countries.Entry russia = new Countries(getActivity())//todo new
-    //                .getForCode(Countries.RU_CODE);//todo save selected to pref
-    //        countrySelected(russia);
-    //    }
-    //
-    //    private void sendCode() {
-    //        getRxClient().sendRXUI(new TdApi.AuthSetPhoneNumber(getPhoneNumber()))
-    //        .subscribe(new ObserverAdapter<TdApi.TLObject>() {
-    //            @Override
-    //            public void onNext(TdApi.TLObject response) {
-    //                if (response instanceof TdApi.AuthStateWaitSetCode) {
-    //                    FlowLike.from(getActivity())
-    //                            .push(new SetCodeFragment(), "set code");
-    //                }
-    //            }
-    //
-    //        });
-    //    }
-    //
-    //    private String getPhoneNumber() {
-    //        return textFrom(phoneCode) + textFrom(userPhone);
-    //    }
-    //
-    //    private void countrySelected(Countries.Entry c) {
-    //        btnSelectCountry.setText(c.name);
-    //        phoneCode.setText(c.phoneCode);
-    //    }
-    //
-    //    private void openCountrySelection() {
-    //        FlowLike.from(getActivity())
-    //                .push(new CountrySelectFragment(), "select country");
-    //    }
-    //
-    //    @Override
-    //    public void onResult(Object result) {
-    //        countrySelected((Countries.Entry) result);
-    //    }
+
 }
