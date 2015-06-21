@@ -2,7 +2,9 @@ package ru.korniltsev.telegram.core.mortar.mortarflow;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.util.Log;
 import android.view.LayoutInflater;
+import com.crashlytics.android.core.CrashlyticsCore;
 import flow.path.Path;
 import flow.path.PathContextFactory;
 import mortar.MortarScope;
@@ -17,6 +19,8 @@ public final class MortarContextFactory implements PathContextFactory {
   @Override public Context setUpContext(Path path, Context parentContext) {
     MortarScope screenScope =
         screenScoper.getScreenScope(parentContext, path.getClass().getName() + "-" + path.toString(), path);
+    CrashlyticsCore.getInstance()
+            .log(Log.DEBUG, "MortarContextFactory", "setUpContext " + screenScope);
     return new TearDownContext(parentContext, screenScope);
   }
 
@@ -30,7 +34,10 @@ public final class MortarContextFactory implements PathContextFactory {
     private LayoutInflater inflater;
 
     static void destroyScope(Context context) {
-      MortarScope.getScope(context).destroy();
+      MortarScope scope = MortarScope.getScope(context);
+      CrashlyticsCore.getInstance()
+              .log(Log.DEBUG, "MortarContextFactory", "destroy " + scope);
+      scope.destroy();
     }
 
     public TearDownContext(Context context, MortarScope scope) {
