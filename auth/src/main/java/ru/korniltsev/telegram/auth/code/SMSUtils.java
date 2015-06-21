@@ -1,21 +1,32 @@
 package ru.korniltsev.telegram.auth.code;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.telephony.SmsMessage;
+import com.crashlytics.android.core.CrashlyticsCore;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SMSUtils  {
     public static List<String> getMessages( Intent intent) {
+        try {
+            return getMessagesInsecure(intent);
+        } catch (SecurityException e) {
+            return Collections.emptyList();
+        } catch (Exception e) {
+            CrashlyticsCore.getInstance()
+                    .logException(e);
+            return Collections.emptyList();
+        }
+    }
+
+    @NonNull
+    private static List<String> getMessagesInsecure(Intent intent) {
         Bundle bundle = intent.getExtras();
 
         if (null == bundle) {
@@ -39,7 +50,6 @@ public class SMSUtils  {
         }
 
         return new ArrayList<>(smses.values());
-
     }
 
     private static String nullless(String text) {
