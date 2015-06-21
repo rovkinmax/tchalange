@@ -15,8 +15,8 @@ dependencies {
 
 android {
     defaultConfig {
-        versionName "1.0.7"
-        versionCode 7
+        versionName "1.0.8"
+        versionCode 8
 //        renderscriptTargetApi 18
 //        renderscriptSupportModeEnabled true
     }
