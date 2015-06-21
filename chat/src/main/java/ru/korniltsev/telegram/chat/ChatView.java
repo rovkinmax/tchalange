@@ -33,7 +33,7 @@ import static junit.framework.Assert.fail;
 import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
-public class ChatView extends ObservableLinearLayout implements HandlesBack{
+public class ChatView extends ObservableLinearLayout implements HandlesBack {
     public static final int SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT = 10;
     @Inject Presenter presenter;
     @Inject RxGlide picasso;
@@ -74,7 +74,6 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
                         onBackPressed();
                         Flow.get(v)
                                 .goBack();
-
                     }
                 })
                 .customView(R.layout.toolbar_chat_title)
@@ -112,6 +111,9 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
         btnScrollDown.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (btnScrollDown.getAlpha() == 0f) {
+                    return;
+                }
                 layout.scrollToPosition(0);
                 list.stopScroll();
                 btnScrollDown.clearAnimation();
@@ -122,8 +124,8 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
-                if (adapter.getItemCount() == 0){
-                    if (emptyView.getVisibility() == INVISIBLE){
+                if (adapter.getItemCount() == 0) {
+                    if (emptyView.getVisibility() == INVISIBLE) {
                         emptyView.setVisibility(View.VISIBLE);
                         emptyView.setAlpha(0f);
                         emptyView.animate()
@@ -137,9 +139,10 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
     }
 
     boolean scrollDownButtonIsVisible = false;
+
     private void updateBtnScrollDown() {
         boolean newVisible = layout.findFirstVisibleItemPosition() >= SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT;
-        if (newVisible != scrollDownButtonIsVisible){
+        if (newVisible != scrollDownButtonIsVisible) {
             btnScrollDown.clearAnimation();
             btnScrollDown.animate()
                     .alpha(newVisible ? 1f : 0f);
@@ -167,7 +170,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
         if (!groupChat) {
             toolbar.hideMenu(R.id.menu_leave_group);
         }
-        if (muted){
+        if (muted) {
             toolbar.hideMenu(R.id.menu_mute);
             toolbar.showMenu(R.id.menu_unmute);
         } else {
@@ -175,7 +178,6 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
             toolbar.hideMenu(R.id.menu_unmute);
         }
     }
-
 
     public void loadToolBarImage(TdApi.Chat chat) {
         toolbarAvatar.loadAvatarFor(chat);
@@ -201,13 +203,14 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
     }
 
     private static DateTimeFormatter SUBTITLE_FORMATTER = DateTimeFormat.forPattern("dd/MM/yy");
+
     public void setPirvateChatSubtitle(TdApi.UserStatus status) {
         if (status instanceof TdApi.UserStatusOnline) {
             toolbarSubtitle.setText(R.string.user_status_online);
         } else if (status instanceof TdApi.UserStatusOffline) {
             long wasOnline = ((TdApi.UserStatusOffline) status).wasOnline;
             long timeInMillis = wasOnline * 1000;
-//            Date date = new Date(timeInMillis);
+            //            Date date = new Date(timeInMillis);
             DateTime dateTime = new DateTime(timeInMillis, DateTimeZone.UTC).withZone(DateTimeZone.getDefault());
             String date = SUBTITLE_FORMATTER.print(dateTime);
             toolbarSubtitle.setText(getResources().getString(R.string.user_status_last_seen) + " " + date);
@@ -233,17 +236,17 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
     public void addNewMessage(List<RxChat.ChatListItem> message) {
         boolean scrollDown;
         int firstFullVisible = layout.findFirstCompletelyVisibleItemPosition();
-        if (firstFullVisible == 0){
+        if (firstFullVisible == 0) {
             scrollDown = true;
         } else {
-            if (layout.findFirstVisibleItemPosition() == 0){
+            if (layout.findFirstVisibleItemPosition() == 0) {
                 scrollDown = true;
             } else {
                 scrollDown = false;
             }
         }
         adapter.addFirst(message);
-        if (scrollDown){
+        if (scrollDown) {
             layout.scrollToPosition(0);
         }
     }
@@ -254,7 +257,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack{
     }
 
     public void showMessagePanel(boolean left) {
-        if (left){
+        if (left) {
             messagePanel.setVisibility(View.GONE);
         } else {
             messagePanel.setVisibility(View.VISIBLE);
