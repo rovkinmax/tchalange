@@ -226,4 +226,4 @@ LOCAL_SRC_FILES     += \
 #                                           src/opus_header.c \
 #					   src/opus_multistream.c					src/repacketizer.c
 
-include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
