@@ -297,8 +297,8 @@ public class RXClient {
         if (object instanceof TdApi.Error) {
             TdApi.Error err = (TdApi.Error) object;
             Log.e("RxClient", (err).text);
-            if (err.text.equals("no auth")//todo error code?
-                    || err.text.contains("need user authorization")) {
+            if (err.text.toLowerCase().contains("no auth")
+                    || err.text.toLowerCase().contains("need user authorization")) {
                 Preconditions.MAIN_HANDLER.post(new Runnable() {
                     @Override
                     public void run() {
@@ -322,6 +322,11 @@ public class RXClient {
                     @Override
                     public void onNext(TLObject tlObject) {
                         authStateLogut.onNext((TdApi.AuthState) tlObject);
+                    }
+
+                    @Override
+                    public void onError(Throwable th) {
+                        //do nothing
                     }
                 });
 
