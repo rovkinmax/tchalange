@@ -24,10 +24,13 @@ import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.utils.R;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 import javax.inject.Inject;
 import java.util.List;
+
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 public class EmojiKeyboardView extends LinearLayout {
 
@@ -166,6 +169,7 @@ public class EmojiKeyboardView extends LinearLayout {
 
         private void stickerClicked(TdApi.Sticker sticker) {
             downloader.downloadWithoutProgress(sticker.sticker)
+                    .observeOn(mainThread())
                     .subscribe(new ObserverAdapter<TdApi.FileLocal>() {
                         @Override
                         public void onNext(TdApi.FileLocal fileLocal) {
