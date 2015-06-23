@@ -90,8 +90,7 @@ public class ChatDB implements UserHolder {
                 .subscribe(new ObserverAdapter<RXAuthState.AuthState>() {
                     @Override
                     public void onNext(RXAuthState.AuthState authState) {
-                        if (authState instanceof RXAuthState.StateAuthorized){
-                        } else {
+                        if (authState instanceof RXAuthState.StateLogout){
                             userIdToUser.clear();
                             chatIdToRxChat.clear();
                             chatsList.clear();
@@ -258,6 +257,7 @@ public class ChatDB implements UserHolder {
                 .flatMap(new Func1<TdApi.Chats, Observable<ChatPortion>>() {
                     @Override
                     public Observable<ChatPortion> call(TdApi.Chats chats) {
+                        tmpIds.clear();
                         checkNotMainThread();
                         for (TdApi.Chat chat : chats.chats) {
                             parser.parse(chat.topMessage);
