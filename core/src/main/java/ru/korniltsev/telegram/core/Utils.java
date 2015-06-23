@@ -10,9 +10,11 @@ import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import com.crashlytics.android.core.CrashlyticsCore;
 import org.drinkless.td.libcore.telegram.TdApi;
 
 import java.io.BufferedOutputStream;
@@ -141,5 +143,10 @@ public class Utils {
         }
         c.close();
         return picturePath;
+    }
+
+    public static void event(String eventName) {
+        CrashlyticsCore.getInstance()
+                .log(Log.INFO, "Event", eventName);
     }
 }

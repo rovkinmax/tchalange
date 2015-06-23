@@ -14,6 +14,7 @@ import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.R;
 import ru.korniltsev.telegram.auth.phone.EnterPhoneFragment;
 import ru.korniltsev.telegram.chat_list.ChatList;
+import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.flow.SerializableParceler;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
@@ -26,6 +27,7 @@ import rx.functions.Action1;
 import rx.subjects.PublishSubject;
 
 import static mortar.bundler.BundleServiceRunner.getBundleServiceRunner;
+import static ru.korniltsev.telegram.core.Utils.event;
 
 public class MainActivity extends ActionBarActivity implements ActivityOwner.AnActivity {
 
@@ -37,6 +39,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
     private Subscription subscription;
     private ActivityOwner activityOwner;
     private static boolean firstRun = true;
+    private BundleServiceRunner bundleServiceRunner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +57,12 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
         String scopeName = getLocalClassName() + "-task-" + getTaskId();
 
         activityScope = parentScope.findChild(scopeName);
+        event("activityScope == " + activityScope);
         if (activityScope == null) {
             activityScope = parentScope.buildChild()
                     .withService(BundleServiceRunner.SERVICE_NAME, new BundleServiceRunner())
                     .build(scopeName);
+            event("activityScope == " + activityScope);
         }
 
 //        GsonParceler parceler = new GsonParceler(new Gson());
@@ -72,7 +77,8 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
         flow = FlowDelegate.onCreate(nonConfig, getIntent(), savedInstanceState, new SerializableParceler(),
                 history, container);
 
-        getBundleServiceRunner(activityScope).onCreate(savedInstanceState);
+        bundleServiceRunner = getBundleServiceRunner(activityScope);
+        bundleServiceRunner.onCreate(savedInstanceState);
 
         getWindow().getDecorView().setBackgroundDrawable(null);
     }
@@ -89,6 +95,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
 
     @Override
     protected void onResume() {
+        event("onResume");
         super.onResume();
         flow.onResume();
         subscription = authState.listen()
@@ -107,6 +114,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
 
     @Override
     protected void onPause() {
+        event("onPause");
         super.onPause();
         flow.onPause();
         subscription.unsubscribe();
@@ -121,17 +129,23 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
             }
         }
         if (activityScope != null && activityScope.hasService(name)) {
-            return activityScope.getService(name);
+            Object service = activityScope.getService(name);
+            if (service == null) {
+                event("return null service");
+                event("activityScope.isDestroyed()" + activityScope.isDestroyed());
+            }
+            return service;
         }
         return super.getSystemService(name);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        event("onSaveInstanceState");
         super.onSaveInstanceState(outState);
         flow.onSaveInstanceState(outState);
-        getBundleServiceRunner(this).
-                onSaveInstanceState(outState);
+        BundleServiceRunner service = getBundleServiceRunner(this);
+        service.onSaveInstanceState(outState);
     }
 
     /**
@@ -139,6 +153,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
      */
     @Override
     public void onBackPressed() {
+        event("onBackPressed");
         if (!container.onBackPressed()) {
             super.onBackPressed();
         }
@@ -146,9 +161,11 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
 
     @Override
     protected void onDestroy() {
+        event("activity.onDestroy()");
         activityOwner.dropView(this);
         // activityScope may be null in case isWrongInstance() returned true in onCreate()
         if (isFinishing() && activityScope != null) {
+            event("destroy activity scope");
             activityScope.destroy();
             activityScope = null;
         }

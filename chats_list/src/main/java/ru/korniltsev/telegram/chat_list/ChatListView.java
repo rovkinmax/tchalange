@@ -20,6 +20,7 @@ import rx.functions.Action1;
 import javax.inject.Inject;
 import java.util.List;
 
+import static ru.korniltsev.telegram.core.Utils.event;
 import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
@@ -86,6 +87,7 @@ public class ChatListView extends DrawerLayout {
         btnLogout.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                event("btnLogout.Click");
                 presenter.logout();
             }
         });
