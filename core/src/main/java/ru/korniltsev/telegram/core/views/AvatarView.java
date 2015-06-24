@@ -2,8 +2,10 @@ package ru.korniltsev.telegram.core.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+import com.crashlytics.android.core.CrashlyticsCore;
 import junit.framework.Assert;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -43,8 +45,15 @@ public class AvatarView extends ImageView {
     /**
      * @param o can be TdApi.User or TdApi.Chat
      */
-    public void loadAvatarFor(TdApi.TLObject o) {
-        assertNotNull(o);
+    public void loadAvatarFor(@NonNull TdApi.TLObject o) {
+        if (o == null) {
+            CrashlyticsCore.getInstance()
+                    .logException(new NullPointerException());
+            setImageBitmap(null);
+            picasso2.getPicasso().cancelRequest(this);
+            return;
+        }
+//        assertNotNull(o);
         setImageBitmap(null);
         if (o instanceof TdApi.User) {
             picasso2.loadAvatarForUser((TdApi.User) o, size, this);

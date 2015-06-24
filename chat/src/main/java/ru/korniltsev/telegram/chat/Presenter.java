@@ -96,7 +96,7 @@ public class Presenter extends ViewPresenter<ChatView>
         view.initMenu(isGroupChat, nm.isMuted(path.chat));
         setViewSubtitle();
 
-        List<RxChat.ChatListItem> messages = rxChat.getMessages();
+        List<TdApi.Message> messages = rxChat.getMessages();
         if (!messages.isEmpty()
                 && !rxChat.isRequestInProgress()) {
             rxChat.updateCurrentMessageList();
@@ -141,26 +141,29 @@ public class Presenter extends ViewPresenter<ChatView>
         //todo show progressBar
         subscription.add(
                 rxChat.messageList()
-                        .subscribe(new ObserverAdapter<List<RxChat.ChatListItem>>() {
+                        .subscribe(new ObserverAdapter<List<TdApi.Message>>() {
                             @Override
-                            public void onNext(List<RxChat.ChatListItem> messages) {
+                            public void onNext(List<TdApi.Message> messages) {
+                                //                                RxChat.log2(messages, "presenter");
                                 getView()
-                                        .getAdapter()
-                                        .setData(messages);
+                                        .setMessages(messages);
+                                //                                        .getAdapter()
+                                //                                        .setData(messages);
+
                             }
                         }));
 
-        subscription.add(
-                rxChat.newMessage()
-                        .subscribe(new ObserverAdapter<List<RxChat.ChatListItem>>() {
-                                       @Override
-                                       public void onNext(List<RxChat.ChatListItem> chatListItems) {
-                                           getView()
-                                                   .addNewMessage(chatListItems);
-                                           rxChat.hackToReadTheMessage(chatListItems);
-                                       }
-                                   }
-                        ));
+//        subscription.add(
+//                rxChat.newMessage()
+//                        .subscribe(new ObserverAdapter<List<RxChat.ChatListItem>>() {
+//                                       @Override
+//                                       public void onNext(List<RxChat.ChatListItem> chatListItems) {
+//                                           getView()
+//                                                   .addNewMessage(chatListItems);
+//                                           rxChat.hackToReadTheMessage(chatListItems);
+//                                       }
+//                                   }
+//                        ));
 
         requestUpdateOnlineStatus();
 

@@ -20,6 +20,7 @@ import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.flow.pathview.HandlesBack;
 import ru.korniltsev.telegram.core.recycler.CheckRecyclerViewSpan;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
+import ru.korniltsev.telegram.core.rx.DaySplitter;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
@@ -226,14 +227,19 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
     }
 
     public void updateData(RxChat rxChat) {
-        Adapter a = getAdapter();
+        Adapter a = adapter;
         a.setChat(rxChat);
-        a.setData(rxChat.getMessages());
+        List<TdApi.Message> messages = rxChat.getMessages();
+        setMessages( messages);
 
         CheckRecyclerViewSpan.check(list, viewSpanNotFilledAction);
     }
 
-    public void addNewMessage(List<RxChat.ChatListItem> message) {
+    private final DaySplitter splitter = new DaySplitter();
+
+    public void setMessages( List<TdApi.Message> messages) {
+        List<RxChat.ChatListItem> split = splitter.split(messages);
+
         boolean scrollDown;
         int firstFullVisible = layout.findFirstCompletelyVisibleItemPosition();
         if (firstFullVisible == 0) {
@@ -245,11 +251,13 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
                 scrollDown = false;
             }
         }
-        adapter.addFirst(message);
+        adapter.setData(split);
         if (scrollDown) {
             layout.scrollToPosition(0);
         }
     }
+
+
 
     @Override
     public boolean onBackPressed() {

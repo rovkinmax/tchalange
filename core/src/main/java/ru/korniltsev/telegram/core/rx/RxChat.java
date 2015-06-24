@@ -1,5 +1,6 @@
 package ru.korniltsev.telegram.core.rx;
 
+import android.util.Log;
 import android.util.SparseArray;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.joda.time.DateTime;
@@ -12,9 +13,12 @@ import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static java.util.Collections.addAll;
 import static junit.framework.Assert.assertNull;
@@ -30,11 +34,24 @@ public class RxChat implements UserHolder {
     public static final int MESSAGE_STATE_SENT = 1;
     public static final int MESSAGE_STATE_NOT_SENT = 2;
     private static final int MSG_WITHOUT_VALID_ID = 1000000000;
+    public static int compareInt(int lhs, int rhs) {
+        return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
+    }
+    private SortedSet<TdApi.Message> ms = new TreeSet<>(new Comparator<TdApi.Message>() {
+        @Override
+        public int compare(TdApi.Message lhs, TdApi.Message rhs) {
+            int dateCompare = -compareInt(lhs.date, rhs.date);
+            if (dateCompare == 0) {
+                return compareInt(lhs.id, rhs.id);
+            }
+            return dateCompare;
+        }
+    });
 
     public final Func2<List<TdApi.User>, List<TdApi.Message>, ChatDB.Portion> ZIPPER = new Func2<List<TdApi.User>, List<TdApi.Message>, ChatDB.Portion>() {
         @Override
         public ChatDB.Portion call(List<TdApi.User> users, List<TdApi.Message> messages) {
-            return new ChatDB.Portion(messages, users, splitter.split(messages));
+            return new ChatDB.Portion(messages, users);
         }
     };
 
@@ -58,11 +75,8 @@ public class RxChat implements UserHolder {
     final RXClient client;
     public final ChatDB holder;
 
-    private final List<ChatListItem> chatListItems = new ArrayList<>();
-    private final List<TdApi.Message> messages = new ArrayList<>();
 
-    private final PublishSubject<List<ChatListItem>> subject = PublishSubject.create();
-    private final DaySplitter splitter;
+    private final PublishSubject<List<TdApi.Message>> subject = PublishSubject.create();
     private Observable<ChatDB.Portion> request;
     private Set<Integer> tmpUIDs = new HashSet<>();
 
@@ -74,8 +88,6 @@ public class RxChat implements UserHolder {
         this.id = id;
         this.client = client;
         this.holder = holder;
-
-        splitter = new DaySplitter();
     }
 
     public boolean atLeastOneRequestCompleted() {
@@ -91,17 +103,18 @@ public class RxChat implements UserHolder {
     }
 
     public void requestNewPotion() {
+        List<TdApi.Message> messages = getMessages();
         TdApi.Message lastMessage = messages.get(messages.size() - 1);
         requestImpl(lastMessage, null, true, holder.getMessageLimit(), 0);
     }
 
     private void requestImpl(TdApi.Message lastMessage, final TdApi.Message initMessage, final boolean historyRequest, int limit, int offset) {
         assertNull(request);
-        //        Log.e("RxChat", "request", new Throwable());
         request = client.getMessages(id, lastMessage.id, offset, limit)
                 .flatMap(new Func1<TdApi.Messages, Observable<? extends ChatDB.Portion>>() {
                     @Override
                     public Observable<? extends ChatDB.Portion> call(TdApi.Messages portion) {
+
                         checkNotMainThread();
                         TdApi.Message[] messages = portion.messages;
                         tmpUIDs.clear();//todo boxing
@@ -117,12 +130,13 @@ public class RxChat implements UserHolder {
                             messageList.add(initMessage);
                         }
                         addAll(messageList, portion.messages);
+                        log(messageList);
                         for (TdApi.Message message : messageList) {
                             holder.parser.parse(message);
                         }
 
                         if (tmpUIDs.isEmpty()) {
-                            ChatDB.Portion res = new ChatDB.Portion(messageList, Collections.<TdApi.User>emptyList(), splitter.split(messageList));
+                            ChatDB.Portion res = new ChatDB.Portion(messageList, Collections.<TdApi.User>emptyList());
                             return Observable.just(res);
                         } else {
                             List<Observable<TdApi.User>> os = new ArrayList<>();
@@ -153,18 +167,42 @@ public class RxChat implements UserHolder {
                     SparseArray<TdApi.User> us = portion.us;
                     holder.saveUsers(us);
                     if (!historyRequest) {
-                        messages.clear();
-                        chatListItems.clear();
+                        ms.clear();
                     }
-                    messages.addAll(portion.ms);
-                    splitter.append(portion.items, chatListItems);
-                    subject.onNext(chatListItems);
+                    ms.addAll(portion.ms);
+                    subject.onNext(getMessages());
                 }
             }
         });
     }
 
+    public static void log2(List<ChatListItem> portion, String stage) {
+//        Log.d("RxChat", "start " + stage);
+//        for (ChatListItem item : portion) {
+//            if (item instanceof MessageItem){
+//                TdApi.Message msg = ((MessageItem) item).msg;
+//                if (msg.message instanceof TdApi.MessageText){
+//                    String text = ((TdApi.MessageText) msg.message).text;
+//                    Log.d("RxChat", "\t---->>> " + msg.id + " " + text);
+//                } else {
+//                    Log.d("RxChat", "\t---->>>" + msg.id + " "  + msg.message.getClass().getSimpleName());
+//                }
+//
+//            }
+//        }
+//        Log.d("RxChat", "end");
+    }
 
+    public static void log(List<TdApi.Message> portion) {
+//        Log.d("RxChat", "log portion of chat ");
+//        for (TdApi.Message message : portion) {
+//            if (message.message instanceof TdApi.MessageText){
+//                Log.d("RxChat", "\t\t message " + ((TdApi.MessageText) message.message).text);
+//            } else {
+//                Log.d("RxChat", "\t\t message " + message.id);
+//            }
+//        }
+    }
 
     private void getUIDs(TdApi.Message message) {
         assertTrue(message.fromId != 0);
@@ -182,12 +220,12 @@ public class RxChat implements UserHolder {
         }
     }
 
-    public Observable<List<ChatListItem>> messageList() {
+    public Observable<List<TdApi.Message>> messageList() {
         return subject;
     }
 
-    public List<ChatListItem> getMessages() {
-        return chatListItems;
+    public List<TdApi.Message> getMessages() {
+        return new ArrayList<>(ms);
     }
 
     public boolean isDownloadedAll() {
@@ -211,11 +249,12 @@ public class RxChat implements UserHolder {
 
     public void updateCurrentMessageList() {
         checkMainThread();
-        if (messages.isEmpty()) {
+        if (ms.isEmpty()) {
             return;
         }
         if (request == null) {
             int offset = -1;
+            List<TdApi.Message> messages = getMessages();
             int size = messages.size();
             requestImpl(messages.get(0), null, false, size, offset);
         } else {
@@ -226,22 +265,10 @@ public class RxChat implements UserHolder {
 
 
     public void handleNewMessage(TdApi.Message tlObject) {
-        for (int i = 0, messagesSize = messages.size(); i < messagesSize; i++) {
-            TdApi.Message message = messages.get(i);
-            if (message.id == tlObject.id){
-                return;
-            }
-        }
-        messages.add(0, tlObject);
-
-        List<ChatListItem> prepend = splitter.prepend(tlObject, chatListItems);
-        newMessage.onNext(prepend);
+        ms.add(tlObject);
+        subject.onNext(getMessages());
     }
 
-    private PublishSubject<List<ChatListItem>> newMessage = PublishSubject.create();
-    public Observable<List<ChatListItem>> newMessage() {
-        return newMessage;
-    }
 
     public void deleteHistory() {
         client.sendRx(new TdApi.DeleteChatHistory(id))
@@ -249,9 +276,9 @@ public class RxChat implements UserHolder {
                 .subscribe(new ObserverAdapter<TdApi.TLObject>() {
                     @Override
                     public void onNext(TdApi.TLObject response) {
-                        messages.clear();
-                        chatListItems.clear();
-                        subject.onNext(chatListItems);
+                        ms.clear();
+//                        chatListItems.clear();
+                        subject.onNext(getMessages());
                     }
                 });
     }
@@ -284,24 +311,14 @@ public class RxChat implements UserHolder {
     }
 
     private void deleteMessageImpl(int messageId) {
-        for (TdApi.Message message : messages) {
+        for (TdApi.Message message : ms) {
             if (message.id == messageId) {
-                messages.remove(message);
+                ms.remove(message);
                 break;
             }
         }
 
-        for (int i = 0; i < chatListItems.size(); i++) {
-            ChatListItem chatListItem = chatListItems.get(i);
-            if (chatListItem instanceof MessageItem) {
-                TdApi.Message msg = ((MessageItem) chatListItem).msg;
-                if (msg.id == messageId) {
-                    chatListItems.remove(i);
-                    break;//todo delete day separator too
-                }
-            }
-        }
-        subject.onNext(chatListItems);
+        subject.onNext(getMessages());
     }
 
     public void sendSticker(String stickerFilePath) {
@@ -362,8 +379,6 @@ public class RxChat implements UserHolder {
         TdApi.UpdateMessageId upd = getUpdForOldId(msg.id);
         if (msg.id >= MSG_WITHOUT_VALID_ID && upd == null){
             return MESSAGE_STATE_NOT_SENT;
-//            iconRight.setImageResource(R.drawable.ic_clock);
-//            iconRight.setVisibility(View.VISIBLE);
         } else {
             //message sent
             int id = msg.id;
@@ -372,11 +387,8 @@ public class RxChat implements UserHolder {
             }
             if (lastReadOutbox < id) {
                 return MESSAGE_STATE_SENT;
-//                iconRight.setImageResource(R.drawable.ic_unread);
-//                iconRight.setVisibility(View.VISIBLE);
             } else {
                 return MESSAGE_STATE_READ;
-//                iconRight.setVisibility(View.GONE);
             }
         }
     }

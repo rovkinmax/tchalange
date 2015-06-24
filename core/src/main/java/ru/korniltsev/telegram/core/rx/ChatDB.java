@@ -366,12 +366,12 @@ public class ChatDB implements UserHolder {
 
     public static class Portion {
         public final List<TdApi.Message> ms;
-        public final List<RxChat.ChatListItem> items;
+//        public final List<RxChat.ChatListItem> items;
         public final SparseArray<TdApi.User> us;
 
-        public Portion(List<TdApi.Message> ms, List<TdApi.User> us, List<RxChat.ChatListItem> items) {
+        public Portion(List<TdApi.Message> ms, List<TdApi.User> us) {
             this.ms = ms;
-            this.items = items;
+
             this.us = new SparseArray<>();
             for (TdApi.User u : us) {
                 this.us.put(u.id, u);
