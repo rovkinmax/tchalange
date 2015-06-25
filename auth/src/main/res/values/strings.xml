@@ -13,4 +13,5 @@
     <string name="hint_last_name">Last name</string>
     <string name="unknown_error">Unknown error</string>
     <string name="invalid_code">Activation code is not valid</string>
+    <string name="invalid_phone_number">Phone number is not valid</string>
 </resources>

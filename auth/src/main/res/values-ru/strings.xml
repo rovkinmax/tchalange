@@ -13,4 +13,5 @@
     <string name="hint_last_name">Фамилия</string>
     <string name="invalid_code">Неверный код активации</string>
     <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="invalid_phone_number">Неверный номер телефона</string>
 </resources>

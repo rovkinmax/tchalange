@@ -97,6 +97,14 @@ public class EnterPhoneView extends LinearLayout {
     }
 
     public void showError(String message) {
-        userPhone.setError(message);
+        if (message == null){
+            userPhone.setError("error");
+        } else {
+            if (message.contains("PHONE_NUMBER_INVALID")){
+                userPhone.setError(getResources().getString(R.string.invalid_phone_number));
+            } else {
+                userPhone.setError(message);
+            }
+        }
     }
 }
