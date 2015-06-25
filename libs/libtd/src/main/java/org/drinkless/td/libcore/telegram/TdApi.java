@@ -364,6 +364,7 @@ public class TdApi {
     }
 
     public abstract static class File extends TLObject {
+        public abstract int getId();
     }
 
     public static class FileEmpty extends File {
@@ -393,6 +394,11 @@ public class TdApi {
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("size").append(" = ").append(size).append('\n');
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+
+        @Override
+        public int getId() {
+            return id;
         }
     }
 
@@ -426,6 +432,11 @@ public class TdApi {
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("path").append(" = ").append(path).append('\n');
             shift -= 2;
             for (int i = 0; i < shift; i++) { s.append(' '); } s.append("}\n");
+        }
+
+        @Override
+        public int getId() {
+            return id;
         }
     }
 

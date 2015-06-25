@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
@@ -93,6 +94,11 @@ public class RxDownloadManager {
 
     private void updateFile(TdApi.UpdateFile upd) {
 //        log("before handleUpdateFile:" + RXClient.coolTagForFileId(upd.fileId));
+        Action1<TdApi.UpdateFile> hook = fileIdToHook.get(upd.fileId);
+        if (hook != null) {
+            hook.call(upd);
+        }
+
         synchronized (lock) {
 //            log("handleUpdateFile:" + RXClient.coolTagForFileId(upd.fileId));
             TdApi.FileLocal f = new TdApi.FileLocal(upd.fileId, upd.size, upd.path);
@@ -214,6 +220,10 @@ public class RxDownloadManager {
 
     }
 
+    public void decode(TdApi.UpdateFile updateFile) {
+
+    }
+
     public class FileState {
 
     }
@@ -249,5 +259,12 @@ public class RxDownloadManager {
                 }
             });
         }
+    }
+
+
+    private Map<Integer, Action1<TdApi.UpdateFile>> fileIdToHook = new ConcurrentHashMap<>();
+
+    public void hook(TdApi.File fileId, Action1<TdApi.UpdateFile> a) {
+        fileIdToHook.put(fileId.getId(), a);
     }
 }

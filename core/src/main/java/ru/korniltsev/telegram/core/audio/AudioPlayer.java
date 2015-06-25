@@ -11,6 +11,8 @@ import com.crashlytics.android.core.CrashlyticsCore;
 import junit.framework.Assert;
 import opus.OpusSupport;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
+import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.utils.Preconditions;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
@@ -44,7 +46,7 @@ public class AudioPlayer {
     private final ExecutorService service = Executors.newCachedThreadPool();
 
     @Inject
-    public AudioPlayer(Context ctx) {
+    public AudioPlayer(Context ctx, RXAuthState auth) {
         this.ctx = ctx;
         decodeCacheDir = createAudioCacheDir(ctx);
 
@@ -53,7 +55,25 @@ public class AudioPlayer {
             playerBufferSize = 3840;
         }
 
+        auth.listen()
+                .subscribe(new ObserverAdapter<RXAuthState.AuthState>() {
+                    @Override
+                    public void onNext(RXAuthState.AuthState authState) {
+                        if (authState instanceof RXAuthState.StateLogout){
+                            cleanDecodeCache();
+                        }
+                    }
+                });
 
+    }
+
+    private void cleanDecodeCache() {
+        File[] files = decodeCacheDir.listFiles();
+        if (files != null){
+            for (File file : files) {
+                file.delete();
+            }
+        }
     }
 
     private File createAudioCacheDir(Context ctx) {
@@ -92,6 +112,10 @@ public class AudioPlayer {
         assertTrue(path.equals(currentTrack.filePath));
         currentTrack.track.play();
         currentTrack.write(currentTrack.pcm16File, currentTrack.track.getPlaybackHeadPosition() * 2);
+    }
+
+    public void decode(TdApi.UpdateFile updateFile) {
+        DecodeOpusFile(updateFile.path);
     }
 
     class Track {
@@ -147,8 +171,8 @@ public class AudioPlayer {
                         source = new BufferedInputStream(new FileInputStream(arr));
                         source.skip(skip);//todo use RandomAccessFile when you add seek
                         byte[] buffer = new byte[playerBufferSize];
-                        int read ;
-                        while (((read = source.read(buffer)) != -1)){
+                        int read;
+                        while (((read = source.read(buffer)) != -1)) {
                             int write = track.write(buffer, 0, read);
                             if (write < 0) {
                                 log("break -> write : " + write);
@@ -159,7 +183,7 @@ public class AudioPlayer {
                         CrashlyticsCore.getInstance()
                                 .logException(ignore);
                     } finally {
-                        if (source != null){
+                        if (source != null) {
                             try {
                                 source.close();
                             } catch (IOException ignore) {
@@ -174,44 +198,6 @@ public class AudioPlayer {
 
 
 
-        @NonNull
-        private File DecodeOpusFile(String filePath)  {
-            try {
-                return decodeOpusFileUnsafe(filePath);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @NonNull
-        private File decodeOpusFileUnsafe(String filePath) throws IOException {
-            Preconditions.checkMainThread();
-            File src = new File(filePath);
-            File dst = new File(decodeCacheDir, src.getName());
-//            if (dst.exists()){
-//                return dst;
-//            }
-            boolean opened = OpusSupport.nativeOpenOpusFile(filePath);
-            Assert.assertTrue(opened);
-            ByteBuffer buffer = ByteBuffer.allocateDirect(1024 * 1024);
-
-
-            FileOutputStream out = new FileOutputStream(dst);
-            while (true){
-                OpusSupport.nativeReadOpusFile(buffer, buffer.capacity(), mOutArgs);
-                int size = mOutArgs[0];
-                int pcmOffset = mOutArgs[1];
-                int finished = mOutArgs[2];
-                out.write(buffer.array(), 0, size);
-
-                if (finished == 1){
-                    break;
-                }
-            }
-            out.flush();
-            out.close();
-            return dst;
-        }
 
         public void stop() {
             state.onNext(new TrackState(false, 0, frameCount));
@@ -270,6 +256,45 @@ public class AudioPlayer {
         assertTrue(path.equals(currentTrack.filePath));
         assertTrue(currentTrack.track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING);
         currentTrack.track.pause();
+    }
+
+
+    @NonNull
+    private File DecodeOpusFile(String filePath)  {
+        try {
+            return decodeOpusFileUnsafe(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @NonNull
+    private File decodeOpusFileUnsafe(String filePath) throws IOException {
+        File src = new File(filePath);
+        File dst = new File(decodeCacheDir, src.getName());
+        if (dst.exists()){
+            return dst;
+        }
+        boolean opened = OpusSupport.nativeOpenOpusFile(filePath);
+        Assert.assertTrue(opened);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(1024 * 1024);
+
+
+        FileOutputStream out = new FileOutputStream(dst);
+        while (true){
+            OpusSupport.nativeReadOpusFile(buffer, buffer.capacity(), mOutArgs);
+            int size = mOutArgs[0];
+            int pcmOffset = mOutArgs[1];
+            int finished = mOutArgs[2];
+            out.write(buffer.array(), 0, size);
+
+            if (finished == 1){
+                break;
+            }
+        }
+        out.flush();
+        out.close();
+        return dst;
     }
 
 

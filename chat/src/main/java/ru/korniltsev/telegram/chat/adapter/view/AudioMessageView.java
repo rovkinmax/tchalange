@@ -17,6 +17,7 @@ import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.audio.AudioPlayer;
 import ru.korniltsev.telegram.core.rx.RXClient;
+import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.views.DownloadView;
 import rx.Subscription;
 import rx.functions.Action1;
@@ -33,6 +34,7 @@ public class AudioMessageView extends LinearLayout {
 
     @Inject AudioPlayer player;
     @Inject RXClient client;
+    @Inject RxDownloadManager downloader;
 
     private TdApi.Audio audio;
     private DownloadView download_view;
@@ -44,6 +46,12 @@ public class AudioMessageView extends LinearLayout {
             .appendSeconds()
             .toFormatter();;
     private Subscription subscription = Subscriptions.empty();
+    private final Action1<TdApi.UpdateFile> decodeAction = new Action1<TdApi.UpdateFile>() {
+        @Override
+        public void call(TdApi.UpdateFile updateFile) {
+            player.decode(updateFile);
+        }
+    };
 
     public AudioMessageView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -84,6 +92,7 @@ public class AudioMessageView extends LinearLayout {
 
         this.duration.setText(DURATION_FORMATTER.print(p));
         DownloadView.Config cfg = new DownloadView.Config(R.drawable.ic_play, R.drawable.ic_pause, true, true, 38);
+        downloader.hook(a.audio, decodeAction);
         download_view.bind(a.audio, cfg, new DownloadView.CallBack() {
             @Override
             public void onProgress(TdApi.UpdateFileProgress p) {
