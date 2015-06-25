@@ -10,6 +10,7 @@
     <string name="message_deleted">Удаленное сообщение</string>
     <string name="message_ivited">пригласил</string>
     <string name="message_kicked">выкинул</string>
+    <string name="message_kicked_self">покинул чат</string>
     <string name="message_removed_group_photo">удалил(а) картинку группового чата</string>
     <string name="message_renamed_group">изменил(а) название группового чата</string>
     <string name="message_unsupported">Неподдерживаемое сообщение</string>

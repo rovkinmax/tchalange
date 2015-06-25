@@ -72,15 +72,22 @@ public class SingleTextViewVH extends RealBaseVH {
             //        text.setText(sb);
         } else if (msg instanceof TdApi.MessageChatDeleteParticipant) {
             TdApi.MessageChatDeleteParticipant kick = (TdApi.MessageChatDeleteParticipant) msgRaw.message;
+
             Spannable inviter = userColor(sGetNameForSenderOf(uh, msgRaw));
             Spannable newUser = userColor(Utils.uiName(kick.user));
 
             SpannableStringBuilder sb = new SpannableStringBuilder();
-            sb.append(inviter)
-                    .append(" ")
-                    .append(res.getString(R.string.message_kicked))
-                    .append(" ")
-                    .append(newUser);
+            if (kick.user.id == msgRaw.fromId) {
+                sb.append(inviter)
+                        .append(" ")
+                        .append(res.getString(R.string.message_kicked_self));
+            } else {
+                sb.append(inviter)
+                        .append(" ")
+                        .append(res.getString(R.string.message_kicked))
+                        .append(" ")
+                        .append(newUser);
+            }
 
             return sb;
             //        text.setText(sb);
