@@ -18,6 +18,7 @@ package ru.korniltsev.telegram.core.app;
 import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
+import phoneformat.PhoneFormat;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.core.emoji.Emoji;
 import ru.korniltsev.telegram.core.audio.AudioPlayer;
@@ -75,6 +76,11 @@ public class RootModule {
     }
 
 
+    @Singleton
+    @Provides
+    PhoneFormat providePhoneFormat() {
+        return new PhoneFormat(ctx);
+    }
 
     @Singleton
     @Provides

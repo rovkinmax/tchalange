@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import phoneformat.PhoneFormat;
 import ru.korniltsev.telegram.core.recycler.CheckRecyclerViewSpan;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
 import ru.korniltsev.telegram.core.rx.ChatDB;
@@ -29,6 +30,7 @@ public class ChatListView extends DrawerLayout {
     @Inject ChatList.Presenter presenter;
     @Inject RXClient client;
     @Inject ChatDB chatDb;
+    @Inject PhoneFormat phoneFormat;
 
     private RecyclerView list;
     private AvatarView drawerAvatar;
@@ -112,8 +114,13 @@ public class ChatListView extends DrawerLayout {
         drawerAvatar.loadAvatarFor(user);
         drawerName.setText(
                 uiName(user));
+
+        String phoneNumber = user.phoneNumber;
+        if (!phoneNumber.startsWith("+")) {
+            phoneNumber = "+" + phoneNumber;
+        }
         drawerPhone.setText(
-                user.phoneNumber);
+                phoneFormat.format(phoneNumber));
     }
 
     public void updateNetworkStatus(boolean connected) {

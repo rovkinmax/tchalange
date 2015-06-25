@@ -22,6 +22,7 @@ dependencies {
     compile project(":libtd")
     compile project(":libwebp")
     compile project(":libopus")
+    compile project(":libphoneformat")
 
     compile project(":libpagerslidingtabstrip2")
 

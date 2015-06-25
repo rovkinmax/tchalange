@@ -25,7 +25,7 @@ subprojects {
 //            generatedSourceDirs += R
 //        }
 //    }
-    def R = new File(project.buildDir, "generated/source/r/release/")
+//    def R = new File(project.buildDir, "generated/source/r/release/")
 //    sourceDirs += R
 //    generatedSourceDirs += R
 
