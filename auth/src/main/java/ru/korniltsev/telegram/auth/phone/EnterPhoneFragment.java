@@ -4,8 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.widget.Toast;
-import com.crashlytics.android.core.CrashlyticsCore;
+import dagger.Provides;
 import flow.Flow;
 import mortar.MortarScope;
 import mortar.ViewPresenter;
@@ -19,7 +18,6 @@ import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
-import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
@@ -47,8 +45,13 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
         this.c = c;
     }
 
-    @dagger.Module(injects = EnterPhoneView.class, addsTo = RootModule.class)
+    @dagger.Module(injects = {
+            EnterPhoneView.class,
+            Countries.class,
+    }, addsTo = RootModule.class)
     public static class Module {
+
+
 
     }
 
@@ -65,10 +68,13 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
 
         private Subscription subscribtion = Subscriptions.empty();
         private ProgressDialog pd;
+        private final Countries countries;
 
         @Inject
-        public Presenter(RXClient client, ActivityOwner a) {
+        public Presenter(RXClient client, Countries countries) {
             this.client = client;
+
+            this.countries = countries;
         }
 
         @Override
@@ -79,11 +85,13 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
             Countries.Entry country;//todo save selected to pref
             if (f.c != null) {
                 country = f.c;
+                f.c = null;
             } else {
-                country = new Countries()//todo new
-                        .getForCode(Countries.RU_CODE, ctx);
+                country = countries//todo new
+                        .getForCode(Countries.RU_CODE);
+
             }
-            getView().countrySelected(country);
+            getView().countrySelected(country, true);
             if (sendPhoneRequest != null) {
                 subscribe();
             }

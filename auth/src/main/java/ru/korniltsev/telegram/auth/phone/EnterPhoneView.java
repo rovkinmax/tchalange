@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.auth.phone;
 
 import android.content.Context;
+import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -9,8 +10,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
+import phoneformat.PhoneFormat;
 import ru.korniltsev.telegram.auth.country.Countries;
 import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.core.adapters.TextWatcherAdapter;
 
 import javax.inject.Inject;
 
@@ -22,6 +25,13 @@ public class EnterPhoneView extends LinearLayout {
     private EditText phoneCode;
     private EditText userPhone;
     @Inject EnterPhoneFragment.Presenter presenter;
+    @Inject PhoneFormat formatter;
+    @Inject Countries countries;
+    private Countries.Entry selectedCountry;
+
+    boolean ignorePhoneCodeChanges = false;
+    boolean ignorePhoneNumberChanges = false;
+    boolean ignorePhoneNumberChange = false;
 
     public EnterPhoneView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -53,7 +63,6 @@ public class EnterPhoneView extends LinearLayout {
             }
         });
 
-
         userPhone.requestFocus();
         userPhone.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -65,6 +74,72 @@ public class EnterPhoneView extends LinearLayout {
                 return false;
             }
         });
+        phoneCode.addTextChangedListener(new TextWatcherAdapter() {
+
+            @Override
+            public void afterTextChanged(final Editable s) {
+                if (ignorePhoneCodeChanges) {
+                    return;
+                }
+                String code = s.toString();
+                if (!code.startsWith("+")) {
+                    ignorePhoneCodeChanges = true;
+                    s.insert(0, "+");
+                    ignorePhoneCodeChanges = false;
+                }
+                String phonePrefix = s.toString()
+                        .replaceAll("\\s+", "");
+                final Countries.Entry userTypedCountry = countries.getForPhonePrefix(phonePrefix);
+                if (userTypedCountry != null
+                        && userTypedCountry != selectedCountry) {
+                    countrySelected(userTypedCountry, false);
+                }
+                updatePhone(userPhone.getText());
+            }
+        });
+        userPhone.addTextChangedListener(new TextWatcherAdapter() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                if (ignorePhoneNumberChanges){
+                    return;
+                }
+
+                if (count == 0 && after == 1){
+                    //inserted digit
+                } else if (count == 1 && after == 0) {
+                    //deleted digit
+                    ignorePhoneNumberChange = true;
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(final Editable s) {
+                if (ignorePhoneNumberChange) {
+                    ignorePhoneNumberChange = false;
+                    return;
+                }
+
+                if (ignorePhoneNumberChanges) {
+                    return;
+                }
+                updatePhone(s);
+
+            }
+        });
+    }
+
+    private void updatePhone(Editable s) {
+        ignorePhoneNumberChanges = true;
+        String strPhoneCode = textFrom(phoneCode);
+        String strPhoneRest = textFrom(userPhone);
+        String strip = PhoneFormat.strip(strPhoneCode + strPhoneRest);
+        final String restFormatted = formatter.format(strip)
+                .substring(strPhoneCode.length())
+                .trim();
+        s.clear();
+        s.insert(0, restFormatted);
+        ignorePhoneNumberChanges = false;
     }
 
     private void sendCode() {
@@ -87,9 +162,12 @@ public class EnterPhoneView extends LinearLayout {
         presenter.dropView(this);
     }
 
-    public void countrySelected(Countries.Entry c) {
+    public void countrySelected(Countries.Entry c, boolean setPhoneCode) {
         btnSelectCountry.setText(c.name);
-        phoneCode.setText(c.phoneCode);
+        if (setPhoneCode) {
+            phoneCode.setText(c.phoneCode);
+        }
+        selectedCountry = c;
     }
 
     public EditText getPhoneCode() {
@@ -97,10 +175,10 @@ public class EnterPhoneView extends LinearLayout {
     }
 
     public void showError(String message) {
-        if (message == null){
+        if (message == null) {
             userPhone.setError("error");
         } else {
-            if (message.contains("PHONE_NUMBER_INVALID")){
+            if (message.contains("PHONE_NUMBER_INVALID")) {
                 userPhone.setError(getResources().getString(R.string.invalid_phone_number));
             } else {
                 userPhone.setError(message);

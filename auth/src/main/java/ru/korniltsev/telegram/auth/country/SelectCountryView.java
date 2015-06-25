@@ -15,6 +15,7 @@ import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class SelectCountryView extends LinearLayout {
     @Inject SelectCountry.Presenter presenter;
+    @Inject Countries countries;
     private RecyclerView list;
 
     public SelectCountryView(Context context, AttributeSet attrs) {
@@ -30,8 +31,8 @@ public class SelectCountryView extends LinearLayout {
                 .pop();
         list = (RecyclerView) findViewById(R.id.list);
         list.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<Countries.Entry> countries = new Countries()
-                .getData(getContext());
+        List<Countries.Entry> countries = this.countries
+                .getData();
         list.setAdapter(new Adapter(getContext(), countries, new Adapter.CountryClickListener() {
             @Override
             public void clicked(Countries.Entry c) {

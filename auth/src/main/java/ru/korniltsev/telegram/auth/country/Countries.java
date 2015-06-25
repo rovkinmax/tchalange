@@ -1,7 +1,11 @@
 package ru.korniltsev.telegram.auth.country;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
+import com.crashlytics.android.core.CrashlyticsCore;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -10,33 +14,20 @@ import java.util.*;
 /**
  * Created by korniltsev on 23/04/15.
  */
+@Singleton
 public class Countries {
     public static final String RU_CODE = "RU";
 
     private List<Entry> data;
-    private Map<String, Entry> countryCodeToCountry = new HashMap<String, Entry>();
+    private Map<String, Entry> countryCodeToCountry = new HashMap<>();
+    private Map<String, Entry> phoneCodeToCountry = new HashMap<>();
 
 
-    public Countries() {
-
-    }
-
-    public Entry getForCode(String code, Context ctx) {
-        getData(ctx);
-        return countryCodeToCountry.get(code);
-    }
-
-    public List<Entry> getData(Context ctx) {
-        if (data == null) {
-            parse(ctx);
-        }
-        return data;
-    }
-
-    private void parse(Context ctx) {
+    @Inject
+    public Countries(Context appContext) {
         InputStream is = null;
         try {
-            is = ctx.getAssets().open("countries.txt");
+            is = appContext.getAssets().open("countries.txt");
             ArrayList<Entry> res = new ArrayList<Entry>();
             Scanner s = new Scanner(is);
             while (s.hasNextLine()) {
@@ -47,11 +38,14 @@ public class Countries {
                 Entry e = new Entry(countryName, countryCode, phoneCode);
                 res.add(e);
                 countryCodeToCountry.put(countryCode, e);
+                phoneCodeToCountry.put(phoneCode, e);
             }
             Collections.sort(res);
             this.data = Collections.unmodifiableList(res);
         } catch (IOException e) {
             this.data = Collections.emptyList();
+            CrashlyticsCore.getInstance()
+                    .logException(e);
         } finally {
             if (is != null) {
                 try {
@@ -60,7 +54,19 @@ public class Countries {
                 }
             }
         }
+    }
 
+    public Entry getForCode(String code) {
+        return countryCodeToCountry.get(code);
+    }
+
+    public List<Entry> getData() {
+        return data;
+    }
+
+    @Nullable
+    public Entry getForPhonePrefix(String phonePrefix) {
+        return phoneCodeToCountry.get(phonePrefix);
     }
 
     public static class Entry implements Comparable<Entry> , Serializable{

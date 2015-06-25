@@ -59,7 +59,7 @@
                         android:hint="@string/phone_number_hint"
                         android:layout_marginLeft="16dp"
                         android:singleLine="true"
-                        android:digits="0123456789"
+                        android:digits="0123456789 -()"
                         android:imeOptions="actionDone"
                         />
 
