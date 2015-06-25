@@ -4,7 +4,6 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -12,7 +11,6 @@ import com.crashlytics.android.core.CrashlyticsCore;
 import junit.framework.Assert;
 import opus.OpusSupport;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.utils.Preconditions;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
@@ -20,24 +18,14 @@ import rx.subjects.BehaviorSubject;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -51,13 +39,12 @@ public class AudioPlayer {
     private final Context ctx;
     private final File decodeCacheDir;
     private int playerBufferSize;
-    private RxDownloadManager downloader;
     //guarde by ui thread
     @Nullable private Track currentTrack;
+    private final ExecutorService service = Executors.newCachedThreadPool();
 
     @Inject
-    public AudioPlayer(Context ctx, RxDownloadManager downloader) {
-        this.downloader = downloader;
+    public AudioPlayer(Context ctx) {
         this.ctx = ctx;
         decodeCacheDir = createAudioCacheDir(ctx);
 
@@ -65,6 +52,8 @@ public class AudioPlayer {
         if (playerBufferSize <= 0) {
             playerBufferSize = 3840;
         }
+
+
     }
 
     private File createAudioCacheDir(Context ctx) {
@@ -102,79 +91,88 @@ public class AudioPlayer {
         assertNotNull(currentTrack);
         assertTrue(path.equals(currentTrack.filePath));
         currentTrack.track.play();
+        currentTrack.write(currentTrack.pcm16File, currentTrack.track.getPlaybackHeadPosition() * 2);
     }
 
     class Track {
         final AudioTrack track;
         final String filePath;
         private final int frameCount;
-
+        private final File pcm16File;
 
         public BehaviorSubject<TrackState> state;
 
         public Track(  String filePath) {
             checkMainThread();
             this.filePath = filePath;
-            File  arr = DecodeOpusFile(filePath);
+            pcm16File = DecodeOpusFile(filePath);
 
-            int length = (int) arr.length();
+            int length = (int) pcm16File.length();
             this.track = new AudioTrack(
                     AudioManager.STREAM_MUSIC,
                     SAMPLE_RATE_IN_HZ,
                     AudioFormat.CHANNEL_OUT_MONO,
                     AudioFormat.ENCODING_PCM_16BIT,
-                    length,
-                    AudioTrack.MODE_STATIC);
+                    playerBufferSize,
+                    AudioTrack.MODE_STREAM);
 
-            write(arr);
+            write(pcm16File, 0);
 
-            track.setPositionNotificationPeriod(SAMPLE_RATE_IN_HZ / 2);
+            track.setPositionNotificationPeriod(SAMPLE_RATE_IN_HZ / 8);
             frameCount = length / 2;
             track.setNotificationMarkerPosition(frameCount);
             track.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
                 public void onMarkerReached(AudioTrack track) {
-                    System.out.println("onMarkerReached");
-
                     state.onNext(new TrackState(false, frameCount, frameCount));
                     trackPlayed();
                 }
 
                 @Override
                 public void onPeriodicNotification(AudioTrack track) {
-
-                    int p = track.getPlaybackHeadPosition();
-                    Log.e("AudioPlayer", String.format("%d %d", p, frameCount));
-                    state.onNext(new TrackState(true, p, frameCount));
+                    state.onNext(new TrackState(true, track.getPlaybackHeadPosition(), frameCount));
                 }
             });
             track.play();
             state = BehaviorSubject.create(new TrackState(true, 0, frameCount));
         }
 
-        private void write(File arr) {
-            MediaPlayer mp = new MediaPlayer();
-            try {
-                mp.setDataSource(arr.getPath());
-                mp.prepare();
-                mp.start();
 
+        private void write(final File arr, final long skip) {
+            service.submit(new Runnable() {
+                @Override
+                public void run() {
+                    BufferedInputStream source = null;
+                    try {
+                        source = new BufferedInputStream(new FileInputStream(arr));
+                        source.skip(skip);//todo use RandomAccessFile when you add seek
+                        byte[] buffer = new byte[playerBufferSize];
+                        int read ;
+                        while (((read = source.read(buffer)) != -1)){
+                            int write = track.write(buffer, 0, read);
+                            if (write < 0) {
+                                log("break -> write : " + write);
+                                break;
+                            }
+                        }
+                    } catch (IOException ignore) {
+                        CrashlyticsCore.getInstance()
+                                .logException(ignore);
+                    } finally {
+                        if (source != null){
+                            try {
+                                source.close();
+                            } catch (IOException ignore) {
+                            }
+                        }
+                    }
+                    log("finish " + arr);
+                }
+            });
 
-
-//                writeUnsafe(arr);
-            } catch (IOException e) {
-                throw new RuntimeException();
-            }
         }
 
-        private void writeUnsafe(File arr) throws IOException {
-            BufferedInputStream source = new BufferedInputStream(new FileInputStream(arr));
-            byte[] buffer = new byte[playerBufferSize];
-            int read ;
-            while (((read = source.read(buffer)) != -1)){
-                track.write(buffer, 0, read);
-            }
-        }
+
 
         @NonNull
         private File DecodeOpusFile(String filePath)  {
@@ -220,6 +218,10 @@ public class AudioPlayer {
             track.pause();
             track.stop();
         }
+    }
+
+    private int log(String msg) {
+        return Log.d("AudioPlayer", msg);
     }
 
     private void trackPlayed() {
