@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.auth.code;
 
 import android.content.Context;
+import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
@@ -9,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.core.adapters.TextWatcherAdapter;
 
 import javax.inject.Inject;
 
@@ -58,6 +60,12 @@ public class EnterCodeView extends LinearLayout {
                     return true;
                 }
                 return false;
+            }
+        });
+        smsCode.addTextChangedListener(new TextWatcherAdapter(){
+            @Override
+            public void afterTextChanged(Editable s) {
+                presenter.codeEntered(s);
             }
         });
     }

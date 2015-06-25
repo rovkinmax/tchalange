@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.provider.Telephony;
+import android.text.Editable;
 import dagger.Provides;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -75,6 +76,7 @@ public class EnterCode extends BasePath implements Serializable{
         private Subscription subscription= Subscriptions.empty();
         private ProgressDialog pd;
         //        private ProgressDialog pd;
+        private boolean atLeastOneRequestSent = false;
 
         @Inject
         public Presenter(EnterCode path, RXClient client, RXAuthState auth) {
@@ -131,9 +133,9 @@ public class EnterCode extends BasePath implements Serializable{
 
         public void checkCode(String code) {
             assertNull(request);
+            atLeastOneRequestSent = true;
             TdApi.AuthSetCode f = new TdApi.AuthSetCode(code);
             request = authorizeAndGetMe(f);
-
             subscribe();
         }
 
@@ -188,6 +190,13 @@ public class EnterCode extends BasePath implements Serializable{
                     })
                     .cache()
                     .observeOn(mainThread());
+        }
+
+        public void codeEntered(Editable s) {
+            if (atLeastOneRequestSent) return;
+            if (s.length() == 5 ){
+                checkCode(s.toString());
+            }
         }
     }
 
