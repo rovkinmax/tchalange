@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import com.crashlytics.android.core.CrashlyticsCore;
 import dagger.ObjectGraph;
 import flow.Flow;
 import flow.FlowDelegate;
@@ -57,12 +58,13 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
         String scopeName = getLocalClassName() + "-task-" + getTaskId();
 
         activityScope = parentScope.findChild(scopeName);
+        event("onCreate " + this);
         event("activityScope == " + activityScope);
         if (activityScope == null) {
             activityScope = parentScope.buildChild()
                     .withService(BundleServiceRunner.SERVICE_NAME, new BundleServiceRunner())
                     .build(scopeName);
-            event("activityScope == " + activityScope);
+            event("create activityScope == " + activityScope);
         }
 
 //        GsonParceler parceler = new GsonParceler(new Gson());
@@ -95,7 +97,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
 
     @Override
     protected void onResume() {
-        event("onResume");
+        event("onResume " + this);
         super.onResume();
         flow.onResume();
         subscription = authState.listen()
@@ -114,7 +116,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
 
     @Override
     protected void onPause() {
-        event("onPause");
+        event("onPause " + this);
         super.onPause();
         flow.onPause();
         subscription.unsubscribe();
@@ -141,11 +143,15 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        event("onSaveInstanceState");
+        event("onSaveInstanceState " + this );
         super.onSaveInstanceState(outState);
         flow.onSaveInstanceState(outState);
-        BundleServiceRunner service = getBundleServiceRunner(this);
-        service.onSaveInstanceState(outState);
+        try {
+            bundleServiceRunner.onSaveInstanceState(outState);
+        } catch (IllegalStateException e) {
+            CrashlyticsCore.getInstance()
+                    .logException(e);
+        }
     }
 
     /**
@@ -153,7 +159,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
      */
     @Override
     public void onBackPressed() {
-        event("onBackPressed");
+        event("onBackPressed" + this);
         if (!container.onBackPressed()) {
             super.onBackPressed();
         }
@@ -161,11 +167,11 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
 
     @Override
     protected void onDestroy() {
-        event("activity.onDestroy()");
+        event("activity.onDestroy() " + this);
         activityOwner.dropView(this);
         // activityScope may be null in case isWrongInstance() returned true in onCreate()
         if (isFinishing() && activityScope != null) {
-            event("destroy activity scope");
+            event("destroy activity scope" + this);
             activityScope.destroy();
             activityScope = null;
         }
