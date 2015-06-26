@@ -240,21 +240,21 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
     public void setMessages( List<TdApi.Message> messages) {
         List<RxChat.ChatListItem> split = splitter.split(messages);
 
-        boolean scrollDown;
-        int firstFullVisible = layout.findFirstCompletelyVisibleItemPosition();
-        if (firstFullVisible == 0) {
-            scrollDown = true;
-        } else {
-            if (layout.findFirstVisibleItemPosition() == 0) {
-                scrollDown = true;
-            } else {
-                scrollDown = false;
-            }
-        }
+//        boolean scrollDown;
+//        int firstFullVisible = layout.findFirstCompletelyVisibleItemPosition();
+//        if (firstFullVisible == 0) {
+//            scrollDown = true;
+//        } else {
+//            if (layout.findFirstVisibleItemPosition() == 0) {
+//                scrollDown = true;
+//            } else {
+//                scrollDown = false;
+//            }
+//        }
         adapter.setData(split);
-        if (scrollDown) {
-            layout.scrollToPosition(0);
-        }
+//        if (scrollDown) {
+//            layout.scrollToPosition(0);
+//        }
     }
 
 
@@ -278,5 +278,28 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
 
     public void hideAttachPannel() {
         messagePanel.hideAttachPannel();
+    }
+
+
+
+    public void addNewMessage(TdApi.Message message) {
+        boolean scrollDown;
+        int firstFullVisible = layout.findFirstCompletelyVisibleItemPosition();
+        if (firstFullVisible == 0) {
+            scrollDown = true;
+        } else {
+            if (layout.findFirstVisibleItemPosition() == 0) {
+                scrollDown = true;
+            } else {
+                scrollDown = false;
+            }
+        }
+        List<RxChat.ChatListItem> data = adapter.getData();
+        List<RxChat.ChatListItem> prepend= splitter.prepend(data, message);
+
+        adapter.addFirst(prepend);
+        if (scrollDown) {
+            layout.scrollToPosition(0);
+        }
     }
 }

@@ -8,7 +8,9 @@ import org.joda.time.DateTimeZone;
 import ru.korniltsev.telegram.core.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +75,29 @@ public class DaySplitter {
             RxChat.DaySeparatorItem newSeparator = new RxChat.DaySeparatorItem(counter--, time);
             cache.put(time, newSeparator);
             return newSeparator;
+        }
+    }
+
+    public List<RxChat.ChatListItem> prepend(List<RxChat.ChatListItem> data, TdApi.Message message) {
+        boolean addDateItem = false;
+        if (data.isEmpty()) {
+            addDateItem = true;
+        } else {
+            RxChat.MessageItem firstMessage = (RxChat.MessageItem) data.get(0);
+            if (!hasTheSameDay(message, firstMessage.msg)) {
+                addDateItem = true;
+            }
+        }
+        RxChat.MessageItem newMessageItem = new RxChat.MessageItem(message);
+        if (addDateItem) {
+            return Arrays.asList(
+                    createSeparator(message),
+                    newMessageItem
+            );
+        } else {
+            return Collections.<RxChat.ChatListItem>singletonList(
+                    newMessageItem
+            );
         }
     }
 }

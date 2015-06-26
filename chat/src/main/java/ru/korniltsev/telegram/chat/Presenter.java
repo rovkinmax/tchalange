@@ -153,17 +153,17 @@ public class Presenter extends ViewPresenter<ChatView>
                             }
                         }));
 
-//        subscription.add(
-//                rxChat.newMessage()
-//                        .subscribe(new ObserverAdapter<List<RxChat.ChatListItem>>() {
-//                                       @Override
-//                                       public void onNext(List<RxChat.ChatListItem> chatListItems) {
-//                                           getView()
-//                                                   .addNewMessage(chatListItems);
-//                                           rxChat.hackToReadTheMessage(chatListItems);
-//                                       }
-//                                   }
-//                        ));
+        subscription.add(
+                rxChat.getNewMessage()
+                        .subscribe(new ObserverAdapter<TdApi.Message>() {
+                                       @Override
+                                       public void onNext(TdApi.Message chatListItems) {
+                                           getView()
+                                                   .addNewMessage(chatListItems);
+                                           rxChat.hackToReadTheMessage(chatListItems);
+                                       }
+                                   }
+                        ));
 
         requestUpdateOnlineStatus();
 

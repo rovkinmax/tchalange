@@ -42,7 +42,7 @@ public class RxChat implements UserHolder {
         public int compare(TdApi.Message lhs, TdApi.Message rhs) {
             int dateCompare = -compareInt(lhs.date, rhs.date);
             if (dateCompare == 0) {
-                return compareInt(lhs.id, rhs.id);
+                return -compareInt(lhs.id, rhs.id);
             }
             return dateCompare;
         }
@@ -77,6 +77,8 @@ public class RxChat implements UserHolder {
 
 
     private final PublishSubject<List<TdApi.Message>> subject = PublishSubject.create();
+    private PublishSubject<TdApi.Message> newMessage = PublishSubject.create();
+
     private Observable<ChatDB.Portion> request;
     private Set<Integer> tmpUIDs = new HashSet<>();
 
@@ -88,6 +90,10 @@ public class RxChat implements UserHolder {
         this.id = id;
         this.client = client;
         this.holder = holder;
+    }
+
+    public Observable<TdApi.Message> getNewMessage() {
+        return newMessage;
     }
 
     public boolean atLeastOneRequestCompleted() {
@@ -266,8 +272,14 @@ public class RxChat implements UserHolder {
 
     public void handleNewMessage(TdApi.Message tlObject) {
         ms.add(tlObject);
-        subject.onNext(getMessages());
+        newMessage.onNext(tlObject);
     }
+
+
+
+
+
+
 
 
     public void deleteHistory() {
@@ -277,7 +289,6 @@ public class RxChat implements UserHolder {
                     @Override
                     public void onNext(TdApi.TLObject response) {
                         ms.clear();
-//                        chatListItems.clear();
                         subject.onNext(getMessages());
                     }
                 });
@@ -340,9 +351,8 @@ public class RxChat implements UserHolder {
                 .subscribe(HANDLE_NEW_MESSAGE);
     }
 
-    public void hackToReadTheMessage(List<ChatListItem> chatListItems) {
-        MessageItem msg = (MessageItem) chatListItems.get(0);
-        client.sendRx(new TdApi.GetChatHistory(id, msg.msg.id, -1, 1))
+    public void hackToReadTheMessage(TdApi.Message msg) {
+        client.sendRx(new TdApi.GetChatHistory(id, msg.id, -1, 1))
         .subscribe(new ObserverAdapter<TdApi.TLObject>());
 
     }
