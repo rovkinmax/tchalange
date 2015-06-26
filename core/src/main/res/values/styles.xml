@@ -23,6 +23,7 @@
         <!--<item name="colorControlNormal">#e0e0e0</item>-->
         <!--<item name="colorSwitchThumbNormal">@color/foo</item>-->
         <!--<item name="android:colorForeground">@color/foo</item>-->
+        <item name="android:windowTranslucentStatus">@bool/translucent_status_bar</item>
     </style>
 
     <style name="PathRoot">

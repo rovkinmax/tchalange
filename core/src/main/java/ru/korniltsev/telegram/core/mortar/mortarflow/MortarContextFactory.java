@@ -18,7 +18,7 @@ public final class MortarContextFactory implements PathContextFactory {
 
   @Override public Context setUpContext(Path path, Context parentContext) {
     MortarScope screenScope =
-        screenScoper.getScreenScope(parentContext, path.getClass().getSimpleName() + "-" + path.hashCode(), path);
+        screenScoper.getScreenScope(parentContext, path.getClass().getSimpleName(), path);
     CrashlyticsCore.getInstance()
             .log(Log.DEBUG, "MortarContextFactory", "setUpContext " + screenScope);
     return new TearDownContext(parentContext, screenScope);

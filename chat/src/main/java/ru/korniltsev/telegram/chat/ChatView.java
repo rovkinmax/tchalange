@@ -2,6 +2,7 @@ package ru.korniltsev.telegram.chat;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -14,10 +15,12 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.emoji.ObservableLinearLayout;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.flow.pathview.HandlesBack;
+import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.recycler.CheckRecyclerViewSpan;
 import ru.korniltsev.telegram.core.recycler.EndlessOnScrollListener;
 import ru.korniltsev.telegram.core.rx.DaySplitter;
@@ -38,6 +41,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
     public static final int SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT = 10;
     @Inject Presenter presenter;
     @Inject RxGlide picasso;
+    @Inject ActivityOwner activity;
 
     private RecyclerView list;
     private MessagePanel messagePanel;
@@ -137,6 +141,8 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
                 }
             }
         });
+        activity.setStatusBarColor(getResources().getColor(R.color.primary_dark));
+
     }
 
     boolean scrollDownButtonIsVisible = false;

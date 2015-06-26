@@ -10,6 +10,8 @@ public class ActivityOwner extends Presenter<ActivityOwner.AnActivity> {
     public interface AnActivity {
         Activity expose();
         Observable<ActivityResult> activityResult();
+
+        void setStatusBarColor(int color);
     }
 
     @Override
@@ -23,5 +25,9 @@ public class ActivityOwner extends Presenter<ActivityOwner.AnActivity> {
 
     public Observable<ActivityResult> activityResult() {
         return getView().activityResult();
+    }
+
+    public void setStatusBarColor(int color) {
+        getView().setStatusBarColor(color);
     }
 }

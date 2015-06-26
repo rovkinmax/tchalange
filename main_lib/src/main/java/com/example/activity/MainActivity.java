@@ -2,8 +2,11 @@ package com.example.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.View;
+import android.view.ViewGroup;
 import com.crashlytics.android.core.CrashlyticsCore;
 import dagger.ObjectGraph;
 import flow.Flow;
@@ -41,6 +44,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
     private ActivityOwner activityOwner;
     private static boolean firstRun = true;
     private BundleServiceRunner bundleServiceRunner;
+    private View statusBarBg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +55,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.root_layout);
+        setupStatusBarForKitkat();
         container = ((MortarScreenSwitcherFrame) findViewById(R.id.container));
 
         MortarScope parentScope = MortarScope.getScope(getApplication());
@@ -67,7 +72,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
             event("create activityScope == " + activityScope);
         }
 
-//        GsonParceler parceler = new GsonParceler(new Gson());
+        //        GsonParceler parceler = new GsonParceler(new Gson());
         @SuppressWarnings("deprecation") FlowDelegate.NonConfigurationInstance nonConfig =
                 (FlowDelegate.NonConfigurationInstance) getLastNonConfigurationInstance();
 
@@ -85,6 +90,24 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
         getWindow().getDecorView().setBackgroundDrawable(null);
     }
 
+    private void setupStatusBarForKitkat() {
+        statusBarBg = findViewById(R.id.status_bar_for_kitkat);
+        ViewGroup.LayoutParams lp = statusBarBg.getLayoutParams();
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId <= 0) {
+                return;
+            }
+            int statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+            lp.height = statusBarHeight;
+        } else {
+            lp.height = 0;
+        }
+        statusBarBg.setLayoutParams(lp);
+        int colorDark = getResources().getColor(R.color.primary_dark);
+        setStatusBarColor(colorDark);
+    }
+
     private Object getScreenForAuthState(RXAuthState.AuthState state) {
         if (state instanceof RXAuthState.StateAuthorized) {
             RXAuthState.StateAuthorized a = (RXAuthState.StateAuthorized) state;
@@ -92,7 +115,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
         } else {
             return new EnterPhoneFragment();
         }
-//        return state == RXAuthState.AuthState.AUTHORIZED ? new ChatList() : new EnterPhoneFragment();
+        //        return state == RXAuthState.AuthState.AUTHORIZED ? new ChatList() : new EnterPhoneFragment();
     }
 
     @Override
@@ -110,8 +133,6 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
                                 .setHistory(history, Flow.Direction.REPLACE);
                     }
                 });
-
-
     }
 
     @Override
@@ -143,7 +164,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        event("onSaveInstanceState " + this );
+        event("onSaveInstanceState " + this);
         super.onSaveInstanceState(outState);
         flow.onSaveInstanceState(outState);
         try {
@@ -184,7 +205,6 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
         activityResult.onNext(new ActivityResult(requestCode, resultCode, data));
     }
 
-
     private PublishSubject<ActivityResult> activityResult = PublishSubject.create();
 
     @Override
@@ -195,5 +215,14 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
     @Override
     public Observable<ActivityResult> activityResult() {
         return activityResult;
+    }
+
+    @Override
+    public void setStatusBarColor(int color) {
+        if (Build.VERSION_CODES.KITKAT == Build.VERSION.SDK_INT) {
+            statusBarBg.setBackgroundColor(color);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(color);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.photoview;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.MenuItem;
@@ -9,6 +10,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.Utils;
+import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import uk.co.senab.photoview.PhotoView;
@@ -19,6 +22,7 @@ import javax.inject.Inject;
 public class PhotoViewerView extends FrameLayout {
     @Inject PhotoViewer.Presenter presenter;
     @Inject RxGlide picasso;
+    @Inject ActivityOwner activity;
     private PhotoView imageView;
     private ToolbarUtils toolbar;
     //    private Target t = new Target() {
@@ -64,6 +68,7 @@ public class PhotoViewerView extends FrameLayout {
                 .pop();
         imageView = ((PhotoView) findViewById(R.id.image));
 
+        activity.setStatusBarColor(Color.BLACK);
     }
 
     @Override

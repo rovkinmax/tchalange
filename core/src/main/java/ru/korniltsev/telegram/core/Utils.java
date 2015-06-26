@@ -1,5 +1,6 @@
 package ru.korniltsev.telegram.core;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -148,5 +149,12 @@ public class Utils {
     public static void event(String eventName) {
         CrashlyticsCore.getInstance()
                 .log(Log.INFO, "Event", eventName);
+    }
+
+    public static void setStatusBarColor(Activity a, int color){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            a.getWindow().setStatusBarColor(color);
+        }
+
     }
 }
