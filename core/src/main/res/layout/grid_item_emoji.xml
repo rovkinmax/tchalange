@@ -3,4 +3,5 @@
            android:id="@+id/img"
            android:layout_width="@dimen/emoji_size"
            android:layout_height="@dimen/emoji_size"
+           android:background="@drawable/bg_keyboard_tab"
         />

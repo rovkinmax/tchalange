@@ -4,4 +4,6 @@
            android:layout_width="@dimen/sticker_size"
            android:layout_height="@dimen/sticker_size"
            android:scaleType="fitCenter"
+           android:clickable="false"
+           android:background="@drawable/bg_keyboard_tab"
         />

@@ -129,13 +129,13 @@ public class EmojiKeyboardView extends LinearLayout {
 
                 final long[] longs = recentIds;
                 GridView gridPage = createGridPage(container, position, new EmojiPageAdapter(longs), R.dimen.emoji_size);
-                gridPage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        long emojiCode = longs[position];
-                        callback.emojiClicked(emojiCode);
-                    }
-                });
+//                gridPage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                    @Override
+//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                        long emojiCode = longs[position];
+//                        callback.emojiClicked(emojiCode);
+//                    }
+//                });
                 return gridPage;
             } else if (position == getCount() -1){
                 final List<TdApi.Sticker> ss = EmojiKeyboardView.this.stickers.getStickers();
@@ -144,48 +144,30 @@ public class EmojiKeyboardView extends LinearLayout {
                 res.setClipToPadding(false);
                 int dip8 = calc.dp(8);
                 res.setPadding(dip8/2, dip8, dip8/2, dip8);
-                res.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        stickerClicked(ss.get(position));
-                    }
-                });
+//                res.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                    @Override
+//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                        stickerClicked(ss.get(position));
+//                    }
+//                });
                 return res;
             } else {
                 final long[] data = Emoji.data[position];
                 GridView gridPage = createGridPage(container, position, new EmojiPageAdapter(data), R.dimen.emoji_size);
-                gridPage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        long emojiCode = data[position];
-                        callback.emojiClicked(emojiCode);
-                        recent.emojiClicked(emojiCode);
-                    }
-                });
+//                gridPage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                    @Override
+//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                        long emojiCode = data[position];
+//                        callback.emojiClicked(emojiCode);
+//                        recent.emojiClicked(emojiCode);
+//                    }
+//                });
                 return gridPage;
             }
 
         }
 
-        private void stickerClicked(TdApi.Sticker sticker) {
-            downloader.downloadWithoutProgress(sticker.sticker)
-                    .observeOn(mainThread())
-                    .subscribe(new ObserverAdapter<TdApi.FileLocal>() {
-                        @Override
-                        public void onNext(TdApi.FileLocal fileLocal) {
-                            callback.stickerCLicked(fileLocal.path);
-                        }
-                    });
-//            if (downloader.isDownloaded(sticker.thumb.photo)) {
-//                downloader.downloadWithoutProgress(sticker.thumb.photo)
-//                        .subscribe(new Action1<TdApi.FileLocal>() {
-//                            @Override
-//                            public void call(TdApi.FileLocal fileLocal) {
-//
-//                            }
-//                        });
-//            }
-        }
+
 
         private GridView createGridPage(ViewGroup container, int position1, BaseAdapter adapter, int columnSizeResId) {
             int columnWidth = getContext().getResources().getDimensionPixelSize(columnSizeResId);
@@ -199,13 +181,13 @@ public class EmojiKeyboardView extends LinearLayout {
 
 
 
-        private GridView createRecent(ViewGroup container, int position) {
-            View view = viewFactory.inflate(R.layout.keyboard_page_recent, container, false);
-
-            container.addView(view);
-            view.setTag( position);
-            return (GridView) view;
-        }
+//        private GridView createRecent(ViewGroup container, int position) {
+//            View view = viewFactory.inflate(R.layout.keyboard_page_recent, container, false);
+//
+//            container.addView(view);
+//            view.setTag( position);
+//            return (GridView) view;
+//        }
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
@@ -239,6 +221,7 @@ public class EmojiKeyboardView extends LinearLayout {
         }
 
         public void onBindViewHolder(VH holder, int position) {
+            holder.o = longs[position];
             Drawable d = emoji.getEmojiBigDrawable(longs[position]);
             holder.img.setImageDrawable(d);
         }
@@ -275,9 +258,22 @@ public class EmojiKeyboardView extends LinearLayout {
 
     }
     class VH {
+        Object o;
         final ImageView img;
         public VH(View itemView) {
             img = (ImageView)itemView.findViewById(R.id.img);
+            img.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (o instanceof TdApi.Sticker) {
+                        stickerClicked((TdApi.Sticker) o);
+                    } else {
+                        Long emojiCode = (Long) VH.this.o;
+                        callback.emojiClicked(emojiCode);
+                        recent.emojiClicked(emojiCode);
+                    }
+                }
+            });
         }
     }
 
@@ -320,6 +316,7 @@ public class EmojiKeyboardView extends LinearLayout {
 
         private void onBindVH(final VH vh, int position) {
             final TdApi.Sticker s = getItem(position);
+            vh.o = s;
             picasso.loadPhoto(s.thumb.photo, true)
                     .priority(Picasso.Priority.HIGH)
                     .into(vh.img, new Callback() {
@@ -351,5 +348,25 @@ public class EmojiKeyboardView extends LinearLayout {
 //                        }
 //                    });
         }
+    }
+
+    private void stickerClicked(TdApi.Sticker sticker) {
+        downloader.downloadWithoutProgress(sticker.sticker)
+                .observeOn(mainThread())
+                .subscribe(new ObserverAdapter<TdApi.FileLocal>() {
+                    @Override
+                    public void onNext(TdApi.FileLocal fileLocal) {
+                        callback.stickerCLicked(fileLocal.path);
+                    }
+                });
+        //            if (downloader.isDownloaded(sticker.thumb.photo)) {
+        //                downloader.downloadWithoutProgress(sticker.thumb.photo)
+        //                        .subscribe(new Action1<TdApi.FileLocal>() {
+        //                            @Override
+        //                            public void call(TdApi.FileLocal fileLocal) {
+        //
+        //                            }
+        //                        });
+        //            }
     }
 }

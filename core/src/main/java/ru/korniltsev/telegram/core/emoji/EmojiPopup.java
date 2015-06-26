@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.ViewTreeObserver;
@@ -37,6 +39,11 @@ public class EmojiPopup extends PopupWindow implements ObservableLinearLayout.Ca
 
     public EmojiPopup(EmojiKeyboardView view, ObservableLinearLayout rootView) {
         super(view);
+
+//        setOutsideTouchable(true);
+//        setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+//        setFocusable(true);
+
         this.view = view;
         this.parentView = rootView;
         ObjectGraphService.inject(view.getContext(), this);

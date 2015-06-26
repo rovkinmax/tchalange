@@ -5,6 +5,7 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import com.crashlytics.android.core.CrashlyticsCore;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
@@ -78,6 +79,7 @@ public class RxDownloadManager {
             allRequests.clear();
             allDownloadedFiles.clear();
             exposedFiles.clear();
+            fileIdToHook.clear();
         }
     }
 
@@ -93,14 +95,17 @@ public class RxDownloadManager {
     }
 
     private void updateFile(TdApi.UpdateFile upd) {
-//        log("before handleUpdateFile:" + RXClient.coolTagForFileId(upd.fileId));
         Action1<TdApi.UpdateFile> hook = fileIdToHook.get(upd.fileId);
         if (hook != null) {
-            hook.call(upd);
+            try {
+                hook.call(upd);
+            } catch (Exception e) {
+                CrashlyticsCore.getInstance()
+                        .logException(e);
+            }
         }
 
         synchronized (lock) {
-//            log("handleUpdateFile:" + RXClient.coolTagForFileId(upd.fileId));
             TdApi.FileLocal f = new TdApi.FileLocal(upd.fileId, upd.size, upd.path);
             allDownloadedFiles.put(upd.fileId, f);
             BehaviorSubject<FileState> s = allRequests.get(upd.fileId);
