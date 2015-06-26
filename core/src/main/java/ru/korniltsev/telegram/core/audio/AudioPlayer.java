@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -13,7 +14,6 @@ import opus.OpusSupport;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
-import ru.korniltsev.telegram.core.utils.Preconditions;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
 
@@ -25,7 +25,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -111,7 +110,7 @@ public class AudioPlayer {
         assertNotNull(currentTrack);
         assertTrue(path.equals(currentTrack.filePath));
         currentTrack.track.play();
-        currentTrack.write(currentTrack.pcm16File, currentTrack.track.getPlaybackHeadPosition() * 2);
+//        currentTrack.write(currentTrack.pcm16File, currentTrack.track.getPlaybackHeadPosition() * 2);
     }
 
     public void decode(TdApi.UpdateFile updateFile) {
@@ -140,7 +139,7 @@ public class AudioPlayer {
                     playerBufferSize,
                     AudioTrack.MODE_STREAM);
 
-            write(pcm16File, 0);
+            write(pcm16File);
 
             track.setPositionNotificationPeriod(SAMPLE_RATE_IN_HZ / 8);
             frameCount = length / 2;
@@ -148,12 +147,15 @@ public class AudioPlayer {
             track.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
                 @Override
                 public void onMarkerReached(AudioTrack track) {
+                    log("marker reached " );
                     state.onNext(new TrackState(false, frameCount, frameCount));
                     trackPlayed();
                 }
 
                 @Override
                 public void onPeriodicNotification(AudioTrack track) {
+
+//                    log("period " + track.getPlaybackHeadPosition() + " " +  frameCount);
                     state.onNext(new TrackState(true, track.getPlaybackHeadPosition(), frameCount));
                 }
             });
@@ -162,20 +164,34 @@ public class AudioPlayer {
         }
 
 
-        private void write(final File arr, final long skip) {
+        private void write(final File arr) {
             service.submit(new Runnable() {
                 @Override
                 public void run() {
                     BufferedInputStream source = null;
                     try {
                         source = new BufferedInputStream(new FileInputStream(arr));
-                        source.skip(skip);//todo use RandomAccessFile when you add seek
                         byte[] buffer = new byte[playerBufferSize];
                         int read;
                         while (((read = source.read(buffer)) != -1)) {
-                            int write = track.write(buffer, 0, read);
+                            int writeInIteration = 0;
+                            int write;
+
+                            do {
+                                write = track.write(buffer, writeInIteration, read - writeInIteration);
+                                writeInIteration += write;
+
+                                if (write < 0 ){
+                                    log("break " + write);
+                                    break;
+                                }
+                                if (writeInIteration != read) {
+                                    SystemClock.sleep(64);//todo use semaphore
+                                }
+                            } while (writeInIteration != read);
+
                             if (write < 0) {
-                                log("break -> write : " + write);
+                                log("break " + write);
                                 break;
                             }
                         }
@@ -190,7 +206,9 @@ public class AudioPlayer {
                             }
                         }
                     }
+
                     log("finish " + arr);
+//                    log("wrote " + bytesWrote);
                 }
             });
 
@@ -200,6 +218,7 @@ public class AudioPlayer {
 
 
         public void stop() {
+            log("stop");
             state.onNext(new TrackState(false, 0, frameCount));
             track.pause();
             track.stop();
@@ -251,7 +270,8 @@ public class AudioPlayer {
     }
 
 
-    public void pause(String path){
+    public void pause(String path) {
+        log("pause");
         assertNotNull(currentTrack);
         assertTrue(path.equals(currentTrack.filePath));
         assertTrue(currentTrack.track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING);
