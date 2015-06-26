@@ -1,10 +1,13 @@
 package ru.korniltsev.telegram.attach_panel;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
@@ -15,8 +18,9 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import dagger.ObjectGraph;
@@ -36,12 +40,14 @@ public class AttachPanelPopup extends PopupWindow {
     final Callback callback;
 
     private final DpCalculator dpCalc;
+    private final DecelerateInterpolator decelerateInterpolator = new DecelerateInterpolator(1.5f);
     private RecyclerView recentGalleryImages;
     private View outside;
     private RxGlide rxGlide;
     private RecentImagesAdapter adapter;
     private TextView btnTakePhoto;
     private TextView btnChooseFromGallery;
+    private View panel;
 
     public AttachPanelPopup(View view, Callback callback) {
         super(view);
@@ -69,8 +75,8 @@ public class AttachPanelPopup extends PopupWindow {
                 updateButtonText(count);
             }
         });
-        btnTakePhoto = (TextView)view.findViewById(R.id.btn_take_photo);
-        btnChooseFromGallery = (TextView)view.findViewById(R.id.btn_choose_from_gallery);
+        btnTakePhoto = (TextView) view.findViewById(R.id.btn_take_photo);
+        btnChooseFromGallery = (TextView) view.findViewById(R.id.btn_choose_from_gallery);
         recentGalleryImages = ((RecyclerView) view.findViewById(R.id.recent_images));
         recentGalleryImages.setLayoutManager(new LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false));
         recentGalleryImages.addItemDecoration(new InsetDecorator());
@@ -82,6 +88,7 @@ public class AttachPanelPopup extends PopupWindow {
                 dismiss();
             }
         });
+        panel = view.findViewById(R.id.panel);
         btnTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,12 +99,11 @@ public class AttachPanelPopup extends PopupWindow {
             @Override
             public void onClick(View v) {
                 ArrayList<String> selectedImages = adapter.getSelectedImages();
-                if (selectedImages.size() == 0){
+                if (selectedImages.size() == 0) {
                     callback.chooseFromGallery();
                 } else {
                     callback.sendImages(selectedImages);
                 }
-
             }
         });
 
@@ -111,17 +117,14 @@ public class AttachPanelPopup extends PopupWindow {
                 });
     }
 
-
-
     private void updateButtonText(int count) {
         Resources res = getContentView().getContext().getResources();
         SpannableStringBuilder sb = new SpannableStringBuilder();
         if (count == 0) {
             sb.append(res.getString(R.string.choose_from_gallery));
-
         } else {
             SpannableString nPhotos = new SpannableString(res.getQuantityString(R.plurals.n_photos, count, count));
-                nPhotos.setSpan(new StyleSpan(Typeface.BOLD), 0, nPhotos.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            nPhotos.setSpan(new StyleSpan(Typeface.BOLD), 0, nPhotos.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
             sb.append(res.getString(R.string.send))
                     .append(" ");
             sb.append(nPhotos);
@@ -136,7 +139,13 @@ public class AttachPanelPopup extends PopupWindow {
 
         AttachPanelPopup res = new AttachPanelPopup(view, callback);
 
-        res.showAtLocation(ctx.getWindow().getDecorView(), Gravity.BOTTOM | Gravity.LEFT, 0, 0);
+        int marginBottom = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//tdo wtf
+            marginBottom = getNavBarHeight(ctx);
+        }
+
+        res.showAtLocation(ctx.getWindow().getDecorView(), Gravity.BOTTOM | Gravity.LEFT, 0, marginBottom);
+
         return res;
     }
 
@@ -166,5 +175,67 @@ public class AttachPanelPopup extends PopupWindow {
         void chooseFromGallery();
 
         void takePhoto();
+    }
+
+    public static int getNavBarHeight(Context ctx) {
+        Resources resources = ctx.getResources();
+        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return resources.getDimensionPixelSize(resourceId);
+        }
+        return 0;
+    }
+
+    @Override
+    public void showAtLocation(final View parent, int gravity, int x, int y) {
+        super.showAtLocation(parent, gravity, x, y);
+
+        panel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                outside.setAlpha(0);
+                outside.animate()
+                        .setInterpolator(decelerateInterpolator)
+                        .setDuration(128)
+                        .alpha(0.5f);
+                panel.setTranslationY(panel.getHeight());
+                panel.animate()
+                        .setInterpolator(decelerateInterpolator)
+                        .setDuration(128)
+                        .translationY(0);
+                ViewTreeObserver o = panel.getViewTreeObserver();
+                if (o.isAlive()) {
+                    o.removeOnPreDrawListener(this);
+                }
+                return true;
+            }
+        });
+    }
+
+    boolean dissmised = false;
+
+    @Override
+    public void dismiss() {
+        if (dissmised) {
+            return;
+        }
+        dissmised = true;
+        outside.animate()
+                .setInterpolator(decelerateInterpolator)
+                .setDuration(256)
+                .alpha(0f)
+        .setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                realDismiss();
+            }
+        });
+        panel.animate()
+                .setInterpolator(decelerateInterpolator)
+                .setDuration(128)
+                .translationY(panel.getHeight());
+    }
+    public void realDismiss() {
+        super.dismiss();
     }
 }
