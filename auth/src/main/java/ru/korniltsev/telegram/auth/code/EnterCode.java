@@ -159,6 +159,8 @@ public class EnterCode extends BasePath implements Serializable{
                 }
             });
 
+            pd.setMessage(getView().getResources().getString(R.string.please_wait));
+            pd.setCanceledOnTouchOutside(false);
             pd.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {

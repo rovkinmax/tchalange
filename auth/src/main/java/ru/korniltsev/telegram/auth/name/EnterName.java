@@ -121,6 +121,7 @@ public class EnterName extends BasePath implements Serializable {
                     getView().showError(th.getMessage());
                 }
             });
+            pd.setMessage(getView().getResources().getString(R.string.please_wait));
             pd.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
