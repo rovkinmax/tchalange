@@ -150,24 +150,15 @@ public class VideoView extends FrameLayout {
         }
     }
 
-    private void playGif(TdApi.FileLocal e) {
-        Drawable drawable = preview.getDrawable();
-        if (drawable instanceof GifDrawable){
-            preview.setImageDrawable(null);
-            showLowQualityThumb(thumb);
-        } else {
-
-        }
-//        try {
-//            preview.setImageDrawable(new GifDrawable(e.path));
-//        } catch (IOException e1) {
-//            e1.printStackTrace();
-//        }
-    }
 
     private void showLowQualityThumb(TdApi.PhotoSize thumb) {
-        picasso.loadPhoto(thumb.photo, false)
-                .resize(width, height)
-                .into(preview);
+        if (thumb.photo.getId() == 0) {
+            picasso.getPicasso()
+                    .cancelRequest(preview);
+        } else {
+            picasso.loadPhoto(thumb.photo, false)
+                    .resize(width, height)
+                    .into(preview);
+        }
     }
 }
