@@ -12,6 +12,7 @@
             android:hardwareAccelerated='true'>
         <activity android:name='com.example.activity.MainActivity'
                   android:theme="@style/AppTheme"
+                  android:launchMode="singleTop"
                 android:windowSoftInputMode="adjustResize"
                 >
             <intent-filter>
