@@ -1,23 +1,23 @@
 package ru.korniltsev.telegram.chat.adapter.view;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.widget.ImageView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
+import ru.korniltsev.telegram.core.emoji.Stickers;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 
 import javax.inject.Inject;
 
 public class StickerView extends ImageView {
-    private final int MAX_HEIGHT;
+    private final int MAX_SIZE;
     @Inject RxGlide picasso;
     @Inject DpCalculator calc;
+    @Inject Stickers stickersInfo;
 
     private int height;
     private int width;
@@ -25,7 +25,7 @@ public class StickerView extends ImageView {
     public StickerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         ObjectGraphService.inject(context, this);
-            MAX_HEIGHT = Math.min(512, calc.dp(256));
+            MAX_SIZE = Math.min(512, calc.dp(256));
     }
 
     @Override
@@ -37,15 +37,37 @@ public class StickerView extends ImageView {
 
     public void bind(final TdApi.Sticker s) {
         setImageBitmap(null);
-        height = MAX_HEIGHT;
+//        height = MAX_HEIGHT;
         float ratio;
-        if (s.width == 0 && s.height == 0){
-            ratio = 1f;
+        if (s.width == 0 || s.height == 0){
+            if (s.sticker instanceof TdApi.FileLocal){
+                String path = ((TdApi.FileLocal) s.sticker).path;
+                TdApi.Sticker mapped = stickersInfo.getMappedSticker(path);
+                if (mapped != null){
+                    if (mapped.width == 0 || mapped.height == 0) {
+                        ratio = 1f;
+                    } else {
+                        ratio = (float) mapped.width / mapped.height;
+                    }
+                } else {
+                    ratio = 1f;
+                }
+            } else {
+                ratio = 1f;
+            }
         } else {
             ratio = (float) s.width / s.height;
         }
+        if (ratio > 1) {
+            width = MAX_SIZE;
+            height = (int) (width / ratio);
+        } else {
+            height = MAX_SIZE;
+            width = (int) (height * ratio);
+        }
 
-        width = (int) (ratio * height);
+
+//        width = (int) (ratio * height);
         if (isValidThumb(s)){
             picasso.loadPhoto(s.thumb.photo, true)
 //                    .resize(width, height)
@@ -84,4 +106,6 @@ public class StickerView extends ImageView {
         }
         return id != 0;
     }
+
+
 }

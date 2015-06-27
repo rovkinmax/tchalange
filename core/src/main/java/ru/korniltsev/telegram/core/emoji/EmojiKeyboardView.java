@@ -88,7 +88,7 @@ public class EmojiKeyboardView extends LinearLayout {
     public interface CallBack {
         void backspaceClicked();
         void emojiClicked(long code);
-        void stickerCLicked(String stickerFilePath);
+        void stickerCLicked(String stickerFilePath, TdApi.Sticker sticker);
     }
 
 
@@ -350,13 +350,13 @@ public class EmojiKeyboardView extends LinearLayout {
         }
     }
 
-    private void stickerClicked(TdApi.Sticker sticker) {
+    private void stickerClicked(final TdApi.Sticker sticker) {
         downloader.downloadWithoutProgress(sticker.sticker)
                 .observeOn(mainThread())
                 .subscribe(new ObserverAdapter<TdApi.FileLocal>() {
                     @Override
                     public void onNext(TdApi.FileLocal fileLocal) {
-                        callback.stickerCLicked(fileLocal.path);
+                        callback.stickerCLicked(fileLocal.path, sticker);
                     }
                 });
         //            if (downloader.isDownloaded(sticker.thumb.photo)) {

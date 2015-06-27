@@ -17,6 +17,7 @@ import ru.korniltsev.telegram.attach_panel.AttachPanelPopup;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
+import ru.korniltsev.telegram.core.emoji.Stickers;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.mortar.ActivityResult;
 import ru.korniltsev.telegram.core.rx.NotificationManager;
@@ -62,13 +63,14 @@ public class Presenter extends ViewPresenter<ChatView>
     }
 
     private final ActivityOwner owner;
-
+    private final Stickers stickers;
     @Inject
-    public Presenter(Chat c, RXClient client, ChatDB chatDB, NotificationManager nm, ActivityOwner owner) {
+    public Presenter(Chat c, RXClient client, ChatDB chatDB, NotificationManager nm, ActivityOwner owner, Stickers stickers) {
         path = c;
         this.client = client;
         this.nm = nm;
         this.owner = owner;
+        this.stickers = stickers;
         rxChat = chatDB.getRxChat(path.chat.id);
 
         if (path.chat.type instanceof TdApi.GroupChatInfo) {
@@ -392,9 +394,8 @@ public class Presenter extends ViewPresenter<ChatView>
         }, 32);
     }
 
-    public void sendSticker(final String stickerFilePath) {
-        //        Chat c = Chat.get(getContext());
-        //        RxChat rxChat = chat.getRxChat(c.chat.id);
+    public void sendSticker(final String stickerFilePath, TdApi.Sticker sticker) {
+        stickers.map(stickerFilePath, sticker);
         getView().scrollToBottom();
         getView().postDelayed(new Runnable() {
             @Override

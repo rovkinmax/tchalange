@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import mortar.dagger1support.ObjectGraphService;
+import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.attach_panel.AttachPanelPopup;
 import ru.korniltsev.telegram.chat.Presenter;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
@@ -71,8 +72,8 @@ public class MessagePanel extends LinearLayout {
         }
 
         @Override
-        public void stickerCLicked(String stickerFilePath) {
-            presenter.sendSticker(stickerFilePath);
+        public void stickerCLicked(String stickerFilePath, TdApi.Sticker sticker) {
+            presenter.sendSticker(stickerFilePath, sticker);
 
         }
     };

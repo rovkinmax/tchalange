@@ -13,7 +13,9 @@ import javax.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
@@ -21,6 +23,8 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 public class Stickers {
     final RXClient client;
     private List<TdApi.Sticker> ss = new ArrayList<>();
+    //maps
+    private Map<String, TdApi.Sticker> filePathToStickerInfo = new HashMap<>();
 
 
 
@@ -76,4 +80,13 @@ public class Stickers {
     public List<TdApi.Sticker> getStickers() {
         return ss;
     }
+
+    public void map(String filePath, TdApi.Sticker sticker) {
+        filePathToStickerInfo.put(filePath, sticker);
+    }
+
+    public TdApi.Sticker getMappedSticker(String key) {
+        return filePathToStickerInfo.get(key);
+    }
 }
+
