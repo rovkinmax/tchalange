@@ -47,7 +47,7 @@ public class PhotoViewView extends FrameLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         toolbar = ToolbarUtils.initToolbar(this)
-                .inflate(R.menu.menu_photo_view)
+                .inflate(R.menu.photo_view)
                 .setMenuClickListener(new Toolbar.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {

@@ -5,9 +5,9 @@
                                                                android:layout_marginBottom="0dp"
         >
 
-    <include layout="@layout/item_avatar"/>
+    <include layout="@layout/chat_item_avatar"/>
 
-    <include layout="@layout/item_nick_and_time"/>
+    <include layout="@layout/chat_item_nick_and_time"/>
 
     <!--<View-->
             <!--android:id="@+id/anchor"-->

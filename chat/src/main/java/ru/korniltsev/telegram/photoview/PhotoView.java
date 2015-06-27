@@ -1,28 +1,12 @@
 package ru.korniltsev.telegram.photoview;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.view.Display;
-import android.view.WindowManager;
 import dagger.Provides;
-import flow.Flow;
-import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
-import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
-import ru.korniltsev.telegram.core.rx.ChatDB;
-import ru.korniltsev.telegram.core.rx.GalleryService;
-import ru.korniltsev.telegram.core.rx.RXClient;
-import ru.korniltsev.telegram.core.rx.RxChat;
-import ru.korniltsev.telegram.core.utils.PhotoUtils;
-import rx.Observable;
-import rx.subscriptions.CompositeSubscription;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.Serializable;
 
 import static junit.framework.Assert.assertTrue;
@@ -49,7 +33,7 @@ public class PhotoView extends BasePath implements Serializable {
 
     @Override
     public int getRootLayout() {
-        return R.layout.view_photo_view;
+        return R.layout.photo_view_view;
     }
 
     @dagger.Module(

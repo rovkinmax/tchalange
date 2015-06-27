@@ -31,7 +31,7 @@ public class Chat extends BasePath implements Serializable {
 
     @Override
     public int getRootLayout() {
-        return R.layout.fragment_chat;
+        return R.layout.chat_view;
     }
 
 

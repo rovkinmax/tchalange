@@ -3,9 +3,9 @@
               style="@style/Item.Root"
         >
 
-    <include layout="@layout/item_avatar"/>
+    <include layout="@layout/chat_item_avatar"/>
 
-    <include layout="@layout/item_nick_and_time"/>
+    <include layout="@layout/chat_item_nick_and_time"/>
 
     <ru.korniltsev.telegram.chat.adapter.view.GeoPointView
             android:id="@+id/geo_point"

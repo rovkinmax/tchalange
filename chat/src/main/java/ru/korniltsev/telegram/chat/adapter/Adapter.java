@@ -139,59 +139,59 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
     public RealBaseVH onCreateViewHolder(ViewGroup p, int viewType) {
         switch (viewType) {
             case VIEW_TYPE_PHOTO: {
-                View view = inflate(R.layout.item_photo, p);
+                View view = inflate(R.layout.chat_item_photo, p);
                 return new PhotoMessageVH(view, this);
             }
             case VIEW_TYPE_STICKER: {
-                View view = inflate(R.layout.item_sticker, p);
+                View view = inflate(R.layout.chat_item_sticker, p);
                 return new StickerVH(view, this);
             }
             case VIEW_TYPE_AUDIO: {
-                View view = inflate(R.layout.item_audio, p);
+                View view = inflate(R.layout.chat_item_audio, p);
                 return new AudioVH(view, this);
             }
             case VIEW_TYPE_GEO: {
-                View view = inflate(R.layout.item_geo, p);
+                View view = inflate(R.layout.chat_item_geo, p);
                 return new GeoPointVH(view, this);
             }
             case VIEW_TYPE_VIDEO: {
-                View view = inflate(R.layout.item_video, p);
+                View view = inflate(R.layout.chat_item_video, p);
                 return new VideoVH(view, this);
             }
             case VIEW_TYPE_TEXT: {
-                View view = inflate(R.layout.item_message, p);
+                View view = inflate(R.layout.chat_item_message, p);
                 return new TextMessageVH(view, this);
             }
             case VIEW_TYPE_TEXT_FORWARD: {
-                View view = inflate(R.layout.item_message_forward, p);
+                View view = inflate(R.layout.chat_item_message_forward, p);
                 return new ForwardedTextMessageVH(view, this);
             }
             case VIEW_TYPE_TEXT_FORWARD2: {
-                View view = inflate(R.layout.item_message_forward2, p);
+                View view = inflate(R.layout.chat_item_message_forward2, p);
                 return new ForwardedTextMessage2VH(view, this);
             }
             case VIEW_TYPE_CHAT_PHOTO_CHANGED: {
-                View view = inflate(R.layout.item_chat_photo_changed, p);
+                View view = inflate(R.layout.chat_item_photo_changed, p);
                 return new ChatPhotoChangedVH(view, this);
             }
             case VIEW_TYPE_DOCUMENT: {
-                View view = inflate(R.layout.item_document, p);
+                View view = inflate(R.layout.chat_item_document, p);
                 return new DocumentVH(view, this);
             }
             case VIEW_TYPE_GIF: {
-                View view = inflate(R.layout.item_video, p);
+                View view = inflate(R.layout.chat_item_video, p);
                 return new GifDocumentVH(view, this);
             }
             case VIEW_TYPE_CONTACT: {
-                View view = inflate(R.layout.item_message_forward, p);
+                View view = inflate(R.layout.chat_item_message_forward, p);
                 return new ContactVH(view, this);
             }
             case VIEW_TYPE_DAY_SEPARATOR:{
-                View view = inflate(R.layout.item_day_separator, p);
+                View view = inflate(R.layout.chat_item_day_separator, p);
                 return new DaySeparatorVH(view, this);
             }
             default: {
-                View view = inflate(R.layout.item_single_text_view, p);
+                View view = inflate(R.layout.chat_item_single_text_view, p);
                 return new SingleTextViewVH(view, this);
             }
         }

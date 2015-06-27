@@ -2,7 +2,6 @@ package ru.korniltsev.telegram.chat;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -15,7 +14,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.emoji.ObservableLinearLayout;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
@@ -82,8 +80,8 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
                                 .goBack();
                     }
                 })
-                .customView(R.layout.toolbar_chat_title)
-                .inflate(R.menu.chat_fragment)
+                .customView(R.layout.chat_toolbar_title)
+                .inflate(R.menu.chat)
                 .setMenuClickListener(presenter);
         View customView = toolbar.getCustomView();
         assertNotNull(customView);

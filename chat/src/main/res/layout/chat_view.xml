@@ -41,6 +41,6 @@
     </FrameLayout>
 
 
-    <include layout="@layout/message_panel"/>
+    <include layout="@layout/chat_message_panel"/>
 
 </ru.korniltsev.telegram.chat.ChatView>
