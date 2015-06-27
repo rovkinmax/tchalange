@@ -91,7 +91,9 @@ public class ChatDB implements UserHolder {
                     @Override
                     public void onNext(RXAuthState.AuthState authState) {
                         if (authState instanceof RXAuthState.StateLogout){
-                            userIdToUser.clear();
+                            synchronized (userIdToUser){
+                                userIdToUser.clear();
+                            }
                             chatIdToRxChat.clear();
                             chatsList.clear();
                             downloadedAllChats = false;
