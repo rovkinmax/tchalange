@@ -2,7 +2,7 @@
 include 'core'
 include 'app'
 include 'auth'
-include 'chats_list'
+
 include 'chat'
 
 

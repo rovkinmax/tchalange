@@ -1,24 +1,18 @@
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
-
-
 apply plugin: 'com.github.triplet.play'
 
 
 dependencies {
-    compile project(":auth")
-    compile project(":chats_list")
-
-
     compile project(":core")
+    compile project(":auth")
+    compile project(":chat")
 }
 
 android {
     defaultConfig {
         versionName "1.0.17"
         versionCode 17
-//        renderscriptTargetApi 18
-//        renderscriptSupportModeEnabled true
     }
 
     def storePathStr = System.getenv("KSTOREPATH")
@@ -28,13 +22,10 @@ android {
     if (storePathStr != null){
         signingConfigs {
             release {
-
-
                 storeFile new File(storePathStr)
                 storePassword storePasswordStr
                 keyPassword keyPasswordStr
                 keyAlias "telegram.tdlib.chalange"
-
             }
         }
 
@@ -50,6 +41,6 @@ android {
 
 play {
     serviceAccountEmail = '439599534250-riaefvs9asg2aqcd63lrq8olkaoais37@developer.gserviceaccount.com'
-    pk12File = new File("/Users/korniltsev/keystores/service_account.p12")
+    pk12File = new File("/Users/korniltsev/keystores/service_account.p12")//todo read from system enviroment
     track = 'production'
 }

@@ -20,12 +20,13 @@ import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 import ru.korniltsev.telegram.core.rx.ChatDB;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import ru.korniltsev.telegram.chat.R;
 import rx.functions.Action1;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
+public class ChatListAdapter extends BaseAdapter<TdApi.Chat, ChatListAdapter.VH> {
     static SimpleDateFormat fuckRuFormatter = new SimpleDateFormat("kk:mm", Locale.US);
     public static final DateTimeFormatter MESSAGE_TIME_FORMAT = DateTimeFormat.forPattern("K:mm a");
     public static final ColorStateList COLOR_SYSTEM = ColorStateList.valueOf(0xff6b9cc2);
@@ -37,7 +38,7 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
     private ColorStateList COLOR_TEXT = ColorStateList.valueOf(0xff8a8a8a);
     final ChatDB chatDb;
 
-    public Adapter(Context ctx, int myId, Action1<TdApi.Chat> clicker, ChatDB chat) {
+    public ChatListAdapter(Context ctx, int myId, Action1<TdApi.Chat> clicker, ChatDB chat) {
         super(ctx);
         this.ctx = ctx;
         this.myId = myId;
@@ -49,7 +50,7 @@ public class Adapter extends BaseAdapter<TdApi.Chat, Adapter.VH> {
 
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View v = getViewFactory().inflate(R.layout.item_chat, parent, false);
+        final View v = getViewFactory().inflate(R.layout.chat_list_item_chat, parent, false);
         return new VH(v);
     }
 

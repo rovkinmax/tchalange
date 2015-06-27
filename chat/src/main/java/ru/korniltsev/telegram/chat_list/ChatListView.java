@@ -16,6 +16,7 @@ import ru.korniltsev.telegram.core.rx.ChatDB;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import ru.korniltsev.telegram.chat.R;
 import rx.functions.Action1;
 
 import javax.inject.Inject;
@@ -27,7 +28,7 @@ import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatListView extends DrawerLayout {
 
-    @Inject ChatList.Presenter presenter;
+    @Inject ChatListPresenter presenter;
     @Inject RXClient client;
     @Inject ChatDB chatDb;
     @Inject PhoneFormat phoneFormat;
@@ -38,7 +39,7 @@ public class ChatListView extends DrawerLayout {
     private TextView drawerPhone;
     private View btnLogout;
 
-    private Adapter adapter;
+    private ChatListAdapter adapter;
     private ToolbarUtils toolbar;
     private LinearLayoutManager layout;
 
@@ -64,7 +65,7 @@ public class ChatListView extends DrawerLayout {
         super.onFinishInflate();
         injectViews();
         //list
-        adapter = new Adapter(getContext(),presenter.getCl().myId, new Action1<TdApi.Chat>() {
+        adapter = new ChatListAdapter(getContext(),presenter.getCl().myId, new Action1<TdApi.Chat>() {
             @Override
             public void call(TdApi.Chat chat) {
                 presenter.openChat(chat);
@@ -106,7 +107,7 @@ public class ChatListView extends DrawerLayout {
     }
 
 
-    public Adapter getAdapter() {
+    public ChatListAdapter getAdapter() {
         return adapter;
     }
 
