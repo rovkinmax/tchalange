@@ -8,7 +8,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
-import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.chat.R;
 
 import javax.inject.Inject;
 
@@ -34,7 +34,7 @@ public class EnterNameView extends LinearLayout {
         initToolbar(this)
                 .setTitle(R.string.enter_name)
                 .addMenuItem(
-                        R.menu.send_code,
+                        R.menu.auth_send_code,
                         R.id.menu_send_code,
                         new Runnable() {
                             @Override

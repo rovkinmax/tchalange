@@ -10,7 +10,7 @@ import android.text.Editable;
 import dagger.Provides;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
@@ -64,7 +64,7 @@ public class EnterCode extends BasePath implements Serializable{
     }
     @Override
     public int getRootLayout() {
-        return R.layout.fragment_set_code;
+        return R.layout.auth_set_code_view;
     }
 
     @Singleton

@@ -5,7 +5,6 @@ apply plugin: 'com.github.triplet.play'
 
 dependencies {
     compile project(":core")
-    compile project(":auth")
     compile project(":chat")
 }
 

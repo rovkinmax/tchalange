@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class Adapter extends BaseAdapter<Countries.Entry, Adapter.VH> {
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int i) {
         View view = getViewFactory()
-                .inflate(R.layout.item_country, parent, false);
+                .inflate(R.layout.auth_item_country, parent, false);
         return new VH(view);
     }
 

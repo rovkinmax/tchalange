@@ -4,12 +4,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import dagger.Provides;
 import flow.Flow;
 import mortar.MortarScope;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.auth.code.EnterCode;
 import ru.korniltsev.telegram.auth.country.Countries;
 import ru.korniltsev.telegram.auth.country.SelectCountry;
@@ -57,7 +56,7 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
 
     @Override
     public int getRootLayout() {
-        return R.layout.fragment_set_phone_number;
+        return R.layout.auth_set_phone_number_view;
     }
 
     @Singleton

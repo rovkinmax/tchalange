@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
-import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.adapters.TextWatcherAdapter;
 
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ public class EnterCodeView extends LinearLayout {
         initToolbar(this)
                 .setTitle(R.string.phone_number)
                 .addMenuItem(
-                        R.menu.send_code,
+                        R.menu.auth_send_code,
                         R.id.menu_send_code,
                         new Runnable() {
                             @Override

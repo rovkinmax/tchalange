@@ -1,7 +1,6 @@
 
 include 'core'
 include 'app'
-include 'auth'
 
 include 'chat'
 

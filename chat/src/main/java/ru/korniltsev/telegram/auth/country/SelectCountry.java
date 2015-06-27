@@ -2,7 +2,7 @@ package ru.korniltsev.telegram.auth.country;
 
 import flow.Flow;
 import mortar.ViewPresenter;
-import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.auth.phone.EnterPhoneFragment;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
@@ -20,7 +20,7 @@ import java.io.Serializable;
 public class SelectCountry extends BasePath implements Serializable {
     @Override
     public int getRootLayout() {
-        return R.layout.fragent_select_country;
+        return R.layout.auth_select_country_view;
     }
 
     @dagger.Module(

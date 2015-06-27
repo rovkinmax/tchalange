@@ -1,15 +1,13 @@
 package ru.korniltsev.telegram.auth.name;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import dagger.Provides;
 import flow.Flow;
-import mortar.MortarScope;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.auth.R;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.auth.code.EnterCode;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.app.RootModule;
@@ -54,7 +52,7 @@ public class EnterName extends BasePath implements Serializable {
 
     @Override
     public int getRootLayout() {
-        return R.layout.fragment_set_name;
+        return R.layout.auth_set_name_view;
     }
 
     @Singleton
