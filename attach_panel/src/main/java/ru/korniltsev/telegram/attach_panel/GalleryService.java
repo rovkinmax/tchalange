@@ -14,18 +14,17 @@ import java.util.List;
 public class GalleryService {
     private static List<String> getRecentImages(Context ctx) {
         String[] projection = new String[]{
-                MediaStore.Images.ImageColumns._ID,
                 MediaStore.Images.ImageColumns.DATA,
-                MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
-                MediaStore.Images.ImageColumns.DATE_TAKEN,
-                MediaStore.Images.ImageColumns.MIME_TYPE
         };
         final Cursor cursor = ctx.getContentResolver()
                 .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null,
                         null, MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
+        if (cursor == null) {
+            return Collections.emptyList();
+        }
         ArrayList<String> images = new ArrayList<>();
         while (cursor.moveToNext()) {
-            images.add(cursor.getString(1));
+            images.add(cursor.getString(0));
         }
         cursor.close();
         return images;
