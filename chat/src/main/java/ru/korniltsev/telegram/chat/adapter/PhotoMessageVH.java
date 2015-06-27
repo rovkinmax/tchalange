@@ -6,7 +6,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.chat.adapter.view.PhotoMessageView;
 import ru.korniltsev.telegram.core.rx.RxChat;
-import ru.korniltsev.telegram.photoview.PhotoViewer;
+import ru.korniltsev.telegram.photoview.PhotoView;
 
 class PhotoMessageVH extends BaseAvatarVH {
     private final PhotoMessageView image;
@@ -21,7 +21,7 @@ class PhotoMessageVH extends BaseAvatarVH {
                 RxChat.MessageItem item = (RxChat.MessageItem) adapter.getItem(getPosition());
                 TdApi.MessagePhoto photo = (TdApi.MessagePhoto) item.msg.message;
                 Flow.get(v.getContext())
-                        .set(new PhotoViewer(photo.photo, item.msg.id, item.msg.chatId));
+                        .set(new PhotoView(photo.photo, item.msg.id, item.msg.chatId));
             }
         });
     }

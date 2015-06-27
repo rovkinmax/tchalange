@@ -5,25 +5,21 @@ import android.graphics.Color;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.core.Utils;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
-import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 import javax.inject.Inject;
 
-public class PhotoViewerView extends FrameLayout {
-    @Inject PhotoViewer.Presenter presenter;
+public class PhotoViewView extends FrameLayout {
+    @Inject PhotoViewPresenter presenter;
     @Inject RxGlide picasso;
     @Inject ActivityOwner activity;
-    private PhotoView imageView;
+    private uk.co.senab.photoview.PhotoView imageView;
     private ToolbarUtils toolbar;
     //    private Target t = new Target() {
     //        @Override
@@ -42,7 +38,7 @@ public class PhotoViewerView extends FrameLayout {
     //        }
     //    }
 
-    public PhotoViewerView(Context context, AttributeSet attrs) {
+    public PhotoViewView(Context context, AttributeSet attrs) {
         super(context, attrs);
         ObjectGraphService.inject(context, this);
     }
@@ -51,7 +47,7 @@ public class PhotoViewerView extends FrameLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         toolbar = ToolbarUtils.initToolbar(this)
-                .inflate(R.menu.photo_viewer)
+                .inflate(R.menu.menu_photo_view)
                 .setMenuClickListener(new Toolbar.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
@@ -66,7 +62,7 @@ public class PhotoViewerView extends FrameLayout {
                     }
                 })
                 .pop();
-        imageView = ((PhotoView) findViewById(R.id.image));
+        imageView = ((uk.co.senab.photoview.PhotoView) findViewById(R.id.image));
 
         activity.setStatusBarColor(Color.BLACK);
     }

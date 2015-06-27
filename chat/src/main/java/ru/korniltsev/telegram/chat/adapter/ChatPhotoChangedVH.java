@@ -11,7 +11,7 @@ import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.UserHolder;
 import ru.korniltsev.telegram.core.views.AvatarView;
-import ru.korniltsev.telegram.photoview.PhotoViewer;
+import ru.korniltsev.telegram.photoview.PhotoView;
 
 import static ru.korniltsev.telegram.chat.adapter.SingleTextViewVH.userColor;
 
@@ -31,7 +31,7 @@ public class ChatPhotoChangedVH extends RealBaseVH {
                 RxChat.MessageItem item = (RxChat.MessageItem) adapter.getItem(getPosition());
                 TdApi.MessageChatChangePhoto change = (TdApi.MessageChatChangePhoto) item.msg.message;
                 Flow.get(v.getContext())
-                        .set(new PhotoViewer(change.photo));
+                        .set(new PhotoView(change.photo));
             }
         });
         res = itemView.getResources();

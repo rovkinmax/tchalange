@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ru.korniltsev.telegram.photoview.PhotoViewerView
+<ru.korniltsev.telegram.photoview.PhotoViewView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -23,4 +23,4 @@
             app:popupTheme="@style/Theme.AppCompat.Light"
             android:background="@null"
             />
-</ru.korniltsev.telegram.photoview.PhotoViewerView>
+</ru.korniltsev.telegram.photoview.PhotoViewView>

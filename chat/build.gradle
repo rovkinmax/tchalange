@@ -7,8 +7,9 @@ dependencies {
     compile project(":core")
     compile project(':libgif')
     //'pl.droidsonroids.gif:android-gif-drawable:1.1.+'
+    
+    compile project.photo_view
 
-    compile project(":photo_view")
     compile project(":attach_panel")
     provided project.dagger_compiler
 
