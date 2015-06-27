@@ -37,6 +37,7 @@ import static ru.korniltsev.telegram.core.Utils.exactly;
 
 public class AttachPanelPopup extends PopupWindow {
 
+    public static final int DURATION = 256;
     final Callback callback;
 
     private final DpCalculator dpCalc;
@@ -189,20 +190,28 @@ public class AttachPanelPopup extends PopupWindow {
     @Override
     public void showAtLocation(final View parent, int gravity, int x, int y) {
         super.showAtLocation(parent, gravity, x, y);
-
         panel.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
                 outside.setAlpha(0);
-                outside.animate()
-                        .setInterpolator(decelerateInterpolator)
-                        .setDuration(128)
-                        .alpha(0.5f);
                 panel.setTranslationY(panel.getHeight());
-                panel.animate()
-                        .setInterpolator(decelerateInterpolator)
-                        .setDuration(128)
-                        .translationY(0);
+                panel.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (dissmised){
+                            return;
+                        }
+                        outside.animate()
+                                .setInterpolator(decelerateInterpolator)
+//                                .setDuration(DURATION)
+                                .alpha(0.5f);
+
+                        panel.animate()
+                                .setInterpolator(decelerateInterpolator)
+                                .setDuration(DURATION)
+                                .translationY(0);
+                    }
+                }, 32);
                 ViewTreeObserver o = panel.getViewTreeObserver();
                 if (o.isAlive()) {
                     o.removeOnPreDrawListener(this);
@@ -219,10 +228,12 @@ public class AttachPanelPopup extends PopupWindow {
         if (dissmised) {
             return;
         }
+        outside.clearAnimation();
+        panel.clearAnimation();
         dissmised = true;
         outside.animate()
-                .setInterpolator(decelerateInterpolator)
-                .setDuration(256)
+//                .setInterpolator(decelerateInterpolator)
+                .setDuration(DURATION)
                 .alpha(0f)
         .setListener(new AnimatorListenerAdapter() {
             @Override
@@ -232,7 +243,7 @@ public class AttachPanelPopup extends PopupWindow {
         });
         panel.animate()
                 .setInterpolator(decelerateInterpolator)
-                .setDuration(128)
+                .setDuration(DURATION)
                 .translationY(panel.getHeight());
     }
     public void realDismiss() {
