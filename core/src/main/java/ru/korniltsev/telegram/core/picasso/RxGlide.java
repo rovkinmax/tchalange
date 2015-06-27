@@ -1,6 +1,8 @@
 package ru.korniltsev.telegram.core.picasso;
 
+import android.content.ComponentCallbacks2;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.widget.ImageView;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
@@ -56,6 +58,22 @@ public class RxGlide {
                         cache.clear();
                     }
                 });
+        ctx.registerComponentCallbacks(new ComponentCallbacks2() {
+            @Override
+            public void onTrimMemory(int level) {
+                cache.clear();
+            }
+
+            @Override
+            public void onConfigurationChanged(Configuration newConfig) {
+                //do nothing
+            }
+
+            @Override
+            public void onLowMemory() {
+                cache.clear();
+            }
+        });
     }
 
     private static final RxGlide.StubAware<TdApi.GroupChat> STUB_AWARE_GROUP_CHAT = new StubAware<TdApi.GroupChat>() {

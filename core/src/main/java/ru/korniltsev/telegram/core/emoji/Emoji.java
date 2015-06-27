@@ -246,6 +246,7 @@ public class Emoji {
         File maskedFile = getMaskedFile(page);
         if (maskedFile.exists()){
             loadMasked(page, maskedFile);
+            return;
         }
         try {
             float scale = 1.0f;
@@ -292,7 +293,6 @@ public class Emoji {
 
             dispatchPageLoaded(page, bitmap);
 
-            //todo do this only once
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(maskedFile));
         } catch (Throwable x) {
             Log.e("Emoji", "Error loading emoji", x);

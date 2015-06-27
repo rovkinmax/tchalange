@@ -19,7 +19,6 @@ import ru.korniltsev.telegram.core.rx.RXClient;
  * Time: 23:45
  */
 public class MyApp extends Application {
-    public static final int TIMEOUT = 5000;
     private MortarScope rootScope;
 
     @Override
@@ -27,8 +26,6 @@ public class MyApp extends Application {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
         JodaTimeAndroid.init(this);
-        initClient();
-
     }
 
     @Override public Object getSystemService(String name) {
@@ -45,25 +42,5 @@ public class MyApp extends Application {
         return super.getSystemService(name);
     }
 
-    private void initClient() {
 
-    }
-
-
-
-
-    public static MyApp from(Context ctx) {
-        return (MyApp) ctx.getApplicationContext();
-    }
-    public static MyApp from(Fragment ctx) {
-        return from(ctx.getActivity());
-    }
-
-    public RXClient getRxClient() {
-        return null;
-    }
-
-    public RXAuthState getRxAuthState() {
-        return null;
-    }
 }
