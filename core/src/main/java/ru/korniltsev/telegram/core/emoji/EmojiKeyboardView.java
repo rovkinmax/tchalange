@@ -319,34 +319,10 @@ public class EmojiKeyboardView extends LinearLayout {
             vh.o = s;
             picasso.loadPhoto(s.thumb.photo, true)
                     .priority(Picasso.Priority.HIGH)
-                    .into(vh.img, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            picasso.loadPhoto(s.sticker, true)
-                                    .placeholder(vh.img.getDrawable())
-                                    .into(vh.img);
-                        }
+                    .into(vh.img);
 
-                        @Override
-                        public void onError() {
-
-                        }
-                    });
             picasso.fetch(s.sticker);
 
-//                    , new Callback() {
-//                        @Override
-//                        public void onSuccess() {
-//                            picasso.loadPhoto(s.sticker, true)
-//                                    .placeholder(vh.img.getDrawable())
-//                                    .into(vh.img);
-//                        }
-//
-//                        @Override
-//                        public void onError() {
-//
-//                        }
-//                    });
         }
     }
 
@@ -359,14 +335,5 @@ public class EmojiKeyboardView extends LinearLayout {
                         callback.stickerCLicked(fileLocal.path, sticker);
                     }
                 });
-        //            if (downloader.isDownloaded(sticker.thumb.photo)) {
-        //                downloader.downloadWithoutProgress(sticker.thumb.photo)
-        //                        .subscribe(new Action1<TdApi.FileLocal>() {
-        //                            @Override
-        //                            public void call(TdApi.FileLocal fileLocal) {
-        //
-        //                            }
-        //                        });
-        //            }
     }
 }

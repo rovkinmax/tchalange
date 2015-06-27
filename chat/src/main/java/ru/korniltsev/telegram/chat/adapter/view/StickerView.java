@@ -25,7 +25,7 @@ public class StickerView extends ImageView {
     public StickerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         ObjectGraphService.inject(context, this);
-            MAX_SIZE = Math.min(512, calc.dp(256));
+            MAX_SIZE = Math.min(512, calc.dp(126 + 32));
     }
 
     @Override
