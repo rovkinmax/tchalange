@@ -39,8 +39,7 @@ public class Utils {
         ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         int memoryClass = am.getMemoryClass();
         // Target ~15% of the available heap.
-        int percent15 = 1024 * 1024 * memoryClass / 7;
-        return 2 * percent15;
+        return 1024 * 1024 * memoryClass / 7;
     }
     public static String textFrom(EditText e) {
         return e.getText().toString();
