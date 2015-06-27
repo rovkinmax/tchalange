@@ -30,6 +30,7 @@ import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
@@ -303,6 +304,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
         List<RxChat.ChatListItem> data = adapter.getData();
         List<RxChat.ChatListItem> prepend= splitter.prepend(data, message);
 
+        Collections.reverse(prepend);
         adapter.addFirst(prepend);
         if (scrollDown) {
             layout.scrollToPosition(0);
