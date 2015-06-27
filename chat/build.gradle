@@ -10,7 +10,7 @@ dependencies {
     
     compile project.photo_view
 
-    compile project(":attach_panel")
+
     provided project.dagger_compiler
 
 }

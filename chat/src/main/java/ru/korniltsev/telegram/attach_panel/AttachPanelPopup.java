@@ -25,6 +25,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import dagger.ObjectGraph;
 import mortar.dagger1support.ObjectGraphService;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
@@ -136,7 +137,7 @@ public class AttachPanelPopup extends PopupWindow {
 
     public static AttachPanelPopup create(Activity ctx, Callback callback) {
         LayoutInflater viewFactory = LayoutInflater.from(ctx);
-        View view = viewFactory.inflate(R.layout.view_attach_panel, null, false);
+        View view = viewFactory.inflate(R.layout.attach_panel_view_attach_panel, null, false);
 
         AttachPanelPopup res = new AttachPanelPopup(view, callback);
 

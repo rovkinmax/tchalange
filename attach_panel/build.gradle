@@ -1,9 +1,0 @@
-apply plugin: 'com.android.library'
-
-
-
-dependencies {
-    compile project(":core")
-    provided project.dagger_compiler
-}
-

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 
 import java.io.File;
@@ -29,7 +30,7 @@ public class RecentImagesAdapter extends RecyclerView.Adapter<RecentImagesAdapte
 
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new VH(viewFactory.inflate(R.layout.item_recent_image, parent, false));
+        return new VH(viewFactory.inflate(R.layout.attach_panel_item_recent_image, parent, false));
     }
 
     @Override
