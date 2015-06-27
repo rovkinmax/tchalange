@@ -15,7 +15,7 @@
             android:id="@+id/btn_left"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_keyboard_emoji_hide_levels"
+            android:src="@drawable/chat_ic_keyboard_emoji_hide_levels"
             android:scaleType="center"
             android:background="@drawable/bg_keyboard_tab"
             />
@@ -41,7 +41,7 @@
             android:id="@+id/btn_right"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_send_attach_levels"
+            android:src="@drawable/chat_ic_send_attach_levels"
             android:scaleType="center"
             android:background="@drawable/bg_keyboard_tab"
             />

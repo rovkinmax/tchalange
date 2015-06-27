@@ -28,10 +28,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
-                android:thumb="@drawable/seekbar_thumb"
+                android:thumb="@drawable/chat_seekbar_thumb"
                 android:maxHeight="100dp"
                 android:thumbOffset="0dp"
-                android:progressDrawable="@drawable/seekbar_progress"
+                android:progressDrawable="@drawable/chat_seekbar_progress"
                 android:paddingLeft="14dp"
                 android:paddingRight="14dp"
                 />
