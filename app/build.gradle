@@ -22,7 +22,7 @@ android {
     def storePasswordStr = System.getenv("KSTOREPWD")
     def keyPasswordStr = System.getenv("KEYPWD")
 
-    if (storePathStr != null){
+    if (storePathStr != null) {
         signingConfigs {
             release {
                 storeFile new File(storePathStr)
@@ -32,7 +32,7 @@ android {
             }
         }
 
-        buildTypes{
+        buildTypes {
             release {
                 signingConfig signingConfigs.release
                 minifyEnabled false
@@ -45,9 +45,15 @@ android {
     }
 }
 
+def serviceAccountEmailStr = System.getenv("SYSTEM_ACCOUNT_EMAIL")
+def pk12FilePath = System.getenv("PK_12_FILE_PATH")
 
-play {
-    serviceAccountEmail = '439599534250-riaefvs9asg2aqcd63lrq8olkaoais37@developer.gserviceaccount.com'
-    pk12File = new File("/Users/korniltsev/keystores/service_account.p12")//todo read from system enviroment
-    track = 'production'
+
+if (serviceAccountEmailStr && pk12FilePath) {
+    play {
+        serviceAccountEmail = serviceAccountEmailStr
+        pk12File = new File(pk12FilePath)
+        track = 'production'
+    }
 }
+
