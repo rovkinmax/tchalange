@@ -26,13 +26,21 @@ public class NotificationManager {
     final Context ctx;
     private final Ringtone ringtone;
     private final Observable<TdApi.UpdateNotificationSettings> settingsUpdate;
+    private RXAuthState.AuthState state;
 
     @Inject
-    public NotificationManager(RXClient client, Context ctx) {
+    public NotificationManager(RXClient client, Context ctx, RXAuthState auth) {
         this.client = client;
         this.ctx = ctx;
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(ctx, notification);
+        state = auth.getState();
+        auth.listen().subscribe(new Action1<RXAuthState.AuthState>() {
+            @Override
+            public void call(RXAuthState.AuthState authState) {
+                state = authState;
+            }
+        });
 
         settingsUpdate = client.updateNotificationSettings()
                 .map(new Func1<TdApi.UpdateNotificationSettings, TdApi.UpdateNotificationSettings>() {
@@ -97,6 +105,14 @@ public class NotificationManager {
     }
 
     public void notifyNewMessage(TdApi.Message msg) {
+        if (state == null || !(state instanceof RXAuthState.StateAuthorized)){
+            return;
+        }
+        int myId = ((RXAuthState.StateAuthorized) state).id;
+        if (myId == msg.fromId){//do not notify new messages from self
+            return;
+        }
+
         TdApi.NotificationSettings s = this.settings.get(msg.chatId);
         if (s == null) {
             notifyNewMessageImpl();

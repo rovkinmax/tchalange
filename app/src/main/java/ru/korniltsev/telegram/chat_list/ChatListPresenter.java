@@ -4,6 +4,8 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
+import com.crashlytics.android.core.CrashlyticsCore;
 import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -15,6 +17,7 @@ import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import rx.Observable;
 import rx.android.content.ContentObservable;
+import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
 import javax.inject.Inject;
@@ -23,6 +26,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
+import static rx.Observable.concat;
+import static rx.Observable.just;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 @Singleton
@@ -32,15 +37,12 @@ public class ChatListPresenter extends ViewPresenter<ChatListView> {
     private final Emoji emoji;
     private final RXAuthState authState;
     private final ChatDB chatDB;
+    private Observable<RXAuthState.StateAuthorized> meRequest;
 
-    final Observable<TdApi.User> meRequest;
-    private TdApi.User me;
+//    private TdApi.User me;
     private Observable<TdApi.UpdateOption> networkState;
-
     private CompositeSubscription subscription;
-
-    //strange flags
-    //        boolean atLeastOneResponseReturned = false;
+    private RXAuthState.StateAuthorized me;
 
     @Inject
     public ChatListPresenter(ChatList cl, RXClient client, Emoji emoji, RXAuthState authState, ChatDB chatDB) {
@@ -50,10 +52,12 @@ public class ChatListPresenter extends ViewPresenter<ChatListView> {
         this.authState = authState;
         this.chatDB = chatDB;
         checkTlObjectIsSerializable();
-        meRequest = client.getMe();
+
         networkState = client.getConnectedState()
             .observeOn(mainThread());
     }
+
+
 
     private void checkTlObjectIsSerializable() {
         //do not forget to implement seralizable after libtd update
@@ -64,16 +68,13 @@ public class ChatListPresenter extends ViewPresenter<ChatListView> {
     @Override
     protected void onLoad(Bundle savedInstanceState) {
         super.onLoad(savedInstanceState);
-
+        meRequest = authState.getMe(client);
         if (!chatDB.isRequestInProgress()) {
             if (!chatDB.isAtLeastOneResponseReturned()) {
                 requestChats();
             } //else wait for scroll
         }
 
-        //todo use libtd
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        ContentObservable.fromBroadcast(getView().getContext(), filter);
 
         List<TdApi.Chat> allChats = chatDB.getAllChats();
         getView().setData(allChats);
@@ -101,12 +102,17 @@ public class ChatListPresenter extends ViewPresenter<ChatListView> {
                 }));
 
         subscription.add(
-                meRequest.subscribe(new ObserverAdapter<TdApi.User>() {
+                meRequest.subscribe(new ObserverAdapter<RXAuthState.StateAuthorized>() {
                     @Override
-                    public void onNext(TdApi.User user) {
-                        ChatListPresenter.this.getView()
-                                .showMe(user);
-                        me = user;
+                    public void onNext(RXAuthState.StateAuthorized state) {
+                        //Log.e("ChatListPresenter", "show me " + state);
+                        if (state.user == null){
+                            return;
+                        }
+                        getView()
+                                .showMe(state.user);
+                        me = state;
+//                        me = user;
                     }
                 }));
         subscription.add(
@@ -139,10 +145,14 @@ public class ChatListPresenter extends ViewPresenter<ChatListView> {
     }
 
     public void openChat(TdApi.Chat chat) {
+        if (me.user == null){
+            CrashlyticsCore.getInstance()
+                    .logException(new NullPointerException("me.user == null"));
+            return;
+        }
         if (supportedChats(chat)) {
-//                chat.unreadCount = 0;//todo why here?!?!?!
             Flow.get(getView())
-                    .set(new Chat(chat, me));
+                    .set(new Chat(chat, me.user));
         } //else do nothing
     }
 

@@ -6,6 +6,7 @@ import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 import ru.korniltsev.telegram.chat.R;
+import ru.korniltsev.telegram.core.rx.RXAuthState;
 
 import java.io.Serializable;
 
@@ -13,9 +14,9 @@ import static junit.framework.Assert.assertTrue;
 
 @WithModule(ChatList.Module.class)
 public class ChatList extends BasePath implements Serializable {
-    final int myId;
+    final RXAuthState.StateAuthorized myId;
 
-    public ChatList(int myId) {
+    public ChatList(RXAuthState.StateAuthorized myId) {
         this.myId = myId;
     }
 

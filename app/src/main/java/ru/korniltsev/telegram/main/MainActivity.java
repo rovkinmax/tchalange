@@ -110,7 +110,7 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
     private Object getScreenForAuthState(RXAuthState.AuthState state) {
         if (state instanceof RXAuthState.StateAuthorized) {
             RXAuthState.StateAuthorized a = (RXAuthState.StateAuthorized) state;
-            return new ChatList(a.userId);
+            return new ChatList(a);
         } else {
             return new EnterPhoneFragment();
         }

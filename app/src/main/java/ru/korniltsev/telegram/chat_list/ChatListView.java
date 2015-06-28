@@ -65,7 +65,7 @@ public class ChatListView extends DrawerLayout {
         super.onFinishInflate();
         injectViews();
         //list
-        adapter = new ChatListAdapter(getContext(),presenter.getCl().myId, new Action1<TdApi.Chat>() {
+        adapter = new ChatListAdapter(getContext(),presenter.getCl().myId.id, new Action1<TdApi.Chat>() {
             @Override
             public void call(TdApi.Chat chat) {
                 presenter.openChat(chat);

@@ -6,7 +6,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.crashlytics.android.core.CrashlyticsCore;
 import org.drinkless.td.libcore.telegram.TdApi;
+import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 
 import javax.inject.Inject;
@@ -20,6 +24,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import static io.fabric.sdk.android.services.common.CommonUtils.closeQuietly;
+import static rx.Observable.concat;
+import static rx.Observable.just;
 
 @Singleton
 public class RXAuthState {
@@ -29,7 +35,40 @@ public class RXAuthState {
     private final SharedPreferences prefs;
 
 
-    //    private TdApi.User user;
+
+    public Observable<StateAuthorized> getMe(RXClient client) {
+        if (state instanceof StateAuthorized){
+            StateAuthorized auth = (StateAuthorized) this.state;
+            Observable<StateAuthorized> cached = just(auth);
+            if (auth.fresh) {
+                return cached;
+            } else {
+                final Observable<StateAuthorized> request = client.sendRx(new TdApi.GetMe())
+                        .map(RXClient.CAST_TO_USER)
+                        .map(new Func1<TdApi.User, StateAuthorized>() {
+                            @Override
+                            public StateAuthorized call(TdApi.User user) {
+                                saveToDisk(user);
+                                return new StateAuthorized(user.id, user, true);
+                            }
+                        })
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .cache();
+
+                request.subscribe(new ObserverAdapter<StateAuthorized>() {
+                    @Override
+                    public void onNext(StateAuthorized response) {
+                        state = response;
+                    }
+                });
+                return concat(cached, request);
+            }
+        } else {
+            CrashlyticsCore.getInstance().logException(new IllegalStateException("getMe unauthorized"));
+            return Observable.empty();
+        }
+    }
+
 
     public abstract class AuthState implements Serializable{
     }
@@ -48,6 +87,15 @@ public class RXAuthState {
             this.id = id;
             this.user = user;
             this.fresh = fresh;
+        }
+
+        @Override
+        public String toString() {
+            return "StateAuthorized{" +
+                    "id=" + id +
+                    ", user=" + user +
+                    ", fresh=" + fresh +
+                    '}';
         }
     }
 
@@ -104,7 +152,7 @@ public class RXAuthState {
     private File getCurrentUserFile() {
         return new File(ctx.getFilesDir(), "currentUser");
     }
-    
+
     @Nullable
     private TdApi.User getCurrentUser() {
         ObjectInputStream i = null;
