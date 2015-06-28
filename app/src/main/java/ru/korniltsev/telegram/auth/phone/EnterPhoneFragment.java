@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import flow.Flow;
 import mortar.MortarScope;
 import mortar.ViewPresenter;
@@ -120,7 +121,32 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
 
         public void sendCode(final String phoneNumber) {
             assertNull(sendPhoneRequest);
-            sendPhoneRequest = client.logoutHelper()
+            sendPhoneRequest = setPhoneObservable(phoneNumber)
+            .onErrorResumeNext(new Func1<Throwable, Observable<? extends TdApi.TLObject>>() {
+                @Override
+                public Observable<? extends TdApi.TLObject> call(Throwable throwable) {
+                    String message = throwable.getMessage();
+                    if (message.contains("Cannot change phone number after authorization or entered code")) {
+                        return client.sendRx(new TdApi.AuthReset())
+                                .flatMap(new Func1<TdApi.TLObject, Observable<TdApi.TLObject>>() {
+                                    @Override
+                                    public Observable<TdApi.TLObject> call(TdApi.TLObject tlObject) {
+                                        return setPhoneObservable(phoneNumber);
+                                    }
+                                });
+                    } else {
+                        return Observable.error(new Exception("unknown exception", throwable));
+                    }
+                }
+            });
+
+            sentPhonenumber = phoneNumber;
+            subscribe();
+        }
+
+        @NonNull
+        private Observable<TdApi.TLObject> setPhoneObservable(final String phoneNumber) {
+            return client.logoutHelper()
                     .filter(new Func1<TdApi.AuthState, Boolean>() {
                         @Override
                         public Boolean call(TdApi.AuthState authState) {
@@ -133,9 +159,6 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
                             return client.sendCachedRXUI(new TdApi.AuthSetPhoneNumber(phoneNumber));
                         }
                     });
-
-            sentPhonenumber = phoneNumber;
-            subscribe();
         }
 
         private void subscribe() {
