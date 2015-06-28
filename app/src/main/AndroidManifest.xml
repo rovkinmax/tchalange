@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="ru.korniltsev.telegram.chat">
+          package="ru.korniltsev.telegram">
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,7 +13,7 @@
             android:hardwareAccelerated='true'>
         <activity android:name='ru.korniltsev.telegram.main.MainActivity'
                   android:theme="@style/AppTheme"
-                  android:launchMode="singleTop"
+                  android:launchMode="singleInstance"
                   android:windowSoftInputMode="adjustResize"
                 >
             <intent-filter>
