@@ -205,7 +205,7 @@ public class AttachPanelPopup extends PopupWindow {
                         outside.animate()
                                 .setInterpolator(decelerateInterpolator)
 //                                .setDuration(DURATION)
-                                .alpha(0.5f);
+                                .alpha(0.32f);
 
                         panel.animate()
                                 .setInterpolator(decelerateInterpolator)
