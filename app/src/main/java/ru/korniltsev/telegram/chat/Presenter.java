@@ -124,7 +124,7 @@ public class Presenter extends ViewPresenter<ChatView>
 
     private void setViewTitle(TdApi.User user) {
         getView().setPrivateChatTitle(user);
-        getView().setPirvateChatSubtitle(user.status);
+        getView().setPirvateChatSubtitle(rxChat.holder.getUserStatus(user));
     }
 
     @Override

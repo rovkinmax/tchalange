@@ -12,6 +12,9 @@ import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Days;
+import org.joda.time.Hours;
+import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import ru.korniltsev.telegram.core.emoji.ObservableLinearLayout;
@@ -217,9 +220,43 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
             long wasOnline = ((TdApi.UserStatusOffline) status).wasOnline;
             long timeInMillis = wasOnline * 1000;
             //            Date date = new Date(timeInMillis);
-            DateTime dateTime = new DateTime(timeInMillis, DateTimeZone.UTC).withZone(DateTimeZone.getDefault());
-            String date = SUBTITLE_FORMATTER.print(dateTime);
-            toolbarSubtitle.setText(getResources().getString(R.string.user_status_last_seen) + " " + date);
+            DateTime wasOnlineTime = new DateTime(timeInMillis, DateTimeZone.UTC)
+                    .withZone(DateTimeZone.getDefault());
+
+            DateTime now = DateTime.now();
+
+
+            String offlineStatusText;
+            int daysBetween = Days.daysBetween(wasOnlineTime, now)
+                    .getDays();
+            if (daysBetween == 0) {
+                int hoursBetween = Hours.hoursBetween(wasOnlineTime, now)
+                        .getHours();
+                if (hoursBetween == 0) {
+                    int minutesBetween = Minutes.minutesBetween(wasOnlineTime, now)
+                            .getMinutes();
+                    if (minutesBetween == 0) {
+                        //just now
+                        offlineStatusText = getResources().getString(R.string.user_status_just_now);
+                    } else {
+                        //n minutes
+                        offlineStatusText = getResources().getQuantityString(R.plurals.user_status_last_seen_n_minutes_ago, minutesBetween, minutesBetween);
+                    }
+                } else {
+                    //show hours
+                    offlineStatusText = getResources().getQuantityString(R.plurals.user_status_last_seen_n_hours_ago, hoursBetween, hoursBetween);
+                }
+            } else {
+                //show n days ago
+                if (daysBetween <= 7){
+                    offlineStatusText = getResources().getQuantityString(R.plurals.user_status_last_seen_n_days_ago, daysBetween, daysBetween);
+                } else {
+                    String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
+                    offlineStatusText = getResources().getString(R.string.user_status_last_seen, date);
+                }
+            }
+
+            toolbarSubtitle.setText(offlineStatusText);
         } else if (status instanceof TdApi.UserStatusLastWeek) {
             toolbarSubtitle.setText(R.string.user_status_last_week);
         } else if (status instanceof TdApi.UserStatusLastMonth) {
@@ -229,6 +266,18 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
         } else {
             //empty
         }
+    }
+
+    private String lastSeenDaysAgo(int daysBetween) {
+        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_days_ago, daysBetween, daysBetween);
+    }
+
+    private String lastSeenHoursAgo(int hoursBetween) {
+        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_hours_ago, hoursBetween, hoursBetween);
+    }
+
+    private String lastSeenMinutesAgo(int minutesBetween) {
+        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_minutes_ago, minutesBetween,minutesBetween);
     }
 
     public void updateData(RxChat rxChat) {

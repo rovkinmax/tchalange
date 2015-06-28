@@ -18,9 +18,25 @@
     <string name="user_status_last_week">last seen within a week</string>
     <string name="user_status_last_month">last seen within a month</string>
     <string name="user_status_recently">last seen recently</string>
+    <string name="user_status_just_now">last seen just now</string>
 
+    <plurals name="user_status_last_seen_n_minutes_ago">
+        <item quantity="one">last seen %1$d minute ago</item>
+        <item quantity="other">last seen %1$d minutes ago</item>
+    </plurals>
 
-    <string name="user_status_last_seen">last seen</string>
+    <plurals name="user_status_last_seen_n_hours_ago">
+        <item quantity="one">last seen %1$d hour ago</item>
+        <item quantity="other">last seen %1$d hours ago</item>
+    </plurals>
+
+    <plurals name="user_status_last_seen_n_days_ago">
+        <item quantity="one">last seen %1$d day ago</item>
+        <item quantity="other">last seen %1$d days ago</item>
+    </plurals>
+
+    <!--<string name="user_status_last_seen">был в сети %1$d</string>-->
+    <string name="user_status_last_seen">last seen %1$s</string>
 
 
     <string name="message_unsupported">Unsupported message</string>
@@ -32,8 +48,9 @@
     <string name="message_ivited">invited</string>
     <string name="message_kicked">kicked</string>
     <string name="message_kicked_self">has left the chat</string>
-    <string name="empty_chat">No messages here yet...</string>
+    <string name="empty_chat">No messages here yet…</string>
     <string name="hint_message_panel">Message</string>
     <string name="select_picture">Select Picture</string>
+
 
 </resources>

@@ -8,6 +8,7 @@ import android.util.SparseArray;
 import android.view.WindowManager;
 import junit.framework.Assert;
 import org.drinkless.td.libcore.telegram.TdApi;
+import org.joda.time.DateTime;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import rx.Observable;
@@ -20,8 +21,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static junit.framework.Assert.assertNull;
@@ -113,10 +116,32 @@ public class ChatDB implements UserHolder {
         //todo this 3 ones are probably needed
 //        prepareForUpdateChatReadInbox();
         prepareForUpdateChatReadOutbox();
+        prepareForUpdateUserStatus();
 //        prepareForUpdateMessageContent();
 
 //        prepareForUpdateChatTitle();
 //        prepareForUpdateChatParticipantsCount();
+    }
+
+    Map<Integer, TdApi.UserStatus> userIdToUserStatus = new HashMap<>();
+
+    private void prepareForUpdateUserStatus() {
+        client.usersStatus()
+                .subscribe(new ObserverAdapter<TdApi.UpdateUserStatus>() {
+                    @Override
+                    public void onNext(TdApi.UpdateUserStatus response) {
+                        userIdToUserStatus.put(response.userId, response.status);
+                    }
+                });
+    }
+
+    public TdApi.UserStatus getUserStatus(TdApi.User u) {
+        TdApi.UserStatus updatedStatus = userIdToUserStatus.get(u);
+        if (updatedStatus == null) {
+            return u.status;
+        } else {
+            return updatedStatus;
+        }
     }
 
     private void prepareForUpdateMessageContent() {

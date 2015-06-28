@@ -70,14 +70,14 @@ public class RXAuthState {
     }
 
 
-    public abstract class AuthState implements Serializable{
+    public static abstract class AuthState implements Serializable{
     }
 
-    public class StateLogout extends AuthState{
+    public static class StateLogout extends AuthState{
 
     }
 
-    public class StateAuthorized extends AuthState{
+    public static class StateAuthorized extends AuthState{
         public final int id;
         @Nullable
         public final TdApi.User user;
