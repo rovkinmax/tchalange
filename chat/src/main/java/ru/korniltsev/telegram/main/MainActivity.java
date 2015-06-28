@@ -1,4 +1,4 @@
-package com.example.activity;
+package ru.korniltsev.telegram.main;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,10 +15,9 @@ import flow.History;
 import mortar.MortarScope;
 import mortar.bundler.BundleServiceRunner;
 import mortar.dagger1support.ObjectGraphService;
-import ru.korniltsev.telegram.R;
+import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.auth.phone.EnterPhoneFragment;
 import ru.korniltsev.telegram.chat_list.ChatList;
-import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.flow.SerializableParceler;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
@@ -27,7 +26,6 @@ import ru.korniltsev.telegram.core.mortar.core.MortarScreenSwitcherFrame;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import rx.Observable;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.subjects.PublishSubject;
 
 import static mortar.bundler.BundleServiceRunner.getBundleServiceRunner;
@@ -51,10 +49,11 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
         if (firstRun) {
             savedInstanceState = null;
             firstRun = false;//todo remove when libtd has stable ids across process instances
+
         }
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.root_layout);
+        setContentView(R.layout.main_root_layout);
         setupStatusBarForKitkat();
         container = ((MortarScreenSwitcherFrame) findViewById(R.id.container));
 

@@ -1,17 +1,53 @@
-apply plugin: 'com.android.library'
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+apply plugin: 'com.github.triplet.play'
 
 
 
 dependencies {
-
-    compile project(":core")
+    compile project(':core')
     compile project(':libgif')
-    //'pl.droidsonroids.gif:android-gif-drawable:1.1.+'
-    
     compile project.photo_view
-
-
     provided project.dagger_compiler
-
 }
 
+
+android {
+    defaultConfig {
+        versionName "1.0.17"
+        versionCode 17
+    }
+
+    def storePathStr = System.getenv("KSTOREPATH")
+    def storePasswordStr = System.getenv("KSTOREPWD")
+    def keyPasswordStr = System.getenv("KEYPWD")
+
+    if (storePathStr != null){
+        signingConfigs {
+            release {
+                storeFile new File(storePathStr)
+                storePassword storePasswordStr
+                keyPassword keyPasswordStr
+                keyAlias "telegram.tdlib.chalange"
+            }
+        }
+
+        buildTypes{
+            release {
+                signingConfig signingConfigs.release
+                minifyEnabled false
+            }
+        }
+    }
+    dexOptions {
+        incremental true
+        preDexLibraries false
+    }
+}
+
+
+play {
+    serviceAccountEmail = '439599534250-riaefvs9asg2aqcd63lrq8olkaoais37@developer.gserviceaccount.com'
+    pk12File = new File("/Users/korniltsev/keystores/service_account.p12")//todo read from system enviroment
+    track = 'production'
+}
