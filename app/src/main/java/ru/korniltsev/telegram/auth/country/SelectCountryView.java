@@ -5,10 +5,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+import com.tonicartos.superslim.LayoutManager;
 import mortar.dagger1support.ObjectGraphService;
 import ru.korniltsev.telegram.chat.R;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
@@ -30,15 +32,34 @@ public class SelectCountryView extends LinearLayout {
                 .setTitle(R.string.country)
                 .pop();
         list = (RecyclerView) findViewById(R.id.list);
-        list.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        final LayoutManager lm = new LayoutManager(getContext());
+        list.setLayoutManager(lm);
         List<Countries.Entry> countries = this.countries
                 .getData();
-        list.setAdapter(new Adapter(getContext(), countries, new Adapter.CountryClickListener() {
+        list.setAdapter(new Adapter(getContext(), prepareListOf(countries), new Adapter.CountryClickListener() {
             @Override
             public void clicked(Countries.Entry c) {
                 presenter.countrySelected(c);
             }
         }));
+    }
+
+    private List<Adapter.Item> prepareListOf(List<Countries.Entry> countries) {
+        final ArrayList<Adapter.Item> res = new ArrayList<>();
+        Countries.Entry previous = null;
+        int lastSectionPos = -1;
+        for (Countries.Entry it : countries) {
+            if (previous == null ||
+                    !previous.firstLetter.equals(it.firstLetter)) {
+                lastSectionPos = res.size();
+                res.add(new Adapter.Section(it.firstLetter, lastSectionPos));
+            }
+            res.add(new Adapter.Country(it, lastSectionPos));
+            previous = it;
+        }
+
+        return res;
     }
 
     @Override

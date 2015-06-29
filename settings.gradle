@@ -6,6 +6,7 @@ include 'app'
 
 def libs = [
         'libphoneformat',
+        'libsuperslim',
         'libtd',
         'libgif',
         'libwebp',

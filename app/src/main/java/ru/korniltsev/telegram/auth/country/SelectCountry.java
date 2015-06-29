@@ -44,29 +44,5 @@ public class SelectCountry extends BasePath implements Serializable {
                     .goBack();
         }
     }
-    //    Toolbar toolbar;
-    //    RecyclerView list;
-    //
-    //    @Override
-    //    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    //        return inflater.inflate(R.layout.fragent_select_country, container, false);
-    //    }
-    //
-    //    @Override
-    //    public void onViewCreated(View view, Bundle savedInstanceState) {
-    //        initToolbar(view)
-    //                .setTitle(R.string.country)
-    //                .pop();
-    //        list = (RecyclerView) view.findViewById(R.id.list);
-    //        list.setLayoutManager(new LinearLayoutManager(getActivity()));
-    //        List<Countries.Entry> countries = new Countries(getActivity())
-    //                .getData();
-    //        list.setAdapter(new Adapter(getActivity(), countries, new Adapter.CountryClickListener() {
-    //            @Override
-    //            public void clicked(Countries.Entry c) {
-    //                FlowLike.from(getActivity())
-    //                        .pop(c);
-    //            }
-    //        }));
-    //    }
+
 }

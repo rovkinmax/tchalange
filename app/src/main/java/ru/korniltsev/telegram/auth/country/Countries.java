@@ -40,7 +40,12 @@ public class Countries {
                 countryCodeToCountry.put(countryCode, e);
                 phoneCodeToCountry.put(phoneCode, e);
             }
-            Collections.sort(res);
+            Collections.sort(res, new Comparator<Entry>() {
+                @Override
+                public int compare(Entry lhs, Entry rhs) {
+                    return lhs.name.compareTo(rhs.name);
+                }
+            });
             this.data = Collections.unmodifiableList(res);
         } catch (IOException e) {
             this.data = Collections.emptyList();
@@ -69,7 +74,7 @@ public class Countries {
         return phoneCodeToCountry.get(phonePrefix);
     }
 
-    public static class Entry implements Comparable<Entry> , Serializable{
+    public static class Entry  implements Serializable{
         public final String phoneCode;
         public final String code;
         public final String name;
@@ -81,13 +86,6 @@ public class Countries {
             this.phoneCode = phoneCode;
             firstLetter = String.valueOf(name.charAt(0));
         }
-
-
-        @Override
-        public int compareTo(Entry that) {
-            return this.name.compareTo(that.name);
-        }
-
 
     }
 }

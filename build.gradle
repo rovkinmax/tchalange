@@ -9,29 +9,18 @@ buildscript {
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
-ext {
-//    flow_and_mortar = fileTree(dir: 'libs', include: ['*.jar'])
-}
+
 subprojects {
 
-    if (project.name == "libgif") {
+    if (project.name == "libgif"
+            || project.name == "libsuperslim") {
         return;
     }
-//    apply plugin: 'idea'
-//    idea {
-//        module {
-//            def R = new File(project.buildDir, "generated/source/r/release/")
-//            sourceDirs += R
-//            generatedSourceDirs += R
-//        }
-//    }
-//    def R = new File(project.buildDir, "generated/source/r/release/")
-//    sourceDirs += R
-//    generatedSourceDirs += R
 
     repositories {
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
+        maven { url  "http://dl.bintray.com/tonicartos/maven" }
     }
 
     afterEvaluate {
@@ -61,31 +50,24 @@ subprojects {
 //    minSdkVersion = 11
 //    targetSdkVersion = 22
     ext {
-
-
-        support_v4 = "com.android.support:support-v4:21.0.3"
-        appcompat_v7 = "com.android.support:appcompat-v7:21.0.3"
-        recycler_v7 = "com.android.support:recyclerview-v7:21.0.3"
-        rx_java = "io.reactivex:rxjava:1.0.9"
-        rx_android = "io.reactivex:rxandroid:0.24.0"
-        picasso = 'com.squareup.picasso:picasso:2.5.2'
+//      flow and mortar
         flow = 'com.squareup.flow:flow:0.10'
         flow_path = 'com.squareup.flow:flow-path:0.10'
         mortar = 'com.squareup.mortar:mortar:0.17'
         mortar_dagger1support = 'com.squareup.mortar:dagger1support:0.17'
-
-        pager_sliding_tab_strip = 'com.astuetz:pagerslidingtabstrip:1.0.1'
-
-//        glide = 'com.github.bumptech.glide:glide:3.6.0'
-
-//        flow_and_mortar = rootProject.flow_and_mortar
-
         dagger = 'com.squareup.dagger:dagger:1.2.2'
         dagger_compiler = 'com.squareup.dagger:dagger-compiler:1.2.2'
+//      support
+        support_v4 = "com.android.support:support-v4:21.0.3"
+        appcompat_v7 = "com.android.support:appcompat-v7:21.0.3"
+        recycler_v7 = "com.android.support:recyclerview-v7:21.0.3"
+//      reactive extensions
+        rx_java = "io.reactivex:rxjava:1.0.9"
+        rx_android = "io.reactivex:rxandroid:0.24.0"
+//      ui helpers
+        picasso = 'com.squareup.picasso:picasso:2.5.2'
         photo_view = 'com.github.chrisbanes.photoview:library:1.2.3'
         jodatime = 'net.danlew:android.joda:2.7.2'
-        gif_lib = 'pl.droidsonroids.gif:android-gif-drawable:1.1.+'
-
 
     }
 }

@@ -54,6 +54,7 @@ public class AttachPanelPopup extends PopupWindow {
     public AttachPanelPopup(View view, Callback callback) {
         super(view);
         this.callback = callback;
+
         //        ObjectGraphService.inject();
 
         Context ctx = view.getContext();
