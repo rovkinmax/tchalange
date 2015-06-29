@@ -10,7 +10,7 @@ function bumpVersion(){
 
 bumpVersion
 
-./gradlew publishRelease
+./gradlew publishRelease --stacktrace|| exit
 
 bumpVersion # again
 #git
