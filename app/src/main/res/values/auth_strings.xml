@@ -15,4 +15,5 @@
     <string name="invalid_code">Activation code is not valid</string>
     <string name="invalid_phone_number">Phone number is not valid</string>
     <string name="please_wait">Please wait</string>
+    <string name="please_wait_flood">Flood. Please wait %1$s</string>
 </resources>

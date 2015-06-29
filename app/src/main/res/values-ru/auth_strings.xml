@@ -15,4 +15,5 @@
     <string name="unknown_error">Неизвестная ошибка</string>
     <string name="invalid_phone_number">Неверный номер телефона</string>
     <string name="please_wait">Пожалуйста подождите</string>
+    <string name="please_wait_flood">Слишком часто. Пожалуйста подождите %1$s</string>
 </resources>

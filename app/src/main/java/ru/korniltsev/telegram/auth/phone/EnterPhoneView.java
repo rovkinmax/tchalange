@@ -10,12 +10,20 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
+import org.joda.time.Duration;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import phoneformat.PhoneFormat;
 import ru.korniltsev.telegram.auth.country.Countries;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.adapters.TextWatcherAdapter;
 
 import javax.inject.Inject;
+
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static ru.korniltsev.telegram.core.Utils.textFrom;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
@@ -181,7 +189,22 @@ public class EnterPhoneView extends LinearLayout {
             if (message.contains("PHONE_NUMBER_INVALID")) {
                 userPhone.setError(getResources().getString(R.string.invalid_phone_number));
             } else {
-                userPhone.setError(message);
+//                FLOOD_WAIT_19394 AuthSetPhoneNumber {
+//                    phoneNumber = +7(911)
+//                }
+                Pattern floodPattern = Pattern.compile("FLOOD_WAIT_(\\d+).*");
+                Matcher match = floodPattern.matcher(message.replaceAll("\n", ""));
+                if (match.matches()) {
+                    int secondsToWait = Integer.parseInt(match.group(1));
+                    Duration duration = Duration.standardSeconds(secondsToWait);
+                    String timeToWaitStr = PeriodFormat.wordBased(Locale.getDefault())
+                            .print(duration.toPeriod());
+                    String err = getResources().getString(R.string.please_wait_flood, timeToWaitStr);
+                    userPhone.setError(err);
+                } else {
+                    userPhone.setError(message);
+                }
+
             }
         }
     }

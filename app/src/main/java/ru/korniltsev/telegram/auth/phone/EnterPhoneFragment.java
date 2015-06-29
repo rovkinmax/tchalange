@@ -135,7 +135,7 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
                                     }
                                 });
                     } else {
-                        return Observable.error(new Exception("unknown exception", throwable));
+                        return Observable.error(throwable);
                     }
                 }
             });
