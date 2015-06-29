@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="choose_from_gallery">Выбрать из галереи</string>
+    <string name="take_photo">Сделать фото</string>
+    <plurals name="n_photos">
+        <item quantity="one">%1$d фотографию</item>
+        <item quantity="few">%1$d фотографии</item>
+        <item quantity="many">%1$d фотографий</item>
+    </plurals>
+    <string name="send">Send</string>
+
+</resources>

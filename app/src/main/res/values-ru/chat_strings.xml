@@ -20,6 +20,8 @@
     <string name="user_status_last_week">был в сети на этой неделе</string>
     <string name="user_status_online">в сети</string>
     <string name="user_status_last_seen">был в сети %1$s</string>
+    <string name="user_status_just_now">был в сети только что</string>
+    <string name="select_picture">Выберите картинку</string>
 
     <plurals name="user_status_last_seen_n_minutes_ago">
         <item quantity="one">был в сети %1$d минуту назад</item>
