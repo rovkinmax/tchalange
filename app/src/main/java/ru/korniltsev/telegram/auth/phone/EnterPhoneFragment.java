@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import dagger.Provides;
 import flow.Flow;
 import mortar.MortarScope;
 import mortar.ViewPresenter;
@@ -28,6 +29,7 @@ import rx.subscriptions.Subscriptions;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.Serializable;
+import java.util.Locale;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
@@ -39,6 +41,8 @@ import static junit.framework.Assert.assertNull;
 public class EnterPhoneFragment extends BasePath implements Serializable {
 
     private Countries.Entry c;
+    private int loadCounter = 0;
+
 
     public void setCountry(Countries.Entry c) {
 
@@ -50,9 +54,15 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
             Countries.class,
     }, addsTo = RootModule.class)
     public static class Module {
+        final EnterPhoneFragment path;
 
+        public Module(EnterPhoneFragment path) {
+            this.path = path;
+        }
 
-
+        @Provides public EnterPhoneFragment providePath(){
+            return path;
+        }
     }
 
     @Override
@@ -69,32 +79,43 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
         private Subscription subscribtion = Subscriptions.empty();
         private ProgressDialog pd;
         private final Countries countries;
-
+        final EnterPhoneFragment path;
         @Inject
-        public Presenter(RXClient client, Countries countries) {
+        public Presenter(RXClient client, Countries countries, EnterPhoneFragment path) {
             this.client = client;
 
             this.countries = countries;
+            this.path = path;
         }
 
         @Override
         protected void onLoad(Bundle savedInstanceState) {
             super.onLoad(savedInstanceState);
+            path.loadCounter++;
             Context ctx = getView().getContext();
-            EnterPhoneFragment f = get(ctx);
-            Countries.Entry country;//todo save selected to pref
-            if (f.c != null) {
-                country = f.c;
-                f.c = null;
-            } else {
-                country = countries//todo new
-                        .getForCode(Countries.RU_CODE);
-
-            }
-            getView().countrySelected(country, true);
+            selectCountry(ctx);
             if (sendPhoneRequest != null) {
                 subscribe();
             }
+        }
+
+        private void selectCountry(Context ctx) {
+            EnterPhoneFragment f = get(ctx);
+            Countries.Entry country = null;//todo save selected to pref
+
+            Locale locale = Locale.getDefault();
+            if (path.loadCounter == 1){
+                if (locale != null && locale.getLanguage().equals("ru")){
+                    country = countries.getForCode(Countries.RU_CODE);
+                }
+            } else {
+                if (f.c != null) {
+                    country = f.c;
+                    f.c = null;
+                }
+            }
+            getView().countrySelected(country, true);
+
         }
 
         @Override
@@ -106,6 +127,8 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
         protected void onSave(Bundle outState) {
             super.onSave(outState);
         }
+
+
 
         @Override
         protected void onExitScope() {
@@ -198,6 +221,7 @@ public class EnterPhoneFragment extends BasePath implements Serializable {
         @Override
         public void dropView(EnterPhoneView view) {
             super.dropView(view);
+            path.c = view.getSelectedCountry();
             subscribtion.unsubscribe();
             if (pd != null) {
                 pd.dismiss();

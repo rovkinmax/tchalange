@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.auth.phone;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -12,8 +13,6 @@ import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import org.joda.time.Duration;
 import org.joda.time.format.PeriodFormat;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
 import phoneformat.PhoneFormat;
 import ru.korniltsev.telegram.auth.country.Countries;
 import ru.korniltsev.telegram.chat.R;
@@ -37,8 +36,9 @@ public class EnterPhoneView extends LinearLayout {
     @Inject Countries countries;
     private Countries.Entry selectedCountry;
 
-    boolean ignorePhoneCodeChanges = false;
-    boolean ignorePhoneNumberChanges = false;
+    boolean ignorePhoneCodeChanges = true;
+    boolean ignorePhoneNumberChanges = true;
+
     boolean ignorePhoneNumberChange = false;
 
     public EnterPhoneView(Context context, AttributeSet attrs) {
@@ -82,71 +82,78 @@ public class EnterPhoneView extends LinearLayout {
                 return false;
             }
         });
-        phoneCode.addTextChangedListener(new TextWatcherAdapter() {
-
-            @Override
-            public void afterTextChanged(final Editable s) {
-                if (ignorePhoneCodeChanges) {
-                    return;
-                }
-                String code = s.toString();
-                if (!code.startsWith("+")) {
-                    ignorePhoneCodeChanges = true;
-                    s.insert(0, "+");
-                    ignorePhoneCodeChanges = false;
-                }
-                String phonePrefix = s.toString()
-                        .replaceAll("\\s+", "");
-                final Countries.Entry userTypedCountry = countries.getForPhonePrefix(phonePrefix);
-                if (userTypedCountry != null
-                        && userTypedCountry != selectedCountry) {
-                    countrySelected(userTypedCountry, false);
-                }
-                updatePhone(userPhone.getText());
-            }
-        });
-        userPhone.addTextChangedListener(new TextWatcherAdapter() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                if (ignorePhoneNumberChanges){
-                    return;
+        phoneCode.addTextChangedListener(
+                new TextWatcherAdapter() {
+                    @Override
+                    public void afterTextChanged(final Editable s) {
+                        if (ignorePhoneCodeChanges) {
+                            return;
+                        }
+                        String code = s.toString();
+                        if (!code.startsWith("+")) {
+                            ignorePhoneCodeChanges = true;
+                            s.insert(0, "+");
+                            ignorePhoneCodeChanges = false;
+                        }
+                        String phonePrefix = s.toString()
+                                .replaceAll("\\s+", "");
+                        final Countries.Entry userTypedCountry = countries.getForPhonePrefix(phonePrefix);
+                        countrySelected(userTypedCountry, false);
+                        if (userTypedCountry != null) {
+                            formatPhone(userPhone.getText(), s);
+                            userPhone.requestFocus();
+                        }
+                    }
                 }
 
-                if (count == 0 && after == 1){
-                    //inserted digit
-                } else if (count == 1 && after == 0) {
-                    //deleted digit
-                    ignorePhoneNumberChange = true;
+        );
+        userPhone.addTextChangedListener(
+                new TextWatcherAdapter() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        if (ignorePhoneNumberChanges) {
+                            return;
+                        }
+
+                        if (count == 0 && after == 1) {
+                            //inserted digit
+                        } else if (count == 1 && after == 0) {
+                            //deleted digit
+                            ignorePhoneNumberChange = true;
+                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(final Editable s) {
+                        if (ignorePhoneNumberChange) {
+                            ignorePhoneNumberChange = false;
+                            return;
+                        }
+
+                        if (ignorePhoneNumberChanges) {
+                            return;
+                        }
+                        if (selectedCountry == null){
+                            return;
+                        }
+                        formatPhone(s, phoneCode.getText());
+                    }
                 }
 
-            }
-
-            @Override
-            public void afterTextChanged(final Editable s) {
-                if (ignorePhoneNumberChange) {
-                    ignorePhoneNumberChange = false;
-                    return;
-                }
-
-                if (ignorePhoneNumberChanges) {
-                    return;
-                }
-                updatePhone(s);
-
-            }
-        });
+        );
     }
 
-    private void updatePhone(Editable s) {
+    private void formatPhone(Editable phone, Editable code) {
         ignorePhoneNumberChanges = true;
-        String strPhoneCode = textFrom(phoneCode);
-        String strPhoneRest = textFrom(userPhone);
+        String strPhoneCode = code.toString();
+        String strPhoneRest = phone.toString();//textFrom(userPhone);
         String strip = PhoneFormat.strip(strPhoneCode + strPhoneRest);
-        final String restFormatted = formatter.format(strip)
-                .substring(strPhoneCode.length())
+        String formatted = formatter.format(strip);
+        final String restFormatted = formatted
+                .substring(Math.min(strPhoneCode.length(), formatted.length()))
                 .trim();
-        s.clear();
-        s.insert(0, restFormatted);
+        phone.clear();
+        phone.insert(0, restFormatted);
         ignorePhoneNumberChanges = false;
     }
 
@@ -170,12 +177,27 @@ public class EnterPhoneView extends LinearLayout {
         presenter.dropView(this);
     }
 
-    public void countrySelected(Countries.Entry c, boolean setPhoneCode) {
-        btnSelectCountry.setText(c.name);
-        if (setPhoneCode) {
-            phoneCode.setText(c.phoneCode);
+    public void countrySelected(@Nullable Countries.Entry c, boolean setPhoneCode) {
+        if (c == null){
+            btnSelectCountry.setText(R.string.choose_your_country);
+            if (setPhoneCode){
+                phoneCode.setText("+");
+            }
+            selectedCountry = null;
+        } else {
+            btnSelectCountry.setText(c.name);
+            if (setPhoneCode) {
+                phoneCode.setText(c.phoneCode);
+            }
+            selectedCountry = c;
         }
-        selectedCountry = c;
+        ignorePhoneNumberChanges = false;
+        ignorePhoneCodeChanges = false;
+
+    }
+
+    public Countries.Entry getSelectedCountry() {
+        return selectedCountry;
     }
 
     public EditText getPhoneCode() {
@@ -189,9 +211,9 @@ public class EnterPhoneView extends LinearLayout {
             if (message.contains("PHONE_NUMBER_INVALID")) {
                 userPhone.setError(getResources().getString(R.string.invalid_phone_number));
             } else {
-//                FLOOD_WAIT_19394 AuthSetPhoneNumber {
-//                    phoneNumber = +7(911)
-//                }
+                //                FLOOD_WAIT_19394 AuthSetPhoneNumber {
+                //                    phoneNumber = +7(911)
+                //                }
                 Pattern floodPattern = Pattern.compile("FLOOD_WAIT_(\\d+).*");
                 Matcher match = floodPattern.matcher(message.replaceAll("\n", ""));
                 if (match.matches()) {
@@ -204,7 +226,6 @@ public class EnterPhoneView extends LinearLayout {
                 } else {
                     userPhone.setError(message);
                 }
-
             }
         }
     }
