@@ -66,7 +66,7 @@ public class Adapter extends BaseAdapter<Adapter.Item, RecyclerView.ViewHolder> 
     }
 
     private void bindCountry(VH vh, Country item) {
-        vh.countryName.setText(item.country.name);
+        vh.countryName.setText(item.country.localizedName());
         vh.capitalPhoneCode.setText(item.country.phoneCode);
     }
 

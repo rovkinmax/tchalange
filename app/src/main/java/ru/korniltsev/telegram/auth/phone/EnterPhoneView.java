@@ -185,7 +185,7 @@ public class EnterPhoneView extends LinearLayout {
             }
             selectedCountry = null;
         } else {
-            btnSelectCountry.setText(c.name);
+            btnSelectCountry.setText(c.localizedName());
             if (setPhoneCode) {
                 phoneCode.setText(c.phoneCode);
             }

@@ -87,5 +87,16 @@ public class Countries {
             firstLetter = String.valueOf(name.charAt(0));
         }
 
+        public String localizedName(){
+            final Locale locale = Locale.getDefault();
+            if (locale != null
+                    && locale.getLanguage().equals("ru")
+                    && name.equals("Russian Federation")) {
+                return "Россия";
+            } else {
+                return name;
+            }
+        }
+
     }
 }
