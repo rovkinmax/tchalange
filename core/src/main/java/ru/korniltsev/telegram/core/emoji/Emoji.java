@@ -36,6 +36,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 //import org.telegram.messenger.FileLog;
 //import org.telegram.messenger.Utilities;
@@ -49,7 +53,7 @@ public class Emoji {
     //    private  boolean inited = false;
     private final Paint placeholderPaint;
     private final Bitmap emojiBmp[] = new Bitmap[5];
-    private final boolean loadingEmoji[] = new boolean[5];
+//    private final boolean loadingEmoji[] = new boolean[5];
 
     private static final int[] cols = {
             13, 10, 15, 10, 14
@@ -208,11 +212,12 @@ public class Emoji {
     public Observable<Bitmap> pageLoaded() {
         return pageLoaded;
     }
-
+    final ExecutorService service;
     @Inject
-    public Emoji(Context ctx, DpCalculator dpCalculator) {
+    public Emoji(Context ctx, DpCalculator dpCalculator, ExecutorService service) {
         this.ctx = ctx;
         this.dpCalculator = dpCalculator;
+        this.service = service;
         int emojiFullSize;
         if (this.dpCalculator.density <= 1.0f) {
             emojiFullSize = 30;
@@ -326,17 +331,24 @@ public class Emoji {
         return new File(filesDir, "emoji_masked_" + page);
     }
 
+    private ConcurrentMap<Integer, Runnable> emojiPageNumberTo = new ConcurrentHashMap<>();
     private void loadEmojiAsync(final int page) {
-        if (loadingEmoji[page]) {
-            return;
-        }
-        loadingEmoji[page] = true;
-        new Thread(new Runnable() {
+        final Runnable task = new Runnable() {
             public void run() {
                 loadEmoji(page);
-                loadingEmoji[page] = false;
+//                loadingEmoji[page] = false;
             }
-        }).start();
+        };
+        final Runnable prev = emojiPageNumberTo.putIfAbsent(page, task);
+        if (prev == null) {
+            service.submit(task);
+        }
+//        if (loadingEmoji[page]) {
+//            return;
+//        }
+//        loadingEmoji[page] = true;
+//
+//        new Thread(task).start();
     }
 
 

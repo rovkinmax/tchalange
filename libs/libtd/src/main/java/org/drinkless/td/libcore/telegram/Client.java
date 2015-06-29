@@ -20,6 +20,8 @@
 
 package org.drinkless.td.libcore.telegram;
 
+import android.os.*;
+import android.os.Process;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -112,6 +114,7 @@ public class Client implements Runnable {
      */
     @Override
     public void run() {
+        android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         while (true) {
             if (stopFlag) {
                 doStop();

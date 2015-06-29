@@ -10,6 +10,7 @@ import com.squareup.picasso.RequestCreator;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
+import ru.korniltsev.telegram.core.app.AndroidBackgroundPriorityThreadFactory;
 import ru.korniltsev.telegram.core.rx.RXAuthState;
 import ru.korniltsev.telegram.core.rx.RxDownloadManager;
 import ru.korniltsev.telegram.core.views.AvatarView;
@@ -22,6 +23,7 @@ import javax.inject.Singleton;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import static junit.framework.Assert.assertTrue;
 

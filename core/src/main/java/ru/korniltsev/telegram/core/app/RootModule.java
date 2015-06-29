@@ -36,6 +36,8 @@ import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.core.views.DownloadView;
 
 import javax.inject.Singleton;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Defines app-wide singletons.
@@ -87,6 +89,13 @@ public class RootModule {
     DpCalculator provideDpCalc(){
         float density = ctx.getResources().getDisplayMetrics().density;
         return new DpCalculator(density);
+    }
+
+    @Singleton
+    @Provides
+    ExecutorService provideExecutor() {
+        final AndroidBackgroundPriorityThreadFactory factory = new AndroidBackgroundPriorityThreadFactory("Emoji/AudioPlayer singleton executor");
+        return Executors.newSingleThreadExecutor(factory);
     }
 
     @Provides @Singleton ActivityOwner provideActivityOwner() {

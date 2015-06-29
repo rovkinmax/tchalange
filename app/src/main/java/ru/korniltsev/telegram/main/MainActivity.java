@@ -2,9 +2,10 @@ package ru.korniltsev.telegram.main;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
-import android.os.Bundle;
+import android.os.*;
+import android.os.Process;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import com.crashlytics.android.core.CrashlyticsCore;
@@ -27,6 +28,8 @@ import ru.korniltsev.telegram.core.rx.RXAuthState;
 import rx.Observable;
 import rx.Subscription;
 import rx.subjects.PublishSubject;
+
+import java.util.Map;
 
 import static mortar.bundler.BundleServiceRunner.getBundleServiceRunner;
 import static ru.korniltsev.telegram.core.Utils.event;
@@ -183,7 +186,24 @@ public class MainActivity extends ActionBarActivity implements ActivityOwner.AnA
         if (!container.onBackPressed()) {
             super.onBackPressed();
         }
+//        analyzeThreads();
     }
+
+//    private void analyzeThreads() {
+//        final Map<Thread, StackTraceElement[]> stackTraces = Thread.getAllStackTraces();
+//        log("active threads " + Thread.activeCount());
+//        log("total thread " + stackTraces.size());
+//        for (Map.Entry<Thread, StackTraceElement[]> it : stackTraces.entrySet()) {
+//            final Thread key = it.getKey();
+//            log("thread " + key.getName());
+//            final long id = key.getId();
+//            log("priority " + Process.getgetThreadPriority((int) id));//key.getPriority());
+//        }
+//    }
+
+//    private int log(String msg) {
+//        return Log.d("MemoryAnalize", msg);
+//    }
 
     @Override
     protected void onDestroy() {
