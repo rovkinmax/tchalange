@@ -1,9 +1,8 @@
 #!/bin/bash
 
-#increase verion
 function bumpVersion(){
-	perl -pe 's/(versionCode )(\d+)/$1.($2+1)/e' < main_lib/build.gradle > tmp
-	perl -pe 's/(versionName \"\d+\.\d+\.)(\d+)(\")/$1.($2+1).$3/e' < tmp > main_lib/build.gradle
+	perl -pe 's/(versionCode )(\d+)/$1.($2+1)/e' < app/build.gradle > tmp
+	perl -pe 's/(versionName \"\d+\.\d+\.)(\d+)(\")/$1.($2+1).$3/e' < tmp > app/build.gradle
 	rm tmp
 }
 
