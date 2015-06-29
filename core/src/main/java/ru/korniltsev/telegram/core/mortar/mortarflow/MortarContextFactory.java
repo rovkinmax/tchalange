@@ -10,6 +10,9 @@ import flow.path.PathContextFactory;
 import mortar.MortarScope;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.ScreenScoper;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public final class MortarContextFactory implements PathContextFactory {
   private final ScreenScoper screenScoper = new ScreenScoper();
 
@@ -35,8 +38,11 @@ public final class MortarContextFactory implements PathContextFactory {
 
     static void destroyScope(Context context) {
       MortarScope scope = MortarScope.getScope(context);
+      StringWriter sw = new StringWriter();
+      new Throwable().printStackTrace(new PrintWriter(sw));
       CrashlyticsCore.getInstance()
-              .log(Log.DEBUG, "MortarContextFactory", "destroy " + scope);
+              .log(Log.DEBUG, "MortarContextFactory", "destroy " + scope + "\n" + sw.toString());
+
       scope.destroy();
     }
 

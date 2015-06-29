@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.core.rx;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.crashlytics.android.core.CrashlyticsCore;
 import org.drinkless.td.libcore.telegram.Client;
@@ -243,6 +244,29 @@ public class RXClient {
         //            }
         //        });
         this.client = TG.getClientInstance();
+        updateOptionMyIdEmpty()
+                .observeOn(mainThread())
+                .subscribe(new Action1<TdApi.UpdateOption>() {
+                    @Override
+                    public void call(TdApi.UpdateOption updateOption) {
+                        logout();
+                    }
+                });
+    }
+
+    @NonNull
+    private Observable<TdApi.UpdateOption> updateOptionMyIdEmpty() {
+        return globalObservableWithBackPressure.compose(new FilterAndCastToClass<>(TdApi.UpdateOption.class))
+                .filter(new Func1<TdApi.UpdateOption, Boolean>() {
+                    @Override
+                    public Boolean call(TdApi.UpdateOption updateOption) {
+                        if (updateOption.name.equals("my_id")) {
+                            return updateOption.value instanceof TdApi.OptionEmpty;
+                        } else {
+                            return false;
+                        }
+                    }
+                });
     }
 
     public Observable<TdApi.UpdateUserStatus> usersStatus() {
@@ -315,6 +339,10 @@ public class RXClient {
     }
 
     public void logout() {
+        if (auth.getState() instanceof RXAuthState.StateLogout) {
+            return;
+        }
+        Log.e("RxClient", "logout");
         Preconditions.checkMainThread();
         authStateLogut.onNext(new TdApi.AuthStateOk());
         sendRx(new TdApi.AuthReset())
@@ -326,7 +354,7 @@ public class RXClient {
 
                     @Override
                     public void onError(Throwable th) {
-                        //do nothing
+                        CrashlyticsCore.getInstance().logException(th);
                     }
                 });
 
