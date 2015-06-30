@@ -39,7 +39,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
  * Created by korniltsev on 21/04/15.
  */
 @WithModule(EnterCode.Module.class)
-public class EnterCode extends BasePath implements Serializable{
+public class EnterCode extends BasePath implements Serializable {
 
     private static Subscription smsSubscription;
     public final String phoneNumber;
@@ -53,27 +53,28 @@ public class EnterCode extends BasePath implements Serializable{
     public static class Module {
         final EnterCode code;
 
-
         public Module(EnterCode code) {
             this.code = code;
         }
 
-        @Provides EnterCode provideEnterCode() {
+        @Provides
+        EnterCode provideEnterCode() {
             return code;
         }
     }
+
     @Override
     public int getRootLayout() {
         return R.layout.auth_set_code_view;
     }
 
     @Singleton
-    static class Presenter extends ViewPresenter<EnterCodeView>{
+    static class Presenter extends ViewPresenter<EnterCodeView> {
         private final EnterCode path;
         private final RXClient client;
         private final RXAuthState auth;
         private Observable<TdApi.User> request;
-        private Subscription subscription= Subscriptions.empty();
+        private Subscription subscription = Subscriptions.empty();
         private ProgressDialog pd;
         //        private ProgressDialog pd;
         private boolean atLeastOneRequestSent = false;
@@ -91,7 +92,7 @@ public class EnterCode extends BasePath implements Serializable{
 
         @Override
         protected void onLoad(Bundle savedInstanceState) {
-            if (request != null){
+            if (request != null) {
                 subscribe();
             }
             smsSubscription = ContentObservable.fromBroadcast(
@@ -106,16 +107,18 @@ public class EnterCode extends BasePath implements Serializable{
         }
 
         private void handleSms(Intent intent) {
+            if (request != null) {
+                return;
+            }
             List<String> messages = SMSUtils.getMessages(intent);
             Pattern p = Pattern.compile("Telegram code (\\d+)");
             for (String msg : messages) {
                 Matcher m = p.matcher(msg);
-                if (m.matches()){
+                if (m.matches()) {
                     String code = m.group(1);
-                    if (getView().getSmsCode().getText().length() == 0){
+                    if (getView().getSmsCode().getText().length() == 0) {
                         checkCode(code);
                     }
-                    System.out.println(code);
                     break;
                 }
             }
@@ -126,7 +129,7 @@ public class EnterCode extends BasePath implements Serializable{
             super.dropView(view);
             subscription.unsubscribe();
             smsSubscription.unsubscribe();
-            if (pd != null){
+            if (pd != null) {
                 pd.dismiss();
             }
         }
@@ -195,13 +198,12 @@ public class EnterCode extends BasePath implements Serializable{
         }
 
         public void codeEntered(Editable s) {
-            if (atLeastOneRequestSent) return;
-            if (s.length() == 5 ){
+            if (atLeastOneRequestSent) {
+                return;
+            }
+            if (s.length() == 5) {
                 checkCode(s.toString());
             }
         }
     }
-
-
-
 }
