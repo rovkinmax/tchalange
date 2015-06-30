@@ -238,15 +238,23 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
                     if (minutesBetween == 0) {
                         //just now
                         offlineStatusText = getResources().getString(R.string.user_status_just_now);
-                    } else {
+                    } else if (minutesBetween > 0) {
                         //n minutes
                         offlineStatusText = getResources().getQuantityString(R.plurals.user_status_last_seen_n_minutes_ago, minutesBetween, minutesBetween);
+                    } else {
+                        //user has wrong date - fallback to SUBTITLE_FORMATTER
+                        String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
+                        offlineStatusText = getResources().getString(R.string.user_status_last_seen, date);
                     }
-                } else {
+                } else if (hoursBetween > 0){
                     //show hours
                     offlineStatusText = getResources().getQuantityString(R.plurals.user_status_last_seen_n_hours_ago, hoursBetween, hoursBetween);
+                } else {
+                    //user has wrong date - fallback to SUBTITLE_FORMATTER
+                    String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
+                    offlineStatusText = getResources().getString(R.string.user_status_last_seen, date);
                 }
-            } else {
+            } else if (daysBetween > 0){
                 //show n days ago
                 if (daysBetween <= 7){
                     offlineStatusText = getResources().getQuantityString(R.plurals.user_status_last_seen_n_days_ago, daysBetween, daysBetween);
@@ -254,6 +262,10 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
                     String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
                     offlineStatusText = getResources().getString(R.string.user_status_last_seen, date);
                 }
+            } else {
+                //user has wrong date - fallback to SUBTITLE_FORMATTER
+                String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
+                offlineStatusText = getResources().getString(R.string.user_status_last_seen, date);
             }
 
             toolbarSubtitle.setText(offlineStatusText);
