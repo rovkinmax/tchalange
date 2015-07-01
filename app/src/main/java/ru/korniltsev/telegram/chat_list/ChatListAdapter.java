@@ -21,6 +21,7 @@ import ru.korniltsev.telegram.core.rx.ChatDB;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.views.AvatarView;
 import ru.korniltsev.telegram.chat.R;
+import ru.korniltsev.telegram.common.AppUtils;
 import rx.functions.Action1;
 
 import java.text.SimpleDateFormat;
@@ -62,7 +63,7 @@ public class ChatListAdapter extends BaseAdapter<TdApi.Chat, ChatListAdapter.VH>
         if (chat.type instanceof TdApi.PrivateChatInfo){
             //name
             TdApi.User u = ((TdApi.PrivateChatInfo) chat.type).user;
-            holder.name.setText(Utils.uiName(u));
+            holder.name.setText(AppUtils.uiName(u, ctx));
             //group_icon
             holder.iconGroupChat.setVisibility(View.GONE);
         } else {
@@ -170,7 +171,7 @@ public class ChatListAdapter extends BaseAdapter<TdApi.Chat, ChatListAdapter.VH>
         } else if (m instanceof TdApi.MessageChatChangePhoto) {
             return ChatPhotoChangedVH.getTextFor(res, topMessage, chatDb);
         } else {
-            return SingleTextViewVH.getTextFor(res, topMessage, m, chatDb);
+            return SingleTextViewVH.getTextFor(ctx, topMessage, m, chatDb);
         }
 
 //        return null;

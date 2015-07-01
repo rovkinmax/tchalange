@@ -69,32 +69,6 @@ public class Utils {
         }
     }
 
-    public static String uiName(TdApi.User user) {//todo
-        if (user == null) {
-            return "";
-        }
-        String firstName = user.firstName;
-        String lastName = user.lastName;
-        String name = uiName(firstName, lastName);
-        return name;
-    }
-
-    public static String uiName(String firstName, String lastName) {
-        String name;
-        StringBuilder sb = new StringBuilder();
-        if (firstName.length() != 0) {
-            sb.append(firstName);
-        }
-        if (lastName.length() != 0){
-            if (sb.length() != 0) {
-                sb.append(" ");
-            }
-            sb.append(lastName);
-        }
-        name = sb.toString();
-        return name;
-    }
-
     public static int compare(int lhs, int rhs) {
         return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
     }

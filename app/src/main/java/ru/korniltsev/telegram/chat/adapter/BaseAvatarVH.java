@@ -12,6 +12,7 @@ import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.utils.Colors;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import ru.korniltsev.telegram.common.AppUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -48,7 +49,7 @@ abstract class BaseAvatarVH extends RealBaseVH {
         TdApi.User user = adapter.getUserHolder().getUser(msg.fromId);
         if (user != null){
             avatar.loadAvatarFor(user);
-            String name = Utils.uiName(user);
+            String name = AppUtils.uiName(user, itemView.getContext());
             nick.setText(name);
         }
         String print = format(msg);

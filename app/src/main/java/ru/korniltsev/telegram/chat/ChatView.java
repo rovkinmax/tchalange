@@ -29,6 +29,7 @@ import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.picasso.RxGlide;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import ru.korniltsev.telegram.common.AppUtils;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -36,7 +37,6 @@ import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
-import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatView extends ObservableLinearLayout implements HandlesBack {
@@ -199,7 +199,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
 
     public void setPrivateChatTitle(TdApi.User user) {
         toolbarTitle.setText(
-                uiName(user));
+                AppUtils.uiName(user, getContext()));
     }
 
     public void setwGroupChatSubtitle(int total, int online) {

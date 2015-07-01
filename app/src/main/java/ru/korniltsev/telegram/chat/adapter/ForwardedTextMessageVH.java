@@ -3,11 +3,10 @@ package ru.korniltsev.telegram.chat.adapter;
 import android.view.View;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
-import org.joda.time.DateTimeZone;
 import ru.korniltsev.telegram.chat.R;
-import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import ru.korniltsev.telegram.common.AppUtils;
 
 class ForwardedTextMessageVH extends BaseAvatarVH {
 
@@ -42,7 +41,7 @@ class ForwardedTextMessageVH extends BaseAvatarVH {
         TdApi.User user = adapter.getUserHolder().getUser(rawMsg.forwardFromId);
         avatar.loadAvatarFor(user);
         nick.setText(
-                Utils.uiName(user));
+                AppUtils.uiName(user, itemView.getContext()));
         message_time.setText(BaseAvatarVH.format(rawMsg));
 
 

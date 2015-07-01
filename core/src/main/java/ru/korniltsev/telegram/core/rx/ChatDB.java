@@ -45,9 +45,7 @@ public class ChatDB implements UserHolder {
     //guarded by ui thread
     final PublishSubject<List<TdApi.Chat>> currentChatList = PublishSubject.create();
 
-
-
-
+    private final Context ctx;
     final RXClient client;
     final NotificationManager nm;
     final EmojiParser parser;
@@ -67,6 +65,7 @@ public class ChatDB implements UserHolder {
 
     @Inject
     public ChatDB(final Context ctx, final RXClient client, EmojiParser parser, DpCalculator calc, NotificationManager nm, RXAuthState auth) {
+        this.ctx = ctx;
         this.client = client;
         this.parser = parser;
         this.nm = nm;
@@ -390,6 +389,10 @@ public class ChatDB implements UserHolder {
         }
     }
 
+    @Override
+    public Context getContext() {
+        return ctx;
+    }
 
     public static class Portion {
         public final List<TdApi.Message> ms;

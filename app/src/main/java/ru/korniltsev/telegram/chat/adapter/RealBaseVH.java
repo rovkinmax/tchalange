@@ -3,9 +3,9 @@ package ru.korniltsev.telegram.chat.adapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.UserHolder;
+import ru.korniltsev.telegram.common.AppUtils;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -30,7 +30,7 @@ public abstract class RealBaseVH extends RecyclerView.ViewHolder {
         int fromId = item.fromId;
         assertTrue(fromId != 0);
         TdApi.User user = uh.getUser(fromId);
-        return Utils.uiName(user);
+        return AppUtils.uiName(user, uh.getContext());
     }
 
 

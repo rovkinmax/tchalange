@@ -1,5 +1,6 @@
 package ru.korniltsev.telegram.chat.adapter;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -9,10 +10,10 @@ import android.view.View;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
-import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.UserHolder;
 import ru.korniltsev.telegram.core.utils.Colors;
+import ru.korniltsev.telegram.common.AppUtils;
 
 //something we can draw as a single textView
 
@@ -40,11 +41,12 @@ public class SingleTextViewVH extends RealBaseVH {
     public void bind(RxChat.ChatListItem item, long lastReadOutbox) {
         TdApi.Message msgRaw = ((RxChat.MessageItem) item).msg;
         TdApi.MessageContent msg = msgRaw.message;
-        CharSequence textFor = getTextFor(resources, msgRaw, msg, adapter.getUserHolder());
+        CharSequence textFor = getTextFor(itemView.getContext(), msgRaw, msg, adapter.getUserHolder());
         text.setText(textFor);
     }
 
-    public   static CharSequence getTextFor(Resources res, TdApi.Message msgRaw, TdApi.MessageContent msg, UserHolder uh) {
+    public   static CharSequence getTextFor(Context ctx, TdApi.Message msgRaw, TdApi.MessageContent msg, UserHolder uh) {
+        Resources res = ctx.getResources();
         if (msg instanceof TdApi.MessageChatChangeTitle) {
             TdApi.MessageChatChangeTitle create = (TdApi.MessageChatChangeTitle) msgRaw.message;
             Spannable creator = userColor(sGetNameForSenderOf(uh, msgRaw));
@@ -74,7 +76,7 @@ public class SingleTextViewVH extends RealBaseVH {
             TdApi.MessageChatDeleteParticipant kick = (TdApi.MessageChatDeleteParticipant) msgRaw.message;
 
             Spannable inviter = userColor(sGetNameForSenderOf(uh, msgRaw));
-            Spannable newUser = userColor(Utils.uiName(kick.user));
+            Spannable newUser = userColor(AppUtils.uiName(kick.user, ctx));
 
             SpannableStringBuilder sb = new SpannableStringBuilder();
             if (kick.user.id == msgRaw.fromId) {
@@ -99,7 +101,7 @@ public class SingleTextViewVH extends RealBaseVH {
             Spannable inviter = userColor(
                     sGetNameForSenderOf(uh, msgRaw));
             Spannable newUser = userColor(
-                    Utils.uiName(create.user));
+                    AppUtils.uiName(create.user, ctx));
 
             SpannableStringBuilder sb = new SpannableStringBuilder();
             sb.append(inviter)
@@ -109,9 +111,9 @@ public class SingleTextViewVH extends RealBaseVH {
                     .append(newUser);
 
             return sb;
-        } else if (msg instanceof TdApi.MessageDeleted){
+        } else if (msg instanceof TdApi.MessageDeleted) {
             return res.getString(R.string.message_deleted);
-        }  else if (msg instanceof TdApi.MessageChatDeletePhoto) {
+        } else if (msg instanceof TdApi.MessageChatDeletePhoto) {
             Spannable name = userColor(sGetNameForSenderOf(uh, msgRaw));
             SpannableStringBuilder sb = new SpannableStringBuilder();
             sb.append(name)

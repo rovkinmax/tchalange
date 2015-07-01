@@ -1,5 +1,6 @@
 package ru.korniltsev.telegram.core.rx;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.SparseArray;
 import org.drinkless.td.libcore.telegram.TdApi;
@@ -235,6 +236,11 @@ public class RxChat implements UserHolder {
     @Override
     public void saveUser(TdApi.User u) {
         holder.saveUser(u);
+    }
+
+    @Override
+    public Context getContext() {
+        return holder.getContext();
     }
 
     public void updateCurrentMessageList() {

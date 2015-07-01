@@ -17,13 +17,13 @@ import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
 import ru.korniltsev.telegram.chat.R;
+import ru.korniltsev.telegram.common.AppUtils;
 import rx.functions.Action1;
 
 import javax.inject.Inject;
 import java.util.List;
 
 import static ru.korniltsev.telegram.core.Utils.event;
-import static ru.korniltsev.telegram.core.Utils.uiName;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class ChatListView extends DrawerLayout {
@@ -114,7 +114,7 @@ public class ChatListView extends DrawerLayout {
     public void showMe(TdApi.User user) {
         drawerAvatar.loadAvatarFor(user);
         drawerName.setText(
-                uiName(user));
+                AppUtils.uiName(user, getContext()));
 
         String phoneNumber = user.phoneNumber;
         if (!phoneNumber.startsWith("+")) {

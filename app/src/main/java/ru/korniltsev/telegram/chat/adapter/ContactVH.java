@@ -3,11 +3,10 @@ package ru.korniltsev.telegram.chat.adapter;
 import android.view.View;
 import android.widget.TextView;
 import org.drinkless.td.libcore.telegram.TdApi;
-import org.joda.time.DateTimeZone;
 import ru.korniltsev.telegram.chat.R;
-import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import ru.korniltsev.telegram.common.AppUtils;
 
 class ContactVH extends BaseAvatarVH {
 
@@ -45,7 +44,7 @@ class ContactVH extends BaseAvatarVH {
         TdApi.User user = adapter.getUserHolder().getUser(msg.userId);
         avatar.loadAvatarFor(user);
         nick.setText(
-                Utils.uiName(msg.firstName, msg.lastName));
+                AppUtils.uiName(msg.firstName, msg.lastName));
 //        long forwardDateInMillis = Utils.dateToMillis(rawMsg.forwardDate);
 //        long localTime = DateTimeZone.UTC.convertUTCToLocal(forwardDateInMillis);
 //        message_time.setText(BaseAvatarVH.MESSAGE_TIME_FORMAT.print(localTime));

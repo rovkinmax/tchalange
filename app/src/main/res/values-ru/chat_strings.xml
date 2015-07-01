@@ -41,5 +41,7 @@
         <item quantity="many">был в сети %1$d дней назад</item>
     </plurals>
 
+    <string name="deleted_account">Удаленный аккаунт</string>
+
 
 </resources>
