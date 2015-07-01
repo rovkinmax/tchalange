@@ -17,4 +17,5 @@
     <string name="please_wait">Пожалуйста подождите</string>
     <string name="please_wait_flood">Слишком часто. Пожалуйста подождите %1$s</string>
     <string name="choose_your_country">Выберите Вашу страну</string>
+    <string name="invalid_code_empty">Код активации не может быть пустым</string>
 </resources>

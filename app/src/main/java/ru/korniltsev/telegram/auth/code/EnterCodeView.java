@@ -19,9 +19,9 @@ import static ru.korniltsev.telegram.core.Utils.textFrom;
 import static ru.korniltsev.telegram.core.toolbar.ToolbarUtils.initToolbar;
 
 public class EnterCodeView extends LinearLayout {
-    public static final String PHONE_CODE_INVALID = "PHONE_CODE_INVALID";
     private final String errorMessageUnknown;
     private final String errorMessageInvalidCode;
+    private final String errorMessageEmptyCode;
     @Inject EnterCode.Presenter presenter;
     private EditText smsCode;
 
@@ -30,6 +30,7 @@ public class EnterCodeView extends LinearLayout {
         ObjectGraphService.inject(ctx, this);
         errorMessageUnknown = ctx.getString(R.string.unknown_error);
         errorMessageInvalidCode = ctx.getString(R.string.invalid_code);
+        errorMessageEmptyCode = ctx.getString(R.string.invalid_code_empty);
     }
 
     @Override
@@ -99,8 +100,10 @@ public class EnterCodeView extends LinearLayout {
         String message = th.getMessage();
         if (isEmpty(message)) {
             return errorMessageUnknown;
-        } else if (message.contains(PHONE_CODE_INVALID)) {
+        } else if (message.contains("PHONE_CODE_INVALID")) {
             return errorMessageInvalidCode;
+        } else if (message.contains("PHONE_CODE_EMPTY")) {
+            return errorMessageEmptyCode;
         } else {
             return message;
         }
