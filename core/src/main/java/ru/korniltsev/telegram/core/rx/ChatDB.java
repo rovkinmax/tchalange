@@ -111,7 +111,7 @@ public class ChatDB implements UserHolder {
         prepareForUpdateNewMessage();
         prepareForUpdateDeleteMessages();
         prepareForUpdateMessageId();
-        prepareForUpdateMessageDate();
+//        prepareForUpdateMessageDate();
         //todo this 3 ones are probably needed
 //        prepareForUpdateChatReadInbox();
         prepareForUpdateChatReadOutbox();
@@ -135,7 +135,7 @@ public class ChatDB implements UserHolder {
     }
 
     public TdApi.UserStatus getUserStatus(TdApi.User u) {
-        TdApi.UserStatus updatedStatus = userIdToUserStatus.get(u);
+        TdApi.UserStatus updatedStatus = userIdToUserStatus.get(u.id);
         if (updatedStatus == null) {
             return u.status;
         } else {
@@ -143,17 +143,17 @@ public class ChatDB implements UserHolder {
         }
     }
 
-    private void prepareForUpdateMessageContent() {
-        client.updateMessageContent()
-                .observeOn(mainThread())
-                .subscribe(new ObserverAdapter<TdApi.UpdateMessageContent>() {
-                    @Override
-                    public void onNext(TdApi.UpdateMessageContent updateMessageContent) {
-                        updateChatMessageList(updateMessageContent.chatId);
-                        updateCurrentChatList();
-                    }
-                });
-    }
+//    private void prepareForUpdateMessageContent() {
+//        client.updateMessageContent()
+//                .observeOn(mainThread())
+//                .subscribe(new ObserverAdapter<TdApi.UpdateMessageContent>() {
+//                    @Override
+//                    public void onNext(TdApi.UpdateMessageContent updateMessageContent) {
+//                        updateChatMessageList(updateMessageContent.chatId);
+//                        updateCurrentChatList();
+//                    }
+//                });
+//    }
 
     private void prepareForUpdateChatReadOutbox() {
         client.updateChatReadOutbox()
@@ -167,29 +167,29 @@ public class ChatDB implements UserHolder {
                 });
     }
 
-    private void prepareForUpdateChatReadInbox() {
-        client.updateChatReadInbox()
-                .observeOn(mainThread())
-                .subscribe(new ObserverAdapter<TdApi.UpdateChatReadInbox>() {
-                    @Override
-                    public void onNext(TdApi.UpdateChatReadInbox updateChatReadInbox) {
-                        updateChatMessageList(updateChatReadInbox.chatId);
-                        updateCurrentChatList();
-                    }
-                });
-    }
+//    private void prepareForUpdateChatReadInbox() {
+//        client.updateChatReadInbox()
+//                .observeOn(mainThread())
+//                .subscribe(new ObserverAdapter<TdApi.UpdateChatReadInbox>() {
+//                    @Override
+//                    public void onNext(TdApi.UpdateChatReadInbox updateChatReadInbox) {
+//                        updateChatMessageList(updateChatReadInbox.chatId);
+//                        updateCurrentChatList();
+//                    }
+//                });
+//    }
 
-    private void prepareForUpdateMessageDate() {
-        client.updateMessageDate()
-                .observeOn(mainThread())
-                .subscribe(new ObserverAdapter<TdApi.UpdateMessageDate>() {
-                    @Override
-                    public void onNext(TdApi.UpdateMessageDate updateMessageDate) {
-                        updateChatMessageList(updateMessageDate.chatId);
-                        updateCurrentChatList();
-                    }
-                });
-    }
+//    private void prepareForUpdateMessageDate() {
+//        client.updateMessageDate()
+//                .observeOn(mainThread())
+//                .subscribe(new ObserverAdapter<TdApi.UpdateMessageDate>() {
+//                    @Override
+//                    public void onNext(TdApi.UpdateMessageDate updateMessageDate) {
+//                        updateChatMessageList(updateMessageDate.chatId);
+//                        updateCurrentChatList();
+//                    }
+//                });
+//    }
 
     private void prepareForUpdateMessageId() {
         messageIdsUpdates = client.updateMessageId()
@@ -212,7 +212,8 @@ public class ChatDB implements UserHolder {
                 .subscribe(new ObserverAdapter<TdApi.UpdateDeleteMessages>() {
                     @Override
                     public void onNext(TdApi.UpdateDeleteMessages messages) {
-                        updateChatMessageList(messages.chatId);
+                        getRxChat(messages.chatId)
+                                .deleteMessageImpl(messages.messages);
                         updateCurrentChatList();
                     }
                 });
@@ -239,10 +240,10 @@ public class ChatDB implements UserHolder {
                 });
     }
 
-    private void updateChatMessageList(long id){
-        getRxChat(id)
-                .updateCurrentMessageList();
-    }
+//    private void updateChatMessageList(long id){
+//        getRxChat(id)
+//                .updateCurrentMessageList();
+//    }
 
 
     public void updateCurrentChatList() {

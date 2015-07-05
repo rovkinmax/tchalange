@@ -55,6 +55,7 @@ public class Presenter extends ViewPresenter<ChatView>
 
     private final Observable<TdApi.GroupChatFull> fullChatInfoRequest;
     private final boolean isGroupChat;
+    private final TdApi.Chat chat;
     private CompositeSubscription subscription;
     @Nullable private volatile TdApi.GroupChatFull mGroupChatFull;
 
@@ -71,10 +72,11 @@ public class Presenter extends ViewPresenter<ChatView>
         this.nm = nm;
         this.owner = owner;
         this.stickers = stickers;
-        rxChat = chatDB.getRxChat(path.chat.id);
+        this.chat = path.chat;
+        rxChat = chatDB.getRxChat(chat.id);
 
-        if (path.chat.type instanceof TdApi.GroupChatInfo) {
-            TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) path.chat.type).groupChat;
+        if (chat.type instanceof TdApi.GroupChatInfo) {
+            TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) chat.type).groupChat;
             fullChatInfoRequest = client.getGroupChatInfo(groupChat.id)
                     .observeOn(mainThread());
             isGroupChat = true;
@@ -82,37 +84,40 @@ public class Presenter extends ViewPresenter<ChatView>
             fullChatInfoRequest = Observable.empty();
             isGroupChat = false;
         }
+
+        //todo if has unread messages load from it
     }
 
     @Override
     protected void onLoad(Bundle savedInstanceState) {
+        if (path.firstLoad) {
+            path.firstLoad = false;
+            rxChat.clear();
+            if (chat.unreadCount == 0){
+                rxChat.initialRequest(chat);
+            } else {
+                rxChat.requestUntilLastUnread(chat);
+            }
+
+        }
+
+
         ChatView view = getView();
 
-        if (!rxChat.atLeastOneRequestCompleted()) {
-            if (!rxChat.isRequestInProgress()) {
-                rxChat.request2(path.chat.topMessage, path.chat.topMessage);
-                //todo move first request to constructor
-            }
-        }
-        view.loadToolBarImage(path.chat);
-        view.initMenu(isGroupChat, nm.isMuted(path.chat));
+        view.loadToolBarImage(this.chat);
+        view.initMenu(isGroupChat, nm.isMuted(this.chat));
         setViewSubtitle();
 
-        List<TdApi.Message> messages = rxChat.getMessages();
-        if (!messages.isEmpty()
-                && !rxChat.isRequestInProgress()) {
-            rxChat.updateCurrentMessageList();
-        }
-        getView().updateData(rxChat);
+        getView().initList(rxChat);
         subscribe();
         if (isGroupChat) {
-            TdApi.GroupChatInfo g = (TdApi.GroupChatInfo) path.chat.type;
+            TdApi.GroupChatInfo g = (TdApi.GroupChatInfo) this.chat.type;
             showMessagePanel(g.groupChat);
         }
     }
 
     private void setViewSubtitle() {
-        TdApi.ChatInfo t = path.chat.type;
+        TdApi.ChatInfo t = chat.type;
         if (t instanceof TdApi.PrivateChatInfo) {
             TdApi.User user = ((TdApi.PrivateChatInfo) t).user;
             setViewTitle(user);
@@ -140,21 +145,36 @@ public class Presenter extends ViewPresenter<ChatView>
         }
         subscription = new CompositeSubscription();
 
-        //todo show progressBar
         subscription.add(
-                rxChat.messageList()
-                        .subscribe(new ObserverAdapter<List<TdApi.Message>>() {
+                rxChat.history()
+                        .subscribe(new ObserverAdapter<RxChat.HistoryResponse>(){
                             @Override
-                            public void onNext(List<TdApi.Message> messages) {
-                                //                                RxChat.log2(messages, "presenter");
-                                getView()
-                                        .setMessages(messages);
-                                //                                        .getAdapter()
-                                //                                        .setData(messages);
-
+                            public void onNext(RxChat.HistoryResponse history) {
+                                //todo if unread messages
+                                getView().addHistory(chat, history);
                             }
-                        }));
+                        })
+        );
+//        subscription.add(
+//                rxChat.messageList()
+//                        .subscribe(new ObserverAdapter<List<TdApi.Message>>() {
+//                            @Override
+//                            public void onNext(List<TdApi.Message> messages) {
+//                                getView()
+//                                        .setMessages(messages);
+//
+//                            }
+//                        }));
 
+        subscription.add(
+                rxChat.getDeletedMessagesSubject()
+                        .subscribe(new ObserverAdapter<RxChat.DeletedMessages>(){
+                            @Override
+                            public void onNext(RxChat.DeletedMessages response) {
+                                getView().deleteMessages(response);
+                            }
+                        })
+        );
         subscription.add(
                 rxChat.getNewMessage()
                         .subscribe(new ObserverAdapter<TdApi.Message>() {
@@ -170,7 +190,7 @@ public class Presenter extends ViewPresenter<ChatView>
         requestUpdateOnlineStatus();
 
         subscription.add(
-                nm.updatesForChat(path.chat)
+                nm.updatesForChat(chat)
                         .subscribe(new ObserverAdapter<TdApi.NotificationSettings>() {
                                        @Override
                                        public void onNext(TdApi.NotificationSettings s) {
@@ -191,7 +211,7 @@ public class Presenter extends ViewPresenter<ChatView>
                         }));
 
         subscription.add(
-                rxChat.holder.getMessageIdsUpdates(path.chat.id)
+                rxChat.holder.getMessageIdsUpdates(chat.id)
                         .subscribe(new ObserverAdapter<TdApi.UpdateMessageId>() {
                             @Override
                             public void onNext(TdApi.UpdateMessageId response) {
@@ -233,7 +253,7 @@ public class Presenter extends ViewPresenter<ChatView>
         return client.chatParticipantCount().filter(new Func1<TdApi.UpdateChatParticipantsCount, Boolean>() {
             @Override
             public Boolean call(TdApi.UpdateChatParticipantsCount upd) {
-                return upd.chatId == path.chat.id;
+                return upd.chatId == chat.id;
             }
         }).observeOn(mainThread());
     }
@@ -266,7 +286,7 @@ public class Presenter extends ViewPresenter<ChatView>
         if (isGroupChat) {
             throw new IllegalStateException();
         }
-        TdApi.PrivateChatInfo type = (TdApi.PrivateChatInfo) path.chat.type;
+        TdApi.PrivateChatInfo type = (TdApi.PrivateChatInfo) chat.type;
         return type.user.id;
     }
 
@@ -314,7 +334,7 @@ public class Presenter extends ViewPresenter<ChatView>
         return client.updateChatReadOutbox().filter(new Func1<TdApi.UpdateChatReadOutbox, Boolean>() {
             @Override
             public Boolean call(TdApi.UpdateChatReadOutbox updateChatReadOutbox) {
-                return updateChatReadOutbox.chatId == path.chat.id;
+                return updateChatReadOutbox.chatId == chat.id;
             }
         }).observeOn(mainThread());
     }
@@ -329,9 +349,7 @@ public class Presenter extends ViewPresenter<ChatView>
         getView().setwGroupChatSubtitle(info.participants.length, online);
     }
 
-    public void requestNewPortion() {
-        rxChat.requestNewPotion();
-    }
+
 
     public void listScrolledToEnd() {
         if (rxChat.isDownloadedAll()) {
@@ -340,7 +358,7 @@ public class Presenter extends ViewPresenter<ChatView>
         if (rxChat.isRequestInProgress()) {
             return;
         }
-        requestNewPortion();
+        rxChat.requestNewPotion();
     }
 
     @Override
@@ -353,10 +371,10 @@ public class Presenter extends ViewPresenter<ChatView>
             clearHistory();
             return true;
         } else if (R.id.menu_mute == id) {
-            nm.mute(path.chat);
+            nm.mute(chat);
             getView().initMenu(isGroupChat, true);
         } else if (R.id.menu_unmute == id) {
-            nm.unmute(path.chat);
+            nm.unmute(chat);
             getView().initMenu(isGroupChat, false);
         }
         return false;
@@ -372,7 +390,7 @@ public class Presenter extends ViewPresenter<ChatView>
         //todo config changes
         subscription.add(
                 client.sendCachedRXUI(
-                        new TdApi.DeleteChatParticipant(path.chat.id, path.me.id)
+                        new TdApi.DeleteChatParticipant(chat.id, path.me.id)
                 ).subscribe(new ObserverAdapter<TdApi.TLObject>() {
                     @Override
                     public void onNext(TdApi.TLObject response) {

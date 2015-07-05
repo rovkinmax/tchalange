@@ -23,6 +23,7 @@ public class Chat extends BasePath implements Serializable {
 
     public final TdApi.Chat chat;
     public final TdApi.User me;
+    public transient boolean firstLoad = true;
 
     public Chat(TdApi.Chat chat, TdApi.User me) {
         this.chat = chat;

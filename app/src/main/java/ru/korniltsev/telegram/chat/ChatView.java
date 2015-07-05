@@ -64,6 +64,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
     };
     private View btnScrollDown;
     private View emptyView;
+    private int myId;
 
     public ChatView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -97,7 +98,8 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
         messagePanel.setListener(presenter);
 
         layout = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
-        adapter = new Adapter(getContext(), picasso, presenter.getPath().chat.lastReadOutboxMessageId, presenter.getPath().me.id);
+        myId = presenter.getPath().me.id;
+        adapter = new Adapter(getContext(), picasso, presenter.getPath().chat.lastReadOutboxMessageId, myId);
         list.setLayoutManager(layout);
         list.setAdapter(adapter);
         btnScrollDown.setAlpha(0f);
@@ -128,21 +130,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
             }
         });
         emptyView = findViewById(R.id.empty_view);
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                if (adapter.getItemCount() == 0) {
-                    if (emptyView.getVisibility() == INVISIBLE) {
-                        emptyView.setVisibility(View.VISIBLE);
-                        emptyView.setAlpha(0f);
-                        emptyView.animate()
-                                .alpha(1);
-                    }
-                } else {
-                    emptyView.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
+        adapter.registerAdapterDataObserver(new EmptyViewHelper());
         activity.setStatusBarColor(getResources().getColor(R.color.primary_dark));
 
     }
@@ -280,48 +268,32 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
         }
     }
 
-    private String lastSeenDaysAgo(int daysBetween) {
-        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_days_ago, daysBetween, daysBetween);
-    }
+//    private String lastSeenDaysAgo(int daysBetween) {
+//        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_days_ago, daysBetween, daysBetween);
+//    }
+//
+//    private String lastSeenHoursAgo(int hoursBetween) {
+//        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_hours_ago, hoursBetween, hoursBetween);
+//    }
+//
+//    private String lastSeenMinutesAgo(int minutesBetween) {
+//        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_minutes_ago, minutesBetween,minutesBetween);
+//    }
 
-    private String lastSeenHoursAgo(int hoursBetween) {
-        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_hours_ago, hoursBetween, hoursBetween);
-    }
-
-    private String lastSeenMinutesAgo(int minutesBetween) {
-        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_minutes_ago, minutesBetween,minutesBetween);
-    }
-
-    public void updateData(RxChat rxChat) {
-        Adapter a = adapter;
-        a.setChat(rxChat);
+    public void initList(RxChat rxChat) {
+        adapter.setChat(rxChat);
         List<TdApi.Message> messages = rxChat.getMessages();
-        setMessages( messages);
-
+        List<RxChat.ChatListItem> split = splitter.split(messages);
+        adapter.setData(split);
         CheckRecyclerViewSpan.check(list, viewSpanNotFilledAction);
     }
 
     private final DaySplitter splitter = new DaySplitter();
 
-    public void setMessages( List<TdApi.Message> messages) {
-        List<RxChat.ChatListItem> split = splitter.split(messages);
-
-//        boolean scrollDown;
-//        int firstFullVisible = layout.findFirstCompletelyVisibleItemPosition();
-//        if (firstFullVisible == 0) {
-//            scrollDown = true;
-//        } else {
-//            if (layout.findFirstVisibleItemPosition() == 0) {
-//                scrollDown = true;
-//            } else {
-//                scrollDown = false;
-//            }
-//        }
-        adapter.setData(split);
-//        if (scrollDown) {
-//            layout.scrollToPosition(0);
-//        }
-    }
+//    public void setMessages( List<TdApi.Message> messages) {
+//        List<RxChat.ChatListItem> split = splitter.split(messages);
+//        adapter.setData(split);
+//    }
 
 
 
@@ -367,6 +339,106 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
         adapter.addFirst(prepend);
         if (scrollDown) {
             layout.scrollToPosition(0);
+        }
+    }
+
+    public void addHistory(TdApi.Chat chat, RxChat.HistoryResponse history) {
+        final List<RxChat.ChatListItem> split = splitter.split(history.ms);
+        if (history.showUnreadMessages) {
+            splitter.insertNewMessageItem(split, chat, myId);
+            adapter.addAll(split);
+//            scrollToNNewMessageItem
+        } else {
+
+            adapter.addAll(split);
+        }
+    }
+
+    public void deleteMessages(RxChat.DeletedMessages deleted) {
+        if (deleted.all){
+            adapter.clearData();
+        } else {
+            for (TdApi.Message m : deleted.ms) {
+                deleteMessage(m);
+            }
+        }
+    }
+
+    private void deleteMessage(TdApi.Message deletedMsg) {
+        //todo wtf, why so complex
+        final List<RxChat.ChatListItem> data = adapter.getData();
+        for (int i = 0; i < data.size(); i++) {
+            RxChat.ChatListItem item = data.get(i);
+            if (item instanceof RxChat.MessageItem) {
+                final TdApi.Message msg = ((RxChat.MessageItem) item).msg;
+                if (msg == deletedMsg) {
+                    adapter.deleteItem(i);
+                    if (i != 0){//not first item
+                        final RxChat.ChatListItem next = data.get(i-1);
+                        //next item is not message
+                        if (!(next instanceof RxChat.MessageItem)){
+                            if (i < data.size()) {
+                                final RxChat.ChatListItem prev = data.get(i);
+                                if (prev instanceof RxChat.DaySeparatorItem){
+                                    adapter.deleteItem(i);//delete separator
+                                }
+                            }
+                        }
+                    } else {
+                        if (i < data.size()) {
+                            final RxChat.ChatListItem prev = data.get(i);
+                            if (prev instanceof RxChat.DaySeparatorItem){
+                                adapter.deleteItem(i);//delete separator
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+
+        if (!data.isEmpty()){
+            if (data.get(0) instanceof RxChat.NewMessagesItem) {
+                adapter.deleteItem(0);
+
+            }
+        }
+    }
+
+    private class EmptyViewHelper extends RecyclerView.AdapterDataObserver {
+        @Override
+        public void onChanged() {
+            if (adapter.getItemCount() == 0) {
+                if (emptyView.getVisibility() == INVISIBLE) {
+                    emptyView.setVisibility(View.VISIBLE);
+                    emptyView.setAlpha(0f);
+                    emptyView.animate()
+                            .alpha(1);
+                }
+            } else {
+                emptyView.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount) {
+            onChanged();
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            onChanged();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            onChanged();
+        }
+
+        @Override
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            onChanged();
         }
     }
 }

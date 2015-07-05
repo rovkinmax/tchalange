@@ -1,7 +1,5 @@
 package ru.korniltsev.telegram.core.rx;
 
-import android.support.v4.util.LongSparseArray;
-import android.text.method.DateTimeKeyListener;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -9,7 +7,6 @@ import ru.korniltsev.telegram.core.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +60,8 @@ public class DaySplitter {
     }
 
     private final Map<DateTime, RxChat.DaySeparatorItem> cache = new HashMap<>();
-    private int counter = -1;
+    public static final long ID_NEW_MESSAGES = -1;
+    private int counter = -5;
 
     public RxChat.DaySeparatorItem createSeparator(TdApi.Message msg) {
         DateTime time = localTime(timInMillis(msg))
@@ -99,5 +97,40 @@ public class DaySplitter {
                     newMessageItem
             );
         }
+    }
+
+    public boolean insertNewMessageItem(List<RxChat.ChatListItem> split, TdApi.Chat chat, int myId) {
+        int lastReadIndex = -1;
+        for (int i = 0, splitSize = split.size(); i < splitSize; i++) {
+            RxChat.ChatListItem it = split.get(i);
+            if (it instanceof RxChat.MessageItem) {
+                final TdApi.Message msg = ((RxChat.MessageItem) it).msg;
+                if (msg.id == chat.lastReadInboxMessageId) {
+                    lastReadIndex = i;
+                }
+            }
+        }
+        if (lastReadIndex == -1) {
+            split.add(new RxChat.NewMessagesItem(chat.unreadCount, ID_NEW_MESSAGES));
+            return true;
+        }
+        for (int i = lastReadIndex-1; i >= 0; i--) {
+            RxChat.ChatListItem it = split.get(i);
+            if (it instanceof RxChat.MessageItem){
+                final RxChat.MessageItem messageItem = (RxChat.MessageItem) it;
+                final TdApi.Message msg = messageItem.msg;
+                if (msg.fromId != myId) {//income message
+                    int insertIndex = i + 1;
+                    if (insertIndex < split.size()//есть чо сверху
+                            && split.get(insertIndex) instanceof RxChat.DaySeparatorItem) {//и это сепаратор
+                        insertIndex++;
+                    }
+                    split.add(insertIndex, new RxChat.NewMessagesItem(chat.unreadCount, ID_NEW_MESSAGES));
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

@@ -31,6 +31,7 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
     public static final int VIEW_TYPE_TEXT_FORWARD2 = 11;
     public static final int VIEW_TYPE_GIF = 12;
     public static final int VIEW_TYPE_CONTACT = 13;
+    public static final int VIEW_TYPE_NEW_MESSAGES = 14;
 
 //    final Map<Integer, TdApi.User> users = new HashMap<>();
     final RxGlide picasso;
@@ -60,6 +61,8 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
             return getIdForMessageItem(msg);
         } else if (item instanceof RxChat.DaySeparatorItem) {
             return ((RxChat.DaySeparatorItem) item).id;
+        } else if (item instanceof RxChat.NewMessagesItem){
+            return ((RxChat.NewMessagesItem) item).id;
         } else {
             throw new IllegalArgumentException();
         }
@@ -124,6 +127,8 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
             }else{
                 return VIEW_TYPE_SINGLE_TEXT_VIEW;
             }
+        } else if (item instanceof RxChat.NewMessagesItem) {
+            return VIEW_TYPE_NEW_MESSAGES;
         } else {
             return VIEW_TYPE_DAY_SEPARATOR;
         }
@@ -189,6 +194,10 @@ public class Adapter extends BaseAdapter<RxChat.ChatListItem, RealBaseVH> {
             case VIEW_TYPE_DAY_SEPARATOR:{
                 View view = inflate(R.layout.chat_item_day_separator, p);
                 return new DaySeparatorVH(view, this);
+            }
+            case VIEW_TYPE_NEW_MESSAGES:{
+                View view = inflate(R.layout.chat_item_new_messages, p);
+                return new NewMessagesVH(view, this);
             }
             default: {
                 View view = inflate(R.layout.chat_item_single_text_view, p);

@@ -54,5 +54,9 @@
 
     <string name="deleted_account">Deleted account</string>
 
+    <plurals name="n_new_messages">
+        <item quantity="one">%1$d new message</item>
+        <item quantity="other">%1$d new messages</item>
+    </plurals>
 
 </resources>

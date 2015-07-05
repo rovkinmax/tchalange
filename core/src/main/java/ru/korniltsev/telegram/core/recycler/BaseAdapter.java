@@ -92,4 +92,9 @@ public abstract class BaseAdapter<T, VH extends RecyclerView.ViewHolder> extends
         ts.addAll(chats);
         notifyDataSetChanged();
     }
+
+    public void deleteItem(int position) {
+        ts.remove(position);
+        notifyItemRemoved(position);
+    }
 }

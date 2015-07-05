@@ -44,4 +44,9 @@
     <string name="deleted_account">Удаленный аккаунт</string>
 
 
+    <plurals name="n_new_messages">
+        <item quantity="one">%1$d новое сообщение</item>
+        <item quantity="few">%1$d новых сообщения</item>
+        <item quantity="many">%1$d новsх сообщений</item>
+    </plurals>
 </resources>
