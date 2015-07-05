@@ -83,7 +83,7 @@ public class RxChat implements UserHolder {
     private PublishSubject<TdApi.Message> newMessage = PublishSubject.create();
     private PublishSubject<HistoryResponse> historySubject = PublishSubject.create();
     private PublishSubject<DeletedMessages> deletedMessagesSubject = PublishSubject.create();
-    private PublishSubject<TdApi.Message> contentChanged = PublishSubject.create();
+    private PublishSubject<TdApi.Message> messageChanged = PublishSubject.create();
 
     private ThreadLocal<Set<Integer>> tmpUIDs = new ThreadLocal<Set<Integer>>() {
         @Override
@@ -447,7 +447,17 @@ public class RxChat implements UserHolder {
         for (TdApi.Message message : data) {
             if (message.id == upd.messageId) {
                 message.message = upd.newContent;
-                contentChanged.onNext(message);
+                messageChanged.onNext(message);
+                return;
+            }
+        }
+    }
+
+    public void updateMessageDate(TdApi.UpdateMessageDate upd) {
+        for (TdApi.Message message : data) {
+            if (upd.messageId == message.id) {
+                message.date = upd.newDate;
+                messageChanged.onNext(message);
                 return;
             }
         }
@@ -620,7 +630,7 @@ public class RxChat implements UserHolder {
         return deletedMessagesSubject;
     }
 
-    public Observable<TdApi.Message> getContentChanged() {
-        return contentChanged;
+    public Observable<TdApi.Message> getMessageChanged() {
+        return messageChanged;
     }
 }

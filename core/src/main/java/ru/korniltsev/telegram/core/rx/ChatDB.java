@@ -111,7 +111,7 @@ public class ChatDB implements UserHolder {
         prepareForUpdateNewMessage();
         prepareForUpdateDeleteMessages();
         prepareForUpdateMessageId();
-//        prepareForUpdateMessageDate();
+        prepareForUpdateMessageDate();
         //todo this 3 ones are probably needed
 //        prepareForUpdateChatReadInbox();
         prepareForUpdateChatReadOutbox();
@@ -181,17 +181,18 @@ public class ChatDB implements UserHolder {
 //                });
 //    }
 
-//    private void prepareForUpdateMessageDate() {
-//        client.updateMessageDate()
-//                .observeOn(mainThread())
-//                .subscribe(new ObserverAdapter<TdApi.UpdateMessageDate>() {
-//                    @Override
-//                    public void onNext(TdApi.UpdateMessageDate updateMessageDate) {
-//                        updateChatMessageList(updateMessageDate.chatId);
-//                        updateCurrentChatList();
-//                    }
-//                });
-//    }
+    private void prepareForUpdateMessageDate() {
+        client.updateMessageDate()
+                .observeOn(mainThread())
+                .subscribe(new ObserverAdapter<TdApi.UpdateMessageDate>() {
+                    @Override
+                    public void onNext(TdApi.UpdateMessageDate updateMessageDate) {
+                        getRxChat(updateMessageDate.chatId)
+                                .updateMessageDate(updateMessageDate);
+                        updateCurrentChatList();
+                    }
+                });
+    }
 
     private void prepareForUpdateMessageId() {
         messageIdsUpdates = client.updateMessageId()

@@ -240,7 +240,7 @@ public class Presenter extends ViewPresenter<ChatView>
                         }));
 
         subscription.add(
-                rxChat.getContentChanged()
+                rxChat.getMessageChanged()
                 .subscribe(new ObserverAdapter<TdApi.Message>(){
                     @Override
                     public void onNext(TdApi.Message response) {
