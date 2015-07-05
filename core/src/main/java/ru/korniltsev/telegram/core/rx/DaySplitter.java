@@ -99,7 +99,8 @@ public class DaySplitter {
         }
     }
 
-    public boolean insertNewMessageItem(List<RxChat.ChatListItem> split, TdApi.Chat chat, int myId) {
+    //notice: may not insert the NewMessagesItem!!
+    public RxChat.NewMessagesItem insertNewMessageItem(List<RxChat.ChatListItem> split, TdApi.Chat chat, int myId) {
         int lastReadIndex = -1;
         for (int i = 0, splitSize = split.size(); i < splitSize; i++) {
             RxChat.ChatListItem it = split.get(i);
@@ -110,9 +111,10 @@ public class DaySplitter {
                 }
             }
         }
+        final RxChat.NewMessagesItem result = new RxChat.NewMessagesItem(chat.unreadCount, ID_NEW_MESSAGES);
         if (lastReadIndex == -1) {
-            split.add(new RxChat.NewMessagesItem(chat.unreadCount, ID_NEW_MESSAGES));
-            return true;
+            split.add(result);
+            return result;
         }
         for (int i = lastReadIndex-1; i >= 0; i--) {
             RxChat.ChatListItem it = split.get(i);
@@ -125,12 +127,12 @@ public class DaySplitter {
                             && split.get(insertIndex) instanceof RxChat.DaySeparatorItem) {//и это сепаратор
                         insertIndex++;
                     }
-                    split.add(insertIndex, new RxChat.NewMessagesItem(chat.unreadCount, ID_NEW_MESSAGES));
-                    return true;
+                    split.add(insertIndex, result);
+                    return result;
                 }
             }
         }
 
-        return false;
+        return result;
     }
 }

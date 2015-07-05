@@ -17,6 +17,7 @@ import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import ru.korniltsev.telegram.core.emoji.DpCalculator;
 import ru.korniltsev.telegram.core.emoji.ObservableLinearLayout;
 import ru.korniltsev.telegram.chat.adapter.Adapter;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
@@ -43,6 +44,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
     public static final int SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT = 10;
     @Inject Presenter presenter;
     @Inject RxGlide picasso;
+    @Inject DpCalculator calc;
     @Inject ActivityOwner activity;
 
     private RecyclerView list;
@@ -113,7 +115,8 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
                     @Override
                     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                         super.onScrolled(recyclerView, dx, dy);
-                        updateBtnScrollDown();
+                        boolean newVisible = layout.findFirstVisibleItemPosition() >= SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT;
+                        animateBtnScrollDown(newVisible);
                     }
                 });
 
@@ -137,8 +140,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
 
     boolean scrollDownButtonIsVisible = false;
 
-    private void updateBtnScrollDown() {
-        boolean newVisible = layout.findFirstVisibleItemPosition() >= SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT;
+    private void animateBtnScrollDown(boolean newVisible) {
         if (newVisible != scrollDownButtonIsVisible) {
             btnScrollDown.clearAnimation();
             btnScrollDown.animate()
@@ -345,9 +347,19 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
     public void addHistory(TdApi.Chat chat, RxChat.HistoryResponse history) {
         final List<RxChat.ChatListItem> split = splitter.split(history.ms);
         if (history.showUnreadMessages) {
-            splitter.insertNewMessageItem(split, chat, myId);
+            final RxChat.NewMessagesItem newItem = splitter.insertNewMessageItem(split, chat, myId);
             adapter.addAll(split);
-//            scrollToNNewMessageItem
+            final int i = adapter.getData()
+                    .indexOf(newItem);
+            if (i != -1) {
+//                if (list.get)
+                final int badgeHeight = calc.dp(26);
+                final int nicePadding = calc.dp(8);
+                layout.scrollToPositionWithOffset(i, list.getHeight() - badgeHeight - nicePadding);
+                if (i >= SHOW_SCROLL_DOWN_BUTTON_ITEMS_COUNT){
+                    animateBtnScrollDown(true);
+                }
+            }
         } else {
 
             adapter.addAll(split);
