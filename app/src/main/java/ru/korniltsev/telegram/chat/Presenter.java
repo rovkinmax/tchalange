@@ -240,6 +240,16 @@ public class Presenter extends ViewPresenter<ChatView>
                         }));
 
         subscription.add(
+                rxChat.getContentChanged()
+                .subscribe(new ObserverAdapter<TdApi.Message>(){
+                    @Override
+                    public void onNext(TdApi.Message response) {
+                        getView().messageChanged(response);
+                    }
+                })
+        );
+
+        subscription.add(
                 owner.activityResult()
                         .subscribe(new ObserverAdapter<ActivityResult>() {
                             @Override
@@ -476,5 +486,9 @@ public class Presenter extends ViewPresenter<ChatView>
                         .hideAttachPannel();
             }
         }
+    }
+
+    public RxChat getRxChat() {
+        return rxChat;
     }
 }

@@ -35,23 +35,23 @@ public class RxChat implements UserHolder {
     public static final int MESSAGE_STATE_NOT_SENT = 2;
     private static final int MSG_WITHOUT_VALID_ID = 1000000000;
 
-//    public static int compareInt(int lhs, int rhs) {
-//        return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
-//    }
+    //    public static int compareInt(int lhs, int rhs) {
+    //        return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
+    //    }
 
-//    private SortedSet<TdApi.Message> ms = new TreeSet<>(new Comparator<TdApi.Message>() {
-//        @Override
-//        public int compare(TdApi.Message lhs, TdApi.Message rhs) {
-//            int dateCompare = -compareInt(lhs.date, rhs.date);
-//            if (dateCompare == 0) {
-//                return -compareInt(lhs.id, rhs.id);
-//            }
-//            return dateCompare;
-//        }
-//    });
+    //    private SortedSet<TdApi.Message> ms = new TreeSet<>(new Comparator<TdApi.Message>() {
+    //        @Override
+    //        public int compare(TdApi.Message lhs, TdApi.Message rhs) {
+    //            int dateCompare = -compareInt(lhs.date, rhs.date);
+    //            if (dateCompare == 0) {
+    //                return -compareInt(lhs.id, rhs.id);
+    //            }
+    //            return dateCompare;
+    //        }
+    //    });
 
     final List<TdApi.Message> data = new ArrayList<>();
-//    todo
+    //    todo
 
     public final Func2<List<TdApi.User>, List<TdApi.Message>, ChatDB.Portion> ZIPPER = new Func2<List<TdApi.User>, List<TdApi.Message>, ChatDB.Portion>() {
         @Override
@@ -75,15 +75,15 @@ public class RxChat implements UserHolder {
         }
     };
 
-
     final long id;
     final RXClient client;
     public final ChatDB holder;
 
-//    private final PublishSubject<List<TdApi.Message>> subject = PublishSubject.create();
+    //    private final PublishSubject<List<TdApi.Message>> subject = PublishSubject.create();
     private PublishSubject<TdApi.Message> newMessage = PublishSubject.create();
     private PublishSubject<HistoryResponse> historySubject = PublishSubject.create();
     private PublishSubject<DeletedMessages> deletedMessagesSubject = PublishSubject.create();
+    private PublishSubject<TdApi.Message> contentChanged = PublishSubject.create();
 
     private ThreadLocal<Set<Integer>> tmpUIDs = new ThreadLocal<Set<Integer>>() {
         @Override
@@ -106,44 +106,42 @@ public class RxChat implements UserHolder {
         return newMessage;
     }
 
-
     public boolean isRequestInProgress() {
         return request != null;
     }
 
+    //    public void requestNewPotion() {
+    //        List<TdApi.Message> messages = getMessages();
+    //        TdApi.Message lastMessage = messages.get(messages.size() - 1);
+    //        requestImpl(lastMessage, null, true, holder.getMessageLimit(), 0);
+    //    }
 
-//    public void requestNewPotion() {
-//        List<TdApi.Message> messages = getMessages();
-//        TdApi.Message lastMessage = messages.get(messages.size() - 1);
-//        requestImpl(lastMessage, null, true, holder.getMessageLimit(), 0);
-//    }
-
-//    private void requestImpl(TdApi.Message lastMessage, final TdApi.Message initMessage, final boolean historyRequest, int limit, int offset) {
-//        assertNull(request);
-//        request = client.getMessages(id, lastMessage.id, offset, limit)
-//                .flatMap(new GetUsers(initMessage))
-//                .observeOn(mainThread());
-//
-//        subscription = request.subscribe(new ObserverAdapter<ChatDB.Portion>() {
-//            @Override
-//            public void onNext(ChatDB.Portion portion) {
-//                checkMainThread();
-//                request = null;
-//                if (portion.ms.isEmpty()) {
-//                    downloadedAll = true;
-//                } else {
-//
-//                    SparseArray<TdApi.User> us = portion.us;
-//                    holder.saveUsers(us);
-//                    if (!historyRequest) {
-//                        ms.clear();
-//                    }
-//                    ms.addAll(portion.ms);
-//                    subject.onNext(getMessages());
-//                }
-//            }
-//        });
-//    }
+    //    private void requestImpl(TdApi.Message lastMessage, final TdApi.Message initMessage, final boolean historyRequest, int limit, int offset) {
+    //        assertNull(request);
+    //        request = client.getMessages(id, lastMessage.id, offset, limit)
+    //                .flatMap(new GetUsers(initMessage))
+    //                .observeOn(mainThread());
+    //
+    //        subscription = request.subscribe(new ObserverAdapter<ChatDB.Portion>() {
+    //            @Override
+    //            public void onNext(ChatDB.Portion portion) {
+    //                checkMainThread();
+    //                request = null;
+    //                if (portion.ms.isEmpty()) {
+    //                    downloadedAll = true;
+    //                } else {
+    //
+    //                    SparseArray<TdApi.User> us = portion.us;
+    //                    holder.saveUsers(us);
+    //                    if (!historyRequest) {
+    //                        ms.clear();
+    //                    }
+    //                    ms.addAll(portion.ms);
+    //                    subject.onNext(getMessages());
+    //                }
+    //            }
+    //        });
+    //    }
 
     @NonNull
     private Observable<List<TdApi.User>> requestUsers(Set<Integer> ids) {
@@ -175,9 +173,9 @@ public class RxChat implements UserHolder {
         }
     }
 
-//    public Observable<List<TdApi.Message>> messageList() {
-//        return subject;
-//    }
+    //    public Observable<List<TdApi.Message>> messageList() {
+    //        return subject;
+    //    }
 
     public List<TdApi.Message> getMessages() {
         return data;
@@ -207,22 +205,25 @@ public class RxChat implements UserHolder {
         return holder.getContext();
     }
 
-//    public void updateCurrentMessageList() {
-//        checkMainThread();
-//        if (ms.isEmpty()) {
-//            return;
-//        }
-//        if (request == null) {
-//            int offset = -1;
-//            List<TdApi.Message> messages = getMessages();
-//            int size = messages.size();
-//            requestImpl(messages.get(0), null, false, size, offset);
-//        } else {
-//
-//        }
-//    }
+    //    public void updateCurrentMessageList() {
+    //        checkMainThread();
+    //        if (ms.isEmpty()) {
+    //            return;
+    //        }
+    //        if (request == null) {
+    //            int offset = -1;
+    //            List<TdApi.Message> messages = getMessages();
+    //            int size = messages.size();
+    //            requestImpl(messages.get(0), null, false, size, offset);
+    //        } else {
+    //
+    //        }
+    //    }
 
     public void handleNewMessage(final TdApi.Message tlObject) {
+
+        sentPhotoHack(tlObject);
+
         tmpUIDs.get().clear();
         getUIDs(tlObject);
         if (tmpUIDs.get().isEmpty()) {
@@ -241,6 +242,26 @@ public class RxChat implements UserHolder {
                         }
                     });
         }
+    }
+
+    //hack to prevent reloading of newly added image
+    final SparseArray<TdApi.FileLocal> sentMessageIdToImageLink = new SparseArray<>();
+
+    private void sentPhotoHack(TdApi.Message msg) {
+        if (msg.message instanceof TdApi.MessagePhoto
+                && msg.id >= MSG_WITHOUT_VALID_ID) {
+            final TdApi.Photo p = ((TdApi.MessagePhoto) msg.message).photo;
+            if (p.photos.length == 1) {
+                final TdApi.PhotoSize photo = p.photos[0];
+                if (photo.type.equals("i") && photo.photo instanceof TdApi.FileLocal) {
+                    sentMessageIdToImageLink.put(msg.id, (TdApi.FileLocal) photo.photo);
+                }
+            }
+        }
+    }
+
+    @Nullable public TdApi.FileLocal getSentImage(TdApi.Message msg) {
+        return sentMessageIdToImageLink.get(msg.id);
     }
 
     private void addNewMessageAndDispatch(TdApi.Message msg) {
@@ -266,6 +287,7 @@ public class RxChat implements UserHolder {
     final SparseArray<TdApi.UpdateMessageId> oldIdToUpdate = new SparseArray<>();
 
     public void updateMessageId(TdApi.UpdateMessageId upd) {
+        //never really changes id of the TdApi.Message
         newIdToUpdate.put(upd.newId, upd);
         oldIdToUpdate.put(upd.oldId, upd);
     }
@@ -290,7 +312,7 @@ public class RxChat implements UserHolder {
                 });
     }
 
-    public void deleteMessageImpl(int []ms) {
+    public void deleteMessageImpl(int[] ms) {
         //todo O(n*m)
         final ArrayList<TdApi.Message> deletedMessages = new ArrayList<>();
         for (TdApi.Message message : data) {
@@ -341,43 +363,43 @@ public class RxChat implements UserHolder {
 
     public void initialRequest(final TdApi.Chat chat) {
         assertNull(request);
-        if (chat.topMessage.id > 0){
-//            parameter from_id must be positive GetChatHistory {
-//                chatId = 98255217
-//                fromId = 0
-//                offset = 0
-//                limit = 23
-//            }
+        if (chat.topMessage.id > 0) {
+            //            parameter from_id must be positive GetChatHistory {
+            //                chatId = 98255217
+            //                fromId = 0
+            //                offset = 0
+            //                limit = 23
+            //            }
             request = client.getMessages(id, chat.topMessage.id, 0, holder.getMessageLimit())
                     .compose(new GetUsers2(chat.topMessage));
             request.subscribe(new HistoryObserver(false));
         }
-
     }
 
     public void requestNewPotion() {
         TdApi.Message lastMessage = getLastMessage();
-        if (lastMessage == null){
+        if (lastMessage == null) {
             return;
         }
         assertNull(request);
         request = client.getMessages(id, lastMessage.id, 0, holder.getMessageLimit())
-            .compose(new GetUsers2(null));
+                .compose(new GetUsers2(null));
         request.subscribe(new HistoryObserver(false));
     }
 
-    @Nullable private TdApi.Message getLastMessage() {
+    @Nullable
+    private TdApi.Message getLastMessage() {
         if (data.isEmpty()) {
             return null;
-        }else {
-            return data.get(data.size()-1);
+        } else {
+            return data.get(data.size() - 1);
         }
     }
 
     public void requestUntilLastUnread(TdApi.Chat chat) {
         assertNull(request);
         final int until = chat.lastReadInboxMessageId;
-        if (until == chat.topMessage.id){
+        if (until == chat.topMessage.id) {
             initialRequest(chat);
             return;
         }
@@ -386,7 +408,7 @@ public class RxChat implements UserHolder {
         request.subscribe(new HistoryObserver(true));
     }
 
-    private Observable<TdApi.Messages> requestUntilLastUnreadRecursive( int messageId, final int untilId) {
+    private Observable<TdApi.Messages> requestUntilLastUnreadRecursive(int messageId, final int untilId) {
         return client.getMessages(id, messageId, 0, holder.getMessageLimit())
                 .flatMap(new Func1<TdApi.Messages, Observable<TdApi.Messages>>() {
                     @Override
@@ -398,7 +420,7 @@ public class RxChat implements UserHolder {
                         } else {
                             final TdApi.Message lastMessage = messages.messages[messages.messages.length - 1];
                             final Observable<TdApi.Messages> next = requestUntilLastUnreadRecursive(lastMessage.id, untilId);
-                            return just.zipWith(next, new Func2<TdApi.Messages,TdApi.Messages,TdApi.Messages>() {
+                            return just.zipWith(next, new Func2<TdApi.Messages, TdApi.Messages, TdApi.Messages>() {
                                 @Override
                                 public TdApi.Messages call(TdApi.Messages o, TdApi.Messages o2) {
                                     final ArrayList<TdApi.Message> res = new ArrayList<>(o.messages.length + o2.messages.length);
@@ -421,6 +443,16 @@ public class RxChat implements UserHolder {
         return false;
     }
 
+    public void updateContent(TdApi.UpdateMessageContent upd) {
+        for (TdApi.Message message : data) {
+            if (message.id == upd.messageId) {
+                message.message = upd.newContent;
+                contentChanged.onNext(message);
+                return;
+            }
+        }
+    }
+
     public static abstract class ChatListItem {
 
     }
@@ -428,7 +460,6 @@ public class RxChat implements UserHolder {
     public static class NewMessagesItem extends ChatListItem {
         public final int newMessagesCount;
         public final long id;
-
 
         public NewMessagesItem(int newMessagesCount, long id) {
             this.newMessagesCount = newMessagesCount;
@@ -517,9 +548,7 @@ public class RxChat implements UserHolder {
         }
     }
 
-
-
-    public Observable<HistoryResponse> history(){
+    public Observable<HistoryResponse> history() {
         return historySubject;
     }
 
@@ -589,5 +618,9 @@ public class RxChat implements UserHolder {
 
     public Observable<DeletedMessages> getDeletedMessagesSubject() {
         return deletedMessagesSubject;
+    }
+
+    public Observable<TdApi.Message> getContentChanged() {
+        return contentChanged;
     }
 }

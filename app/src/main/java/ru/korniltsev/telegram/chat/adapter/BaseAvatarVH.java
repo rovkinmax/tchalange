@@ -20,7 +20,6 @@ import java.util.Locale;
 abstract class BaseAvatarVH extends RealBaseVH {
     private static final DateTimeFormatter MESSAGE_TIME_FORMAT = DateTimeFormat.forPattern("K:mm aa")
             .withLocale(Locale.US);
-    public static final int MSG_WITHOUT_VALID_ID = 1000000000;
     private final AvatarView avatar;
     private final TextView nick;
     private final TextView time;

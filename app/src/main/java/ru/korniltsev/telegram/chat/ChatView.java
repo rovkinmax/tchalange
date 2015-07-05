@@ -406,6 +406,19 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
         }
     }
 
+    public void messageChanged(TdApi.Message response) {
+        final List<RxChat.ChatListItem> data = adapter.getData();
+        for (int i = 0; i < data.size(); i++) {
+            RxChat.ChatListItem it = data.get(i);
+            if (it instanceof RxChat.MessageItem) {
+                final TdApi.Message msg = ((RxChat.MessageItem) it).msg;
+                if (msg == response) {
+                    adapter.notifyItemChanged(i);
+                }
+            }
+        }
+    }
+
     private class EmptyViewHelper extends RecyclerView.AdapterDataObserver {
         @Override
         public void onChanged() {

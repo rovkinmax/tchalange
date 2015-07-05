@@ -116,7 +116,7 @@ public class ChatDB implements UserHolder {
 //        prepareForUpdateChatReadInbox();
         prepareForUpdateChatReadOutbox();
         prepareForUpdateUserStatus();
-//        prepareForUpdateMessageContent();
+        prepareForUpdateMessageContent();
 
 //        prepareForUpdateChatTitle();
 //        prepareForUpdateChatParticipantsCount();
@@ -143,17 +143,19 @@ public class ChatDB implements UserHolder {
         }
     }
 
-//    private void prepareForUpdateMessageContent() {
-//        client.updateMessageContent()
-//                .observeOn(mainThread())
-//                .subscribe(new ObserverAdapter<TdApi.UpdateMessageContent>() {
-//                    @Override
-//                    public void onNext(TdApi.UpdateMessageContent updateMessageContent) {
-//                        updateChatMessageList(updateMessageContent.chatId);
-//                        updateCurrentChatList();
-//                    }
-//                });
-//    }
+    private void prepareForUpdateMessageContent() {
+        client.updateMessageContent()
+                .observeOn(mainThread())
+                .subscribe(new ObserverAdapter<TdApi.UpdateMessageContent>() {
+                    @Override
+                    public void onNext(TdApi.UpdateMessageContent updateMessageContent) {
+                        getRxChat(updateMessageContent.chatId)
+                                .updateContent(updateMessageContent);
+
+                        updateCurrentChatList();
+                    }
+                });
+    }
 
     private void prepareForUpdateChatReadOutbox() {
         client.updateChatReadOutbox()
