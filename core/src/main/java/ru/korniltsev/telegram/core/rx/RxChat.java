@@ -156,20 +156,19 @@ public class RxChat implements UserHolder {
         return allUsers;
     }
 
-    private void getUIDs(TdApi.Message message) {
-        //todo pas set as arguments
+    private void getUIDs(TdApi.Message message, Set<Integer> set) {
         assertTrue(message.fromId != 0);
         if (!hasUserWith(message.fromId)) {
-            tmpUIDs.get().add(message.fromId);
+            set.add(message.fromId);
         }
         if (message.forwardFromId != 0) {
             if (!hasUserWith(message.forwardFromId)) {
-                tmpUIDs.get().add(message.forwardFromId);
+                set.add(message.forwardFromId);
             }
         }
         if (message.message instanceof TdApi.MessageContact) {
             TdApi.MessageContact c = (TdApi.MessageContact) message.message;
-            tmpUIDs.get().add(c.userId);
+            set.add(c.userId);
         }
     }
 
@@ -224,12 +223,13 @@ public class RxChat implements UserHolder {
 
         sentPhotoHack(tlObject);
 
-        tmpUIDs.get().clear();
-        getUIDs(tlObject);
-        if (tmpUIDs.get().isEmpty()) {
+        final Set<Integer> tmpSet = tmpUIDs.get();
+        tmpSet.clear();
+        getUIDs(tlObject, tmpSet);
+        if (tmpSet.isEmpty()) {
             addNewMessageAndDispatch(tlObject);
         } else {
-            requestUsers(tmpUIDs.get())
+            requestUsers(tmpSet)
                     .observeOn(mainThread())
                     .subscribe(new ObserverAdapter<List<TdApi.User>>() {
                         @Override
@@ -528,12 +528,13 @@ public class RxChat implements UserHolder {
 
             checkNotMainThread();
             TdApi.Message[] messages = portion.messages;
-            tmpUIDs.get().clear();//todo boxing
+            final Set<Integer> tmpSet = tmpUIDs.get();
+            tmpSet.clear();
             for (TdApi.Message message : messages) {
-                getUIDs(message);
+                getUIDs(message, tmpSet);
             }
             if (initMessage != null) {
-                getUIDs(initMessage);
+                getUIDs(initMessage, tmpSet);
             }
 
             final List<TdApi.Message> messageList = new ArrayList<>();
@@ -545,12 +546,12 @@ public class RxChat implements UserHolder {
             for (TdApi.Message message : messageList) {
                 holder.parser.parse(message);
             }
-
-            if (tmpUIDs.get().isEmpty()) {
+            tmpSet.remove(0);//todo find who asks a user with id 0
+            if (tmpSet.isEmpty()) {
                 ChatDB.Portion res = new ChatDB.Portion(messageList, Collections.<TdApi.User>emptyList());
                 return Observable.just(res);
             } else {
-                Observable<List<TdApi.User>> allUsers = requestUsers(tmpUIDs.get());
+                Observable<List<TdApi.User>> allUsers = requestUsers(tmpSet);
 
                 Observable<List<TdApi.Message>> messagesCopy = Observable.just(messageList);
                 return allUsers.zipWith(messagesCopy, ZIPPER);
