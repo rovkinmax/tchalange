@@ -10,17 +10,7 @@
               app:slm_section_sectionManager="linear"
         >
 
-    <!--<TextView-->
-            <!--android:id="@+id/country_letter"-->
-            <!--android:layout_width="72dp"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:gravity="center_vertical"-->
-            <!--android:paddingLeft="20dp"-->
-            <!--android:textSize="16sp"-->
-            <!--android:textStyle="bold"-->
-            <!--android:textColor="@color/text_dark_gray"-->
-            <!--android:visibility="invisible"-->
-            <!--/>-->
+
 
     <TextView
             android:id="@+id/country_name"

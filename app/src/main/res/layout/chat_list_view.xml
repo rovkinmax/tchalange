@@ -87,20 +87,20 @@
                 android:orientation="vertical"
                 android:paddingTop="4dp"
                 >
+            <!-- icon are stolen from official client :O -->
+            <TextView
+                    android:id="@+id/btn_contacts"
+                    android:text="@string/contacts"
+                    android:drawableLeft="@drawable/menu_contacts"
+                    style="@style/DrawerButton"/>
+
 
             <TextView
                     android:id="@+id/btn_logout"
-                    android:layout_width="match_parent"
-                    android:layout_height="54dp"
                     android:text="@string/logout"
                     android:drawableLeft="@drawable/ic_logout"
-                    android:drawablePadding="38dp"
-                    android:paddingLeft="16dp"
-                    android:background="@drawable/bg_keyboard_tab"
-                    android:gravity="left|center_vertical"
-                    android:textColor="#222222"
-                    android:textSize="16sp"
-                    />
+                    style="@style/DrawerButton"/>
+
 
         </LinearLayout>
     </LinearLayout>

@@ -257,13 +257,7 @@ public class RxGlide {
     }
 
     private String stableKeyForTdApiFile(TdApi.File f, boolean webp) {
-        int id;
-        if (f instanceof TdApi.FileLocal) {
-            id = ((TdApi.FileLocal) f).id;
-        } else {
-            id = ((TdApi.FileEmpty) f).id;
-        }
-        return String.format("id=%d&webp=%b", id, webp);
+        return String.format("id=%d&webp=%b", f.getId(), webp);
     }
 
     public interface StubAware<T> {

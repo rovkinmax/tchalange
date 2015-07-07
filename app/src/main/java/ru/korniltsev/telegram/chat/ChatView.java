@@ -203,9 +203,9 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
 
     private static DateTimeFormatter SUBTITLE_FORMATTER = DateTimeFormat.forPattern("dd/MM/yy");
 
-    public void setPirvateChatSubtitle(TdApi.UserStatus status) {
+    public static String uiUserStatus(Context context, TdApi.UserStatus status) {
         if (status instanceof TdApi.UserStatusOnline) {
-            toolbarSubtitle.setText(R.string.user_status_online);
+            return context.getString(R.string.user_status_online);
         } else if (status instanceof TdApi.UserStatusOffline) {
             long wasOnline = ((TdApi.UserStatusOffline) status).wasOnline;
             long timeInMillis = wasOnline * 1000;
@@ -219,6 +219,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
             String offlineStatusText;
             int daysBetween = Days.daysBetween(wasOnlineTime, now)
                     .getDays();
+            final Resources res = context.getResources();
             if (daysBetween == 0) {
                 int hoursBetween = Hours.hoursBetween(wasOnlineTime, now)
                         .getHours();
@@ -227,46 +228,47 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
                             .getMinutes();
                     if (minutesBetween == 0) {
                         //just now
-                        offlineStatusText = getResources().getString(R.string.user_status_just_now);
+                        offlineStatusText = res.getString(R.string.user_status_just_now);
                     } else if (minutesBetween > 0) {
                         //n minutes
-                        offlineStatusText = getResources().getQuantityString(R.plurals.user_status_last_seen_n_minutes_ago, minutesBetween, minutesBetween);
+                        offlineStatusText = res.getQuantityString(R.plurals.user_status_last_seen_n_minutes_ago, minutesBetween, minutesBetween);
                     } else {
                         //user has wrong date - fallback to SUBTITLE_FORMATTER
                         String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
-                        offlineStatusText = getResources().getString(R.string.user_status_last_seen, date);
+                        offlineStatusText = res.getString(R.string.user_status_last_seen, date);
                     }
                 } else if (hoursBetween > 0){
                     //show hours
-                    offlineStatusText = getResources().getQuantityString(R.plurals.user_status_last_seen_n_hours_ago, hoursBetween, hoursBetween);
+                    offlineStatusText = res.getQuantityString(R.plurals.user_status_last_seen_n_hours_ago, hoursBetween, hoursBetween);
                 } else {
                     //user has wrong date - fallback to SUBTITLE_FORMATTER
                     String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
-                    offlineStatusText = getResources().getString(R.string.user_status_last_seen, date);
+                    offlineStatusText = res.getString(R.string.user_status_last_seen, date);
                 }
             } else if (daysBetween > 0){
                 //show n days ago
                 if (daysBetween <= 7){
-                    offlineStatusText = getResources().getQuantityString(R.plurals.user_status_last_seen_n_days_ago, daysBetween, daysBetween);
+                    offlineStatusText = res.getQuantityString(R.plurals.user_status_last_seen_n_days_ago, daysBetween, daysBetween);
                 } else {
                     String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
-                    offlineStatusText = getResources().getString(R.string.user_status_last_seen, date);
+                    offlineStatusText = res.getString(R.string.user_status_last_seen, date);
                 }
             } else {
                 //user has wrong date - fallback to SUBTITLE_FORMATTER
                 String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
-                offlineStatusText = getResources().getString(R.string.user_status_last_seen, date);
+                offlineStatusText = res.getString(R.string.user_status_last_seen, date);
             }
 
-            toolbarSubtitle.setText(offlineStatusText);
+            return  offlineStatusText;
         } else if (status instanceof TdApi.UserStatusLastWeek) {
-            toolbarSubtitle.setText(R.string.user_status_last_week);
+            return context.getString(R.string.user_status_last_week);
         } else if (status instanceof TdApi.UserStatusLastMonth) {
-            toolbarSubtitle.setText(R.string.user_status_last_month);
+            return context.getString(R.string.user_status_last_month);
         } else if (status instanceof TdApi.UserStatusRecently) {
-            toolbarSubtitle.setText(R.string.user_status_recently);
+            return context.getString(R.string.user_status_recently);
         } else {
             //empty
+            return "";
         }
     }
 
@@ -429,6 +431,10 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
                 }
             }
         }
+    }
+
+    public void setPrivateChatSubtitle(String text) {
+        toolbarSubtitle.setText(text);
     }
 
     private class EmptyViewHelper extends RecyclerView.AdapterDataObserver {

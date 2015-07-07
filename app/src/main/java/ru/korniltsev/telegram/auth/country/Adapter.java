@@ -8,11 +8,14 @@ import android.widget.TextView;
 import com.tonicartos.superslim.LayoutManager;
 import com.tonicartos.superslim.LinearSLM;
 import ru.korniltsev.telegram.chat.R;
+import ru.korniltsev.telegram.common.recycler.sections.Item;
+import ru.korniltsev.telegram.common.recycler.sections.Section;
+import ru.korniltsev.telegram.common.recycler.sections.SectionVH;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 
 import java.util.List;
 
-public class Adapter extends BaseAdapter<Adapter.Item, RecyclerView.ViewHolder> {
+public class Adapter extends BaseAdapter<Item<Countries.Entry>, RecyclerView.ViewHolder> {
     public static final int VIEW_TYPE_SECTION = 0;
     public static final int VIEW_TYPE_COUNTRY = 1;
     final CountryClickListener listener;
@@ -20,7 +23,7 @@ public class Adapter extends BaseAdapter<Adapter.Item, RecyclerView.ViewHolder> 
         void clicked(Countries.Entry c);
     }
 
-    public Adapter(Context ctx, List<Adapter.Item> data, CountryClickListener c) {
+    public Adapter(Context ctx, List<Item<Countries.Entry>> data, CountryClickListener c) {
         super(ctx, data);
         this.listener = c;
     }
@@ -37,9 +40,7 @@ public class Adapter extends BaseAdapter<Adapter.Item, RecyclerView.ViewHolder> 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_SECTION){
-            View view = getViewFactory()
-                    .inflate(R.layout.auth_item_section, parent, false);
-            return new SectionVH(view);
+            return new SectionVH(getViewFactory().inflate(R.layout.auth_item_section, parent, false));
         } else {
             View view = getViewFactory()
                     .inflate(R.layout.auth_item_country, parent, false);
@@ -49,30 +50,29 @@ public class Adapter extends BaseAdapter<Adapter.Item, RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder vh, int pos) {
-        Adapter.Item item = getItem(pos);
+        Item<Countries.Entry> item = getItem(pos);
 
         final LayoutManager.LayoutParams params = (LayoutManager.LayoutParams) vh.itemView.getLayoutParams();
         params.setSlm(LinearSLM.ID);
-//        params.setSlm();
-        params.setFirstPosition(item.firstItemInSection);
+        params.setFirstPosition(item.firstPosition);
         vh.itemView.setLayoutParams(params);
 
         if (item instanceof Section) {
-            bindSection((SectionVH)vh, (Section) item);
+            final SectionVH vh1 = (SectionVH) vh;
+            vh1.bind((Section)item);
+
         } else {
-            bindCountry((VH)vh, (Country)item);
+            bindCountry((VH)vh, item.data);
         }
 
     }
 
-    private void bindCountry(VH vh, Country item) {
-        vh.countryName.setText(item.country.localizedName());
-        vh.capitalPhoneCode.setText(item.country.phoneCode);
+    private void bindCountry(VH vh, Countries.Entry item) {
+        vh.countryName.setText(item.localizedName());
+        vh.capitalPhoneCode.setText(item.phoneCode);
     }
 
-    private void bindSection(SectionVH vh, Section item) {
-        vh.letter.setText(item.letter);
-    }
+
 
 
 
@@ -88,46 +88,11 @@ public class Adapter extends BaseAdapter<Adapter.Item, RecyclerView.ViewHolder> 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Country c = (Country) getItem(getPosition());
-                    listener.clicked(c.country);
+                    final Item<Countries.Entry> item = getItem(getPosition());
+                    listener.clicked(item.data);
                 }
             });
         }
     }
 
-    class SectionVH extends RecyclerView.ViewHolder{
-        final TextView letter;
-
-        public SectionVH(View itemView) {
-            super(itemView);
-            letter = (TextView) itemView.findViewById(R.id.country_letter);
-        }
-    }
-
-    static abstract class Item {
-        final int firstItemInSection;
-
-        public Item(int firstItemInSection) {
-            this.firstItemInSection = firstItemInSection;
-        }
-    }
-    static class Section extends Item {
-        final String letter;
-
-        Section(String letter, int firstItemInSection) {
-            super(firstItemInSection);
-
-            this.letter = letter;
-        }
-    }
-
-    static class Country extends Item {
-        final Countries.Entry country;
-
-
-        public Country(Countries.Entry country, int firstItemInSection) {
-            super(firstItemInSection);
-            this.country = country;
-        }
-    }
 }

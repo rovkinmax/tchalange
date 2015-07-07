@@ -12,4 +12,5 @@
     <string name="video">Video</string>
     <string name="geo">Geo Point</string>
     <string name="contact">Contact</string>
+    <string name="contacts">Contacts</string>
 </resources>

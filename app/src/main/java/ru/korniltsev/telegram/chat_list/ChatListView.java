@@ -5,6 +5,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
@@ -38,6 +39,7 @@ public class ChatListView extends DrawerLayout {
     private TextView drawerName;
     private TextView drawerPhone;
     private View btnLogout;
+    private View btnContacts;
 
     private ChatListAdapter adapter;
     private ToolbarUtils toolbar;
@@ -92,6 +94,14 @@ public class ChatListView extends DrawerLayout {
             public void onClick(View view) {
                 event("btnLogout.Click");
                 presenter.logout();
+                closeDrawer(Gravity.LEFT);
+            }
+        });
+        btnContacts.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.openContacts();
+                closeDrawer(Gravity.LEFT);
             }
         });
 
@@ -104,6 +114,7 @@ public class ChatListView extends DrawerLayout {
         drawerName = ((TextView) this.findViewById(R.id.drawer_name));
         drawerPhone = ((TextView) this.findViewById(R.id.drawer_phone));
         btnLogout = this.findViewById(R.id.btn_logout);
+        btnContacts = this.findViewById(R.id.btn_contacts);
     }
 
 

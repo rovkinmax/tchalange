@@ -10,6 +10,7 @@ import flow.Flow;
 import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.Chat;
+import ru.korniltsev.telegram.contacts.ContactList;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.emoji.Emoji;
 import ru.korniltsev.telegram.core.rx.ChatDB;
@@ -183,5 +184,10 @@ public class ChatListPresenter extends ViewPresenter<ChatListView> {
 
     public ChatList getCl() {
         return cl;
+    }
+
+    public void openContacts() {
+        Flow.get(getView())
+                .set(new ContactList());
     }
 }

@@ -30,12 +30,13 @@ public class Countries {
             is = appContext.getAssets().open("countries.txt");
             ArrayList<Entry> res = new ArrayList<Entry>();
             Scanner s = new Scanner(is);
+            int i =0;
             while (s.hasNextLine()) {
                 String[] c = s.nextLine().split(";");
                 String phoneCode = "+" + c[0];
                 String countryCode = c[1];
                 String countryName = c[2];
-                Entry e = new Entry(countryName, countryCode, phoneCode);
+                Entry e = new Entry(i++, countryName, countryCode, phoneCode);
                 res.add(e);
                 countryCodeToCountry.put(countryCode, e);
                 phoneCodeToCountry.put(phoneCode, e);
@@ -75,12 +76,14 @@ public class Countries {
     }
 
     public static class Entry  implements Serializable{
+        public final int position;
         public final String phoneCode;
         public final String code;
         public final String name;
         public final String firstLetter;
 
-        public Entry(String name, String code, String phoneCode) {
+        public Entry(int pos, String name, String code, String phoneCode) {
+            this.position = pos;
             this.name = name;
             this.code = code;
             this.phoneCode = phoneCode;

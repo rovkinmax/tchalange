@@ -2,6 +2,7 @@ package ru.korniltsev.telegram.core.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -72,4 +73,6 @@ public class AvatarView extends ImageView {
             super.requestLayout();
         }
     }
+
+
 }
