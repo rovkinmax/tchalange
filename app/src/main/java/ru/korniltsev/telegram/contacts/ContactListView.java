@@ -32,7 +32,7 @@ public class ContactListView extends LinearLayout{
                 .pop();
         list = ((RecyclerView) findViewById(R.id.list));
         list.setLayoutManager(new LayoutManager(getContext()));
-        adapter = new ContactsAdapter(getContext());
+        adapter = new ContactsAdapter(getContext(), presenter);
         list.setAdapter(adapter);
     }
 

@@ -14,13 +14,15 @@ import ru.korniltsev.telegram.common.recycler.sections.Section;
 import ru.korniltsev.telegram.common.recycler.sections.SectionVH;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 import ru.korniltsev.telegram.core.views.AvatarView;
+import rx.functions.Action1;
 
 public class ContactsAdapter extends BaseAdapter<Item<Contact>, RecyclerView.ViewHolder> {
     public static final int VIEW_TYPE_SECTION = 0;
     public static final int VIEW_TYPE_DATA = 1;
-
-    public ContactsAdapter(Context ctx) {
+    final Action1<TdApi.User> clicked;
+    public ContactsAdapter(Context ctx, Action1<TdApi.User> clicked) {
         super(ctx);
+        this.clicked = clicked;
     }
 
     @Override
@@ -77,7 +79,8 @@ public class ContactsAdapter extends BaseAdapter<Item<Contact>, RecyclerView.Vie
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    final Item<Contact> item = getItem(getPosition());
+                    clicked.call(item.data.user);
                 }
             });
         }
