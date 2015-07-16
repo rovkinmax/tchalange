@@ -19,8 +19,8 @@ dependencies {
 
 android {
     defaultConfig {
-        versionName "1.0.28"
-        versionCode 28
+        versionName "1.0.30"
+        versionCode 30
         applicationId "ru.korniltsev.telegram"
     }
 
