@@ -15,6 +15,7 @@ import mortar.ViewPresenter;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.attach_panel.AttachPanelPopup;
 import ru.korniltsev.telegram.chat.adapter.view.MessagePanel;
+import ru.korniltsev.telegram.common.AppUtils;
 import ru.korniltsev.telegram.core.Utils;
 import ru.korniltsev.telegram.core.adapters.ObserverAdapter;
 import ru.korniltsev.telegram.core.emoji.Stickers;
@@ -24,6 +25,7 @@ import ru.korniltsev.telegram.core.rx.NotificationManager;
 import ru.korniltsev.telegram.core.rx.RXClient;
 import ru.korniltsev.telegram.core.rx.RxChat;
 import ru.korniltsev.telegram.core.rx.ChatDB;
+import ru.korniltsev.telegram.profile.ProfilePath;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
@@ -123,7 +125,7 @@ public class Presenter extends ViewPresenter<ChatView>
             setViewTitle(user);
         } else {
             TdApi.GroupChat groupChat = ((TdApi.GroupChatInfo) t).groupChat;
-            getView().setGroupChatTitle(groupChat);
+            getView().setGroupChatTitle(groupChat, chat);
         }
     }
 
@@ -131,7 +133,7 @@ public class Presenter extends ViewPresenter<ChatView>
         getView().setPrivateChatTitle(user);
         final TdApi.UserStatus userStatus = rxChat.holder.getUserStatus(user);
         getView().setPrivateChatSubtitle(
-                ChatView.uiUserStatus(getView().getContext(), userStatus));
+                AppUtils.uiUserStatus(getView().getContext(), userStatus));
     }
 
     @Override
@@ -492,5 +494,15 @@ public class Presenter extends ViewPresenter<ChatView>
 
     public RxChat getRxChat() {
         return rxChat;
+    }
+
+    public void open(TdApi.User user) {
+        Flow.get(getView())
+                .set(new ProfilePath(user));
+    }
+
+    public void open(TdApi.Chat groupChat) {
+//        Flow.get(getView())
+//                .set(new ProfilePath(groupChat));
     }
 }

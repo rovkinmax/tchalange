@@ -2,7 +2,6 @@ package ru.korniltsev.telegram.chat;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -68,6 +67,7 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
     private View btnScrollDown;
     private View emptyView;
     private int myId;
+    private View customToolbarView;
 
     public ChatView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -90,11 +90,11 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
                 .customView(R.layout.chat_toolbar_title)
                 .inflate(R.menu.chat)
                 .setMenuClickListener(presenter);
-        View customView = toolbar.getCustomView();
-        assertNotNull(customView);
-        toolbarAvatar = ((AvatarView) customView.findViewById(R.id.chat_avatar));
-        toolbarTitle = ((TextView) customView.findViewById(R.id.title));
-        toolbarSubtitle = ((TextView) customView.findViewById(R.id.subtitle));
+        customToolbarView = toolbar.getCustomView();
+        assertNotNull(customToolbarView);
+        toolbarAvatar = ((AvatarView) customToolbarView.findViewById(R.id.chat_avatar));
+        toolbarTitle = ((TextView) customToolbarView.findViewById(R.id.title));
+        toolbarSubtitle = ((TextView) customToolbarView.findViewById(R.id.subtitle));
         list = (RecyclerView) findViewById(R.id.list);
         messagePanel = (MessagePanel) findViewById(R.id.message_panel);
         btnScrollDown = findViewById(R.id.scroll_down);
@@ -183,14 +183,26 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
         toolbarAvatar.loadAvatarFor(chat);
     }
 
-    public void setGroupChatTitle(TdApi.GroupChat groupChat) {
+    public void setGroupChatTitle(final TdApi.GroupChat groupChat, final TdApi.Chat chat) {
         toolbarTitle.setText(
                 groupChat.title);
+        customToolbarView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.open(chat);
+            }
+        });
     }
 
-    public void setPrivateChatTitle(TdApi.User user) {
+    public void setPrivateChatTitle(final TdApi.User user) {
         toolbarTitle.setText(
                 AppUtils.uiName(user, getContext()));
+        customToolbarView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.open(user);
+            }
+        });
     }
 
     public void setwGroupChatSubtitle(int total, int online) {
@@ -200,80 +212,12 @@ public class ChatView extends ObservableLinearLayout implements HandlesBack {
         String onlineStr = res.getQuantityString(R.plurals.group_chat_members_online, online, online);
         toolbarSubtitle.setText(
                 totalStr + ", " + onlineStr);
+
     }
 
-    private static DateTimeFormatter SUBTITLE_FORMATTER = DateTimeFormat.forPattern("dd/MM/yy");
+//    private static DateTimeFormatter SUBTITLE_FORMATTER = DateTimeFormat.forPattern("dd/MM/yy");
 
-    public static String uiUserStatus(Context context, TdApi.UserStatus status) {
-        if (status instanceof TdApi.UserStatusOnline) {
-            return context.getString(R.string.user_status_online);
-        } else if (status instanceof TdApi.UserStatusOffline) {
-            long wasOnline = ((TdApi.UserStatusOffline) status).wasOnline;
-            long timeInMillis = wasOnline * 1000;
-            //            Date date = new Date(timeInMillis);
-            DateTime wasOnlineTime = new DateTime(timeInMillis, DateTimeZone.UTC)
-                    .withZone(DateTimeZone.getDefault());
-
-            DateTime now = DateTime.now();
-
-
-            String offlineStatusText;
-            int daysBetween = Days.daysBetween(wasOnlineTime, now)
-                    .getDays();
-            final Resources res = context.getResources();
-            if (daysBetween == 0) {
-                int hoursBetween = Hours.hoursBetween(wasOnlineTime, now)
-                        .getHours();
-                if (hoursBetween == 0) {
-                    int minutesBetween = Minutes.minutesBetween(wasOnlineTime, now)
-                            .getMinutes();
-                    if (minutesBetween == 0) {
-                        //just now
-                        offlineStatusText = res.getString(R.string.user_status_just_now);
-                    } else if (minutesBetween > 0) {
-                        //n minutes
-                        offlineStatusText = res.getQuantityString(R.plurals.user_status_last_seen_n_minutes_ago, minutesBetween, minutesBetween);
-                    } else {
-                        //user has wrong date - fallback to SUBTITLE_FORMATTER
-                        String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
-                        offlineStatusText = res.getString(R.string.user_status_last_seen, date);
-                    }
-                } else if (hoursBetween > 0){
-                    //show hours
-                    offlineStatusText = res.getQuantityString(R.plurals.user_status_last_seen_n_hours_ago, hoursBetween, hoursBetween);
-                } else {
-                    //user has wrong date - fallback to SUBTITLE_FORMATTER
-                    String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
-                    offlineStatusText = res.getString(R.string.user_status_last_seen, date);
-                }
-            } else if (daysBetween > 0){
-                //show n days ago
-                if (daysBetween <= 7){
-                    offlineStatusText = res.getQuantityString(R.plurals.user_status_last_seen_n_days_ago, daysBetween, daysBetween);
-                } else {
-                    String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
-                    offlineStatusText = res.getString(R.string.user_status_last_seen, date);
-                }
-            } else {
-                //user has wrong date - fallback to SUBTITLE_FORMATTER
-                String date = SUBTITLE_FORMATTER.print(wasOnlineTime);
-                offlineStatusText = res.getString(R.string.user_status_last_seen, date);
-            }
-
-            return  offlineStatusText;
-        } else if (status instanceof TdApi.UserStatusLastWeek) {
-            return context.getString(R.string.user_status_last_week);
-        } else if (status instanceof TdApi.UserStatusLastMonth) {
-            return context.getString(R.string.user_status_last_month);
-        } else if (status instanceof TdApi.UserStatusRecently) {
-            return context.getString(R.string.user_status_recently);
-        } else {
-            //empty
-            return "";
-        }
-    }
-
-//    private String lastSeenDaysAgo(int daysBetween) {
+    //    private String lastSeenDaysAgo(int daysBetween) {
 //        return getResources().getQuantityString(R.plurals.user_status_last_seen_n_days_ago, daysBetween, daysBetween);
 //    }
 //

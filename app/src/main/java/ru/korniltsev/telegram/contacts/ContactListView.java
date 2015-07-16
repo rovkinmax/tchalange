@@ -1,6 +1,7 @@
 package ru.korniltsev.telegram.contacts;
 
 import android.content.Context;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
@@ -13,7 +14,7 @@ import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import javax.inject.Inject;
 import java.util.List;
 
-public class ContactListView extends LinearLayout{
+public class ContactListView extends AppBarLayout {
     @Inject ContactsPresenter presenter;
     private RecyclerView list;
     private ContactsAdapter adapter;

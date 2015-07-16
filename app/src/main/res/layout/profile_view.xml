@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ru.korniltsev.telegram.profile.ProfileView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg_white"
+        >
+
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            />
+
+    <android.support.v7.widget.Toolbar
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            app:theme="@style/ToolBarStyle"
+            app:popupTheme="@style/Theme.AppCompat.Light"
+            android:background="?attr/colorPrimary"
+            />
+
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="@dimen/profile_header_height">
+        <ru.korniltsev.telegram.core.views.AvatarView
+                android:id="@+id/avatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:size="60dp"
+                android:layout_gravity="bottom"
+
+                />
+
+        <LinearLayout
+                android:id="@+id/title_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/actionBarSize"
+                android:gravity="center_vertical"
+                android:layout_gravity="bottom"
+                android:orientation="vertical"
+                >
+            <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#fff"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    />
+            <TextView
+                    android:id="@+id/subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#c9e4fb"
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    />
+        </LinearLayout>
+    </FrameLayout>
+
+</ru.korniltsev.telegram.profile.ProfileView>

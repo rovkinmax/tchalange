@@ -19,7 +19,7 @@ public class Adapter extends BaseAdapter<Item<Countries.Entry>, RecyclerView.Vie
     public static final int VIEW_TYPE_SECTION = 0;
     public static final int VIEW_TYPE_COUNTRY = 1;
     final CountryClickListener listener;
-    interface CountryClickListener {
+    public interface CountryClickListener {
         void clicked(Countries.Entry c);
     }
 

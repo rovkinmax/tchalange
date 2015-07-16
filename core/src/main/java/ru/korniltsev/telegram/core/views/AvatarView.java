@@ -74,5 +74,7 @@ public class AvatarView extends ImageView {
         }
     }
 
-
+    public int getSize() {
+        return size;
+    }
 }

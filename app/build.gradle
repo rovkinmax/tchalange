@@ -10,6 +10,7 @@ dependencies {
     compile project(':libgif')
     compile project(':libsuperslim')
 
+    compile project.design_support
 
     compile project.photo_view
     provided project.dagger_compiler

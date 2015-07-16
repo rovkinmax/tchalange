@@ -18,4 +18,6 @@ public class Contact {
             section = this.uiName.substring(0, 1);
         }
     }
+
+
 }

@@ -58,9 +58,10 @@ subprojects {
         dagger = 'com.squareup.dagger:dagger:1.2.2'
         dagger_compiler = 'com.squareup.dagger:dagger-compiler:1.2.2'
 //      support
-        support_v4 = "com.android.support:support-v4:21.0.3"
-        appcompat_v7 = "com.android.support:appcompat-v7:21.0.3"
-        recycler_v7 = "com.android.support:recyclerview-v7:21.0.3"
+        support_v4 = "com.android.support:support-v4:22.2.0"
+        appcompat_v7 = "com.android.support:appcompat-v7:22.2.0"
+        recycler_v7 = "com.android.support:recyclerview-v7:22.2.0"
+        design_support = 'com.android.support:design:22.2.0'
 //      reactive extensions
         rx_java = "io.reactivex:rxjava:1.0.9"
         rx_android = "io.reactivex:rxandroid:0.24.0"
