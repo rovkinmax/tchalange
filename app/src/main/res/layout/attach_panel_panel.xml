@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/panel"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:layout_gravity="bottom"
+        android:paddingBottom="4dp"
+        tools:showIn="@layout/attach_panel_view_attach_panel">
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/recent_images"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/recent_image_size"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            />
+    <View android:layout_width="match_parent"
+          android:layout_height="1px"
+          android:background="#d9d9d9"
+          android:layout_marginBottom="4dp"
+            />
+    <TextView
+            android:id="@+id/btn_take_photo"
+            android:text="@string/take_photo"
+            android:drawableLeft="@drawable/ic_attach_photo"
+
+            style="@style/AttachPanelButton"/>
+    <TextView
+            android:id="@+id/btn_choose_from_gallery"
+            android:text="@string/choose_from_gallery"
+            android:drawableLeft="@drawable/ic_attach_gallery"
+
+            style="@style/AttachPanelButton"/>
+</LinearLayout>

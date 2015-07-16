@@ -12,37 +12,6 @@
             android:layout_height="match_parent"
             android:background="#000000"
             />
-    <LinearLayout
-            android:id="@+id/panel"
-            android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:layout_height="wrap_content"
-            android:background="#ffffff"
-            android:layout_gravity="bottom"
-            >
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/recent_images"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/recent_image_size"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                />
-        <View android:layout_width="match_parent"
-              android:layout_height="1px"
-              android:background="#d9d9d9"
-                />
-        <TextView
-                android:id="@+id/btn_take_photo"
-                android:text="@string/take_photo"
-                android:drawableLeft="@drawable/ic_attach_photo"
-                android:layout_marginTop="4dp"
-                style="@style/AttachPanelButton"/>
-        <TextView
-                android:id="@+id/btn_choose_from_gallery"
-                android:text="@string/choose_from_gallery"
-                android:drawableLeft="@drawable/ic_attach_gallery"
-                android:layout_marginBottom="4dp"
-                style="@style/AttachPanelButton"/>
-    </LinearLayout>
+    <!--<include layout="@layout/attach_panel_panel"/>-->
 
 </FrameLayout>

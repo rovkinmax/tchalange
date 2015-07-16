@@ -1,8 +1,12 @@
 package ru.korniltsev.telegram.profile;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,9 +19,10 @@ import android.widget.TextView;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
 import phoneformat.PhoneFormat;
+import ru.korniltsev.telegram.attach_panel.ListChoicePopup;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
-import ru.korniltsev.telegram.core.picasso.RxGlide;
+import ru.korniltsev.telegram.core.flow.pathview.HandlesBack;
 import ru.korniltsev.telegram.core.rx.ChatDB;
 import ru.korniltsev.telegram.core.toolbar.ToolbarUtils;
 import ru.korniltsev.telegram.core.views.AvatarView;
@@ -30,7 +35,7 @@ import java.util.List;
 import static ru.korniltsev.telegram.common.AppUtils.uiName;
 import static ru.korniltsev.telegram.common.AppUtils.uiUserStatus;
 
-public class ProfileView extends FrameLayout {
+public class ProfileView extends FrameLayout implements HandlesBack{
     @Inject ProfilePresenter presenter;
     @Inject DpCalculator calc;
     @Inject ChatDB chats;
@@ -60,14 +65,13 @@ public class ProfileView extends FrameLayout {
         listLayout = new LinearLayoutManager(getContext());
         list.setLayoutManager(listLayout);
 
-        adapter = new ProfileAdapter(getContext());
-        adapter.addFirst(new ProfileAdapter.Item(0,"", ""));//header
+        adapter = new ProfileAdapter(getContext(), presenter);
+        adapter.addFirst(new ProfileAdapter.Item(0,"", "", null));//header
 
         list.setAdapter(adapter);
         image = ((AvatarView) findViewById(R.id.avatar));
         toolbar = ToolbarUtils.initToolbar(this)
                 .pop();
-        toolbar.inflate(R.menu.chat);
         title = ((TextView) findViewById(R.id.title));
         subTitle = ((TextView) findViewById(R.id.subtitle));
         titleParent = ((ViewGroup) title.getParent());
@@ -180,22 +184,53 @@ public class ProfileView extends FrameLayout {
 
         List<ProfileAdapter.Item> items = new ArrayList<>();
         if (!TextUtils.isEmpty(user.phoneNumber)){
+            final String phone = phoneFormat.format(
+                    phoneNumberWithPlus(user));
             items.add(new ProfileAdapter.Item(
                     R.drawable.phone_grey,
-                    phoneFormat.format(
-                            phoneNumberWithPlus(user)),
-                    "mobile"
-                    ));
+                    phone,
+                    "mobile",
+                    createPhoneActions(phone)));
         }
         if (!TextUtils.isEmpty(user.username)){
             items.add(new ProfileAdapter.Item(
                     0,
                     "@" + user.username,
-                    "userName"
-            ));
+                    "userName",
+                    null));
         }
         adapter.addAll(items);
 
+    }
+
+    private List<ListChoicePopup.Item> createPhoneActions(final String phone) {
+        
+        final ArrayList<ListChoicePopup.Item> data = new ArrayList<>();
+        data.add(new ListChoicePopup.Item(getContext().getString(R.string.call_phone), new Runnable(){
+            @Override
+            public void run() {
+                call(phone);
+            }
+        }));
+        data.add(new ListChoicePopup.Item(getContext().getString(R.string.copy_phone), new Runnable(){
+            @Override
+            public void run() {
+                copy(phone);
+            }
+        }));
+        return data;
+    }
+
+    private void copy(String phone) {
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("phone", phone);
+        clipboard.setPrimaryClip(clip);
+    }
+
+    private void call(String phone) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
+        getContext()
+                .startActivity(intent);
     }
 
     @NonNull
@@ -217,5 +252,10 @@ public class ProfileView extends FrameLayout {
         subTitle.setText(
                 resources.getQuantityString(R.plurals.group_chat_members, participantsCount)
         );
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return presenter.hidePopup();
     }
 }

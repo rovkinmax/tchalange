@@ -18,6 +18,7 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
@@ -36,28 +37,26 @@ import java.util.List;
 
 import static ru.korniltsev.telegram.core.Utils.exactly;
 
-public class AttachPanelPopup extends PopupWindow {
+public abstract class AttachPanelPopup extends PopupWindow {
 
+    private static final DecelerateInterpolator decelerateInterpolator = new DecelerateInterpolator(1.5f);
     public static final int DURATION = 256;
-    final Callback callback;
 
-    private final DpCalculator dpCalc;
-    private final DecelerateInterpolator decelerateInterpolator = new DecelerateInterpolator(1.5f);
+//    final Callback callback;
+    protected final DpCalculator dpCalc;
     private RecyclerView recentGalleryImages;
     private View outside;
-    private RxGlide rxGlide;
-    private RecentImagesAdapter adapter;
-    private TextView btnTakePhoto;
-    private TextView btnChooseFromGallery;
-    private View panel;
+    protected RxGlide rxGlide;
+//    private RecentImagesAdapter adapter;
+//    private TextView btnTakePhoto;
+//    private TextView btnChooseFromGallery;
+    protected ViewGroup panel;
 
-    public AttachPanelPopup(View view, Callback callback) {
-        super(view);
-        this.callback = callback;
+    public AttachPanelPopup(Context ctx) {
+        super(LayoutInflater.from(ctx)
+                .inflate(R.layout.attach_panel_view_attach_panel, null, false));
 
-        //        ObjectGraphService.inject();
-
-        Context ctx = view.getContext();
+        final ViewGroup view = (ViewGroup) getContentView();
         ObjectGraph objectGraph = ObjectGraphService.getObjectGraph(ctx);
         rxGlide = objectGraph.get(RxGlide.class);
         dpCalc = objectGraph.get(DpCalculator.class);
@@ -67,23 +66,7 @@ public class AttachPanelPopup extends PopupWindow {
         setWidth(exactly(display.getWidth()));
         setHeight(exactly(display.getHeight()));
 
-        initView(view);
-    }
-
-    private void initView(View view) {
-        Context ctx = view.getContext();
-        adapter = new RecentImagesAdapter(ctx, rxGlide, new RecentImagesAdapter.Callback() {
-            @Override
-            public void imagesSelected(int count) {
-                updateButtonText(count);
-            }
-        });
-        btnTakePhoto = (TextView) view.findViewById(R.id.btn_take_photo);
-        btnChooseFromGallery = (TextView) view.findViewById(R.id.btn_choose_from_gallery);
-        recentGalleryImages = ((RecyclerView) view.findViewById(R.id.recent_images));
-        recentGalleryImages.setLayoutManager(new LinearLayoutManager(ctx, LinearLayoutManager.HORIZONTAL, false));
-        recentGalleryImages.addItemDecoration(new InsetDecorator());
-        recentGalleryImages.setAdapter(adapter);
+        inflatePanel(view);
         outside = view.findViewById(R.id.outside);
         outside.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,85 +74,22 @@ public class AttachPanelPopup extends PopupWindow {
                 dismiss();
             }
         });
-        panel = view.findViewById(R.id.panel);
-        btnTakePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callback.takePhoto();
-            }
-        });
-        btnChooseFromGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<String> selectedImages = adapter.getSelectedImages();
-                if (selectedImages.size() == 0) {
-                    callback.chooseFromGallery();
-                } else {
-                    callback.sendImages(selectedImages);
-                }
-            }
-        });
-
-        GalleryService.recentImages(ctx)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new ObserverAdapter<List<String>>() {
-                    @Override
-                    public void onNext(List<String> response) {
-                        adapter.addAll(response);
-                    }
-                });
+        panel = (ViewGroup) view.findViewById(R.id.panel);
+//        initView();
     }
 
-    private void updateButtonText(int count) {
-        Resources res = getContentView().getContext().getResources();
-        SpannableStringBuilder sb = new SpannableStringBuilder();
-        if (count == 0) {
-            sb.append(res.getString(R.string.choose_from_gallery));
-        } else {
-            SpannableString nPhotos = new SpannableString(res.getQuantityString(R.plurals.n_photos, count, count));
-            nPhotos.setSpan(new StyleSpan(Typeface.BOLD), 0, nPhotos.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-            sb.append(res.getString(R.string.send))
-                    .append(" ");
-            sb.append(nPhotos);
-            //            btnChooseFromGallery.setText(res.getString(R.string.send) + " " + nPhotos);
-        }
-        btnChooseFromGallery.setText(sb);
-    }
+    protected abstract void inflatePanel(ViewGroup view);
 
-    public static AttachPanelPopup create(Activity ctx, Callback callback) {
-        LayoutInflater viewFactory = LayoutInflater.from(ctx);
-        View view = viewFactory.inflate(R.layout.attach_panel_view_attach_panel, null, false);
 
-        AttachPanelPopup res = new AttachPanelPopup(view, callback);
+    protected abstract void initView();
 
+    void show(Activity ctx) {
         int marginBottom = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//tdo wtf
             marginBottom = getNavBarHeight(ctx);
         }
 
-        res.showAtLocation(ctx.getWindow().getDecorView(), Gravity.BOTTOM | Gravity.LEFT, 0, marginBottom);
-
-        return res;
-    }
-
-    private class InsetDecorator extends RecyclerView.ItemDecoration {
-        @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            int dip8 = dpCalc.dp(8);
-            int position = parent.getChildViewHolder(view)
-                    .getPosition();
-
-            if (position == 0) {
-                outRect.left = dip8;
-                outRect.right = dip8 / 2;
-            } else if (position == adapter.getItemCount() - 1) {
-                outRect.right = dip8;
-                outRect.left = dip8 / 2;
-            } else {
-                outRect.left = dip8 / 2;
-                outRect.right = dip8 / 2;
-            }
-        }
+        showAtLocation(ctx.getWindow().getDecorView(), Gravity.BOTTOM | Gravity.LEFT, 0, marginBottom);
     }
 
     public interface Callback {
