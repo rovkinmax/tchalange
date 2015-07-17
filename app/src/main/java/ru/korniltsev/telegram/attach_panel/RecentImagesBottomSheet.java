@@ -22,14 +22,14 @@ import rx.android.schedulers.AndroidSchedulers;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AttachImagesPopup extends AttachPanelPopup {
+public class RecentImagesBottomSheet extends AttachPanelPopup {
     private final Callback callback;
     private TextView btnTakePhoto;
     private TextView btnChooseFromGallery;
     private RecyclerView recentGalleryImages;
     private RecentImagesAdapter adapter;
 
-    AttachImagesPopup(Context ctx, Callback callback) {
+    RecentImagesBottomSheet(Context ctx, Callback callback) {
         super(ctx);
         this.callback = callback;
         initView();
@@ -37,7 +37,7 @@ public class AttachImagesPopup extends AttachPanelPopup {
     }
 
     public static AttachPanelPopup create(Activity ctx, Callback callback) {
-        AttachPanelPopup res = new AttachImagesPopup(ctx, callback);
+        AttachPanelPopup res = new RecentImagesBottomSheet(ctx, callback);
         res.show(ctx);
         return res;
     }

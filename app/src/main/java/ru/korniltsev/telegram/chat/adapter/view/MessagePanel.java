@@ -19,7 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import mortar.dagger1support.ObjectGraphService;
 import org.drinkless.td.libcore.telegram.TdApi;
-import ru.korniltsev.telegram.attach_panel.AttachImagesPopup;
+import ru.korniltsev.telegram.attach_panel.RecentImagesBottomSheet;
 import ru.korniltsev.telegram.attach_panel.AttachPanelPopup;
 import ru.korniltsev.telegram.chat.Presenter;
 import ru.korniltsev.telegram.core.emoji.DpCalculator;
@@ -199,7 +199,7 @@ public class MessagePanel extends LinearLayout {
     //    }
 
     private void showAttachPopup() {
-        attachPanelPopup = AttachImagesPopup.create(activityOwner.expose(), presenter);
+        attachPanelPopup = RecentImagesBottomSheet.create(activityOwner.expose(), presenter);
     }
 
     OnSendListener listener;
