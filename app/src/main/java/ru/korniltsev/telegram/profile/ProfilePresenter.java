@@ -2,19 +2,20 @@ package ru.korniltsev.telegram.profile;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import mortar.ViewPresenter;
-import ru.korniltsev.telegram.attach_panel.ListChoicePopup;
-import ru.korniltsev.telegram.core.flow.pathview.HandlesBack;
-import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import mortar.ViewPresenter;
+import ru.korniltsev.telegram.attach_panel.ListChoicePopup;
+import ru.korniltsev.telegram.core.mortar.ActivityOwner;
+
 @Singleton
-public class ProfilePresenter extends ViewPresenter<ProfileView> implements ProfileAdapter.CallBack {
+public class ProfilePresenter extends ViewPresenter<ProfileViewBase> implements ProfileAdapter.CallBack {
     final ProfilePath path;
     final ActivityOwner owner;
-    @Nullable private ListChoicePopup popup;
+    @Nullable
+    private ListChoicePopup popup;
 
     @Inject
     public ProfilePresenter(ProfilePath path, ActivityOwner owner) {
@@ -31,15 +32,14 @@ public class ProfilePresenter extends ViewPresenter<ProfileView> implements Prof
 
     @Override
     public void clicked(ProfileAdapter.Item item) {
-        if (item.bottomSheetActions != null) {
-            popup = ListChoicePopup.create(owner.expose(), item.bottomSheetActions);
+        if (item.getBottomSheetActions() != null) {
+            popup = ListChoicePopup.create(owner.expose(), item.getBottomSheetActions());
         }
     }
 
 
-
     public boolean hidePopup() {
-        if (popup != null){
+        if (popup != null) {
             popup.dismiss();
             return true;
         }

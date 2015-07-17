@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ru.korniltsev.telegram.profile.ProfileView
+<ru.korniltsev.telegram.profile.ProfileViewBase
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bg_white"
+        android:background="@color/window_bg"
         >
 
     <android.support.v7.widget.RecyclerView
             android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-
             />
 
     <android.support.v7.widget.Toolbar
@@ -28,4 +27,4 @@
 
         <include layout="@layout/fake_toolbar_wth_avatar_and_title"/>
 
-</ru.korniltsev.telegram.profile.ProfileView>
+</ru.korniltsev.telegram.profile.ProfileViewBase>

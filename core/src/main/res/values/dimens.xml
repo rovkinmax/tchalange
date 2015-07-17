@@ -4,4 +4,12 @@
     <dimen name="avatar_text_size">28dp</dimen>
     <dimen name="emoji_size">45dp</dimen>
     <dimen name="sticker_size">66dp</dimen>
+
+    <!--usual used dimen-->
+    <dimen name="padding_xsmall">4dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_medium">16dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+    <dimen name="padding_xlarge">32dp</dimen>
+    <dimen name="padding_xxlarge">64dp</dimen>
 </resources>

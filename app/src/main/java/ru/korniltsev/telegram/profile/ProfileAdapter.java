@@ -7,17 +7,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import ru.korniltsev.telegram.attach_panel.AttachPanelPopup;
+
+import java.util.List;
+
 import ru.korniltsev.telegram.attach_panel.ListChoicePopup;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 
-import java.util.List;
-
 public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerView.ViewHolder> {
-    public static final int VIEW_TYPE_HEADER = 0;
-    public static final int VIEW_TYPE_DATA = 1;
+    private static final int VIEW_TYPE_HEADER = 0;
+    private static final int VIEW_TYPE_DATA = 1;
+    private static final int VIEW_TYPE_DIVIDER = 2;
+
     final CallBack cb;
+
     public ProfileAdapter(Context ctx, CallBack cb) {
         super(ctx);
         this.cb = cb;
@@ -25,40 +28,91 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
 
     @Override
     public int getItemViewType(int position) {
-        return position == 0 ? VIEW_TYPE_HEADER : VIEW_TYPE_DATA;//super.getItemViewType(position);
+        if (position == 0) {
+            return VIEW_TYPE_HEADER;
+        } else {
+            Item item = getItem(position);
+            return item.lastInGroup ? VIEW_TYPE_DIVIDER : VIEW_TYPE_DATA;
+        }
     }
+
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_HEADER) {
-            View view = getViewFactory().inflate(R.layout.profile_header, parent, false);
-            return new RecyclerView.ViewHolder(view) {
-            };
-        } else {
-            View view = getViewFactory().inflate(R.layout.profile_data, parent, false);
-            return new VH(view);
+        switch (viewType) {
+            case VIEW_TYPE_HEADER: {
+                View view = getViewFactory().inflate(R.layout.profile_header, parent, false);
+                return new RecyclerView.ViewHolder(view) {
+                };
+            }
+            case VIEW_TYPE_DATA: {
+                View view = getViewFactory().inflate(R.layout.profile_data, parent, false);
+                return new VH(view);
+            }
+            case VIEW_TYPE_DIVIDER: {
+                View view = getViewFactory().inflate(R.layout.profile_divider, parent, false);
+                return new RecyclerView.ViewHolder(view) {
+                };
+            }
         }
+        return new RecyclerView.ViewHolder(new View(getViewFactory().getContext())) {
+        };
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (position != 0) {
-            final Item item = getItem(position);
-            VH h = (VH) holder;
-            if (item.icon == 0) {
-                h.icon.setImageDrawable(null);
-            } else {
-                h.icon.setImageResource(item.icon);
-            }
-            h.data.setText(item.data);
-            h.dataType.setText(item.localizedDataType);
-            h.dataType.setClickable(item.bottomSheetActions != null);
-
-
+        if (holder.getItemViewType() == VIEW_TYPE_DATA) {
+            bindViewData((VH) holder, position);
         }
     }
 
-    public  class VH extends RecyclerView.ViewHolder {
+    private void bindViewData(VH holder, int position) {
+        final Item item = getItem(position);
+        if (item.icon == 0) {
+            holder.icon.setImageDrawable(null);
+        } else {
+            holder.icon.setImageResource(item.icon);
+        }
+        holder.data.setText(item.data);
+        holder.dataType.setText(item.localizedDataType);
+        holder.dataType.setClickable(item.bottomSheetActions != null);
+    }
+
+    interface CallBack {
+        void clicked(Item item);
+    }
+
+    public static class Item {
+        private int icon;
+        private String data;
+        private String localizedDataType;
+        private boolean lastInGroup = false;
+        @Nullable
+        private List<ListChoicePopup.Item> bottomSheetActions;
+
+        public Item(int icon, String data, String localizedDataType, @Nullable List<ListChoicePopup.Item> bottomSheetActions) {
+            this.icon = icon;
+            this.data = data;
+            this.localizedDataType = localizedDataType;
+            this.bottomSheetActions = bottomSheetActions;
+        }
+
+        private Item() {
+            this.lastInGroup = true;
+        }
+
+        public static Item getDivider() {
+            return new Item();
+        }
+
+        @Nullable
+        public List<ListChoicePopup.Item> getBottomSheetActions() {
+            return bottomSheetActions;
+        }
+    }
+
+    public class VH extends RecyclerView.ViewHolder {
 
         private final ImageView icon;
         private final TextView data;
@@ -78,23 +132,5 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
                 }
             });
         }
-    }
-
-    public static class Item {
-        final int icon;
-        final String data;
-        final String localizedDataType;
-        @Nullable final List<ListChoicePopup.Item> bottomSheetActions;
-
-        public Item(int icon, String data, String localizedDataType, @Nullable List<ListChoicePopup.Item> bottomSheetActions) {
-            this.icon = icon;
-            this.data = data;
-            this.localizedDataType = localizedDataType;
-            this.bottomSheetActions = bottomSheetActions;
-        }
-    }
-
-    interface CallBack {
-        void clicked(Item item);
     }
 }

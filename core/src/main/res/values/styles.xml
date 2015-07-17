@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme"
@@ -7,7 +7,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="android:windowBackground">@color/bg_white</item>
+        <item name="android:windowBackground">@color/window_bg</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
 
         <item name="colorControlNormal">#e0e0e0</item>
@@ -23,7 +23,7 @@
         <!--<item name="colorControlNormal">#e0e0e0</item>-->
         <!--<item name="colorSwitchThumbNormal">@color/foo</item>-->
         <!--<item name="android:colorForeground">@color/foo</item>-->
-        <item name="android:windowTranslucentStatus">@bool/translucent_status_bar</item>
+        <item name="android:windowTranslucentStatus" tools:ignore="NewApi">@bool/translucent_status_bar</item>
     </style>
 
     <style name="PathRoot">

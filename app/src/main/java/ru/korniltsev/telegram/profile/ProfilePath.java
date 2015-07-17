@@ -1,19 +1,18 @@
 package ru.korniltsev.telegram.profile;
 
-import android.support.annotation.Nullable;
-import dagger.Module;
-import dagger.Provides;
 import org.drinkless.td.libcore.telegram.TdApi;
+
+import java.io.Serializable;
+
+import dagger.Provides;
 import ru.korniltsev.telegram.chat.R;
 import ru.korniltsev.telegram.common.toolbar.FakeToolbar;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
 
-import java.io.Serializable;
-
 @WithModule(ProfilePath.Module.class)
-public class ProfilePath extends BasePath implements Serializable{
+public class ProfilePath extends BasePath implements Serializable {
     public final TdApi.User user;
 //    @Nullable public final TdApi.Chat groupChat;
 
@@ -36,7 +35,7 @@ public class ProfilePath extends BasePath implements Serializable{
     @dagger.Module(
             addsTo = RootModule.class,
             injects = {
-                    ProfileView.class,
+                    ProfileViewBase.class,
                     FakeToolbar.class,
             }
     )
@@ -47,7 +46,8 @@ public class ProfilePath extends BasePath implements Serializable{
             this.path = path;
         }
 
-        @Provides ProfilePath providePath() {
+        @Provides
+        ProfilePath providePath() {
             return path;
         }
     }

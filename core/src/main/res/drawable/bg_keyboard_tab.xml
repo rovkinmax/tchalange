@@ -2,11 +2,12 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
           android:enterFadeDuration="160"
           android:exitFadeDuration="160"
-        >
+    >
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="#d3d3d3"/>
+            <solid android:color="#d3d3d3" />
         </shape>
     </item>
+    <item android:drawable="@color/bg_white" />
 
 </selector>
