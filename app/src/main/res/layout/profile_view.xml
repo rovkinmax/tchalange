@@ -26,45 +26,6 @@
             android:background="?attr/colorPrimary"
             />
 
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="@dimen/profile_header_height">
-        <ru.korniltsev.telegram.core.views.AvatarView
-                android:id="@+id/avatar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:size="60dp"
-                android:layout_gravity="bottom"
-
-                />
-
-        <LinearLayout
-                android:id="@+id/title_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="?android:attr/actionBarSize"
-                android:gravity="center_vertical"
-                android:layout_gravity="bottom"
-                android:orientation="vertical"
-                >
-            <TextView
-                    android:id="@+id/title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#fff"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    />
-            <TextView
-                    android:id="@+id/subtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#c9e4fb"
-                    android:textSize="14sp"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    />
-        </LinearLayout>
-    </FrameLayout>
+        <include layout="@layout/fake_toolbar_wth_avatar_and_title"/>
 
 </ru.korniltsev.telegram.profile.ProfileView>

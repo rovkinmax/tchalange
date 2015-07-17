@@ -5,6 +5,7 @@ import dagger.Module;
 import dagger.Provides;
 import org.drinkless.td.libcore.telegram.TdApi;
 import ru.korniltsev.telegram.chat.R;
+import ru.korniltsev.telegram.common.toolbar.FakeToolbar;
 import ru.korniltsev.telegram.core.app.RootModule;
 import ru.korniltsev.telegram.core.flow.pathview.BasePath;
 import ru.korniltsev.telegram.core.mortar.mortarscreen.WithModule;
@@ -36,7 +37,7 @@ public class ProfilePath extends BasePath implements Serializable{
             addsTo = RootModule.class,
             injects = {
                     ProfileView.class,
-//                    MyTextView.class
+                    FakeToolbar.class,
             }
     )
     public static final class Module {

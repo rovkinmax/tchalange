@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ru.korniltsev.telegram.common.toolbar.FakeToolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   android:id="@+id/fake_toolbar"
+             xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="@dimen/profile_header_height"
+             tools:showIn="@layout/profile_view">
+    <ru.korniltsev.telegram.core.views.AvatarView
+            android:id="@+id/avatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:size="60dp"
+            android:layout_gravity="bottom"
+
+            />
+
+    <LinearLayout
+            android:id="@+id/title_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:gravity="center_vertical"
+            android:layout_gravity="bottom"
+            android:orientation="vertical"
+            >
+        <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                />
+        <TextView
+                android:id="@+id/subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#c9e4fb"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                />
+    </LinearLayout>
+</ru.korniltsev.telegram.common.toolbar.FakeToolbar>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="call_phone">Позвонить</string>
-    <string name="copy_phone">Скопировать</string>
+    <string name="call_phone">Call</string>
+    <string name="copy_phone">Copy</string>
+    <string name="item_type_mobile">Phone</string>
+    <string name="item_type_username">Username</string>
 </resources>

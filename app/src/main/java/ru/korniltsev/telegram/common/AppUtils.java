@@ -1,7 +1,12 @@
 package ru.korniltsev.telegram.common;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -111,6 +116,27 @@ public class AppUtils {
         } else {
             //empty
             return "";
+        }
+    }
+
+    public static void copy(Context ctx, String phone) {
+        ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("phone", phone);
+        clipboard.setPrimaryClip(clip);
+    }
+
+    public static void call(Context ctx, String phone) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
+        ctx.startActivity(intent);
+    }
+
+    @NonNull
+    public static String phoneNumberWithPlus(@NonNull TdApi.User user) {
+        final String phoneNumber = user.phoneNumber;
+        if (phoneNumber.startsWith("+")){
+            return phoneNumber;
+        } else {
+            return "+" + user.phoneNumber;
         }
     }
 }
