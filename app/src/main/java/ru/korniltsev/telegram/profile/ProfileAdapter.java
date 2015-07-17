@@ -17,7 +17,7 @@ import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_HEADER = 0;
     private static final int VIEW_TYPE_DATA = 1;
-    private static final int VIEW_TYPE_DATA_HORISINTAL = 2;
+    private static final int VIEW_TYPE_DATA_HORIZONTAL = 2;
     private static final int VIEW_TYPE_DIVIDER = 3;
 
     final CallBack cb;
@@ -33,15 +33,23 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
             return VIEW_TYPE_HEADER;
         } else {
             Item item = getItem(position);
-            if (item.lastInGroup) {
-                return VIEW_TYPE_DIVIDER;
-            } else {
-                if (item.getClass() == HorizontalItem.class) {
-                    return VIEW_TYPE_DATA_HORISINTAL;
-                } else {
-                    return VIEW_TYPE_DATA;
-                }
-            }
+            return getTypeByItem(item);
+        }
+    }
+
+    private int getTypeByItem(Item item) {
+        if (item.lastInGroup) {
+            return VIEW_TYPE_DIVIDER;
+        } else {
+            return getTypeForNotEmptyItem(item);
+        }
+    }
+
+    private int getTypeForNotEmptyItem(Item item) {
+        if (item.getClass() == HorizontalItem.class) {
+            return VIEW_TYPE_DATA_HORIZONTAL;
+        } else {
+            return VIEW_TYPE_DATA;
         }
     }
 
@@ -59,7 +67,7 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
                 return new VH(view);
             }
 
-            case VIEW_TYPE_DATA_HORISINTAL: {
+            case VIEW_TYPE_DATA_HORIZONTAL: {
                 View view = getViewFactory().inflate(R.layout.profile_data_horisontal, parent, false);
                 return new VH(view);
             }
@@ -79,7 +87,7 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
         if (holder.getItemViewType() == VIEW_TYPE_DATA) {
             bindViewData((VH) holder, position);
         } else {
-            if (holder.getItemViewType() == VIEW_TYPE_DATA_HORISINTAL) {
+            if (holder.getItemViewType() == VIEW_TYPE_DATA_HORIZONTAL) {
                 bindViewDataHorizontal((VH) holder, position);
             }
         }
