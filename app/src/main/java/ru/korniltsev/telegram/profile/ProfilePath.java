@@ -35,7 +35,7 @@ public class ProfilePath extends BasePath implements Serializable {
     @dagger.Module(
             addsTo = RootModule.class,
             injects = {
-                    ProfileViewBase.class,
+                    ProfileView.class,
                     FakeToolbar.class,
             }
     )

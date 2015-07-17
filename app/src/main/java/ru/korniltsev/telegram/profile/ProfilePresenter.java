@@ -11,7 +11,7 @@ import ru.korniltsev.telegram.attach_panel.ListChoicePopup;
 import ru.korniltsev.telegram.core.mortar.ActivityOwner;
 
 @Singleton
-public class ProfilePresenter extends ViewPresenter<ProfileViewBase> implements ProfileAdapter.CallBack {
+public class ProfilePresenter extends ViewPresenter<ProfileView> implements ProfileAdapter.CallBack {
     final ProfilePath path;
     final ActivityOwner owner;
     @Nullable

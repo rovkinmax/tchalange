@@ -17,7 +17,8 @@ import ru.korniltsev.telegram.core.recycler.BaseAdapter;
 public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_HEADER = 0;
     private static final int VIEW_TYPE_DATA = 1;
-    private static final int VIEW_TYPE_DIVIDER = 2;
+    private static final int VIEW_TYPE_DATA_HORISINTAL = 2;
+    private static final int VIEW_TYPE_DIVIDER = 3;
 
     final CallBack cb;
 
@@ -32,10 +33,17 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
             return VIEW_TYPE_HEADER;
         } else {
             Item item = getItem(position);
-            return item.lastInGroup ? VIEW_TYPE_DIVIDER : VIEW_TYPE_DATA;
+            if (item.lastInGroup) {
+                return VIEW_TYPE_DIVIDER;
+            } else {
+                if (item.getClass() == HorizontalItem.class) {
+                    return VIEW_TYPE_DATA_HORISINTAL;
+                } else {
+                    return VIEW_TYPE_DATA;
+                }
+            }
         }
     }
-
 
 
     @Override
@@ -50,6 +58,12 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
                 View view = getViewFactory().inflate(R.layout.profile_data, parent, false);
                 return new VH(view);
             }
+
+            case VIEW_TYPE_DATA_HORISINTAL: {
+                View view = getViewFactory().inflate(R.layout.profile_data_horisontal, parent, false);
+                return new VH(view);
+            }
+
             case VIEW_TYPE_DIVIDER: {
                 View view = getViewFactory().inflate(R.layout.profile_divider, parent, false);
                 return new RecyclerView.ViewHolder(view) {
@@ -64,7 +78,15 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder.getItemViewType() == VIEW_TYPE_DATA) {
             bindViewData((VH) holder, position);
+        } else {
+            if (holder.getItemViewType() == VIEW_TYPE_DATA_HORISINTAL) {
+                bindViewDataHorizontal((VH) holder, position);
+            }
         }
+    }
+
+    private void bindViewDataHorizontal(VH holder, int position) {
+        bindViewData(holder, position);
     }
 
     private void bindViewData(VH holder, int position) {
@@ -79,7 +101,7 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
         holder.dataType.setClickable(item.bottomSheetActions != null);
     }
 
-    interface CallBack {
+    public interface CallBack {
         void clicked(Item item);
     }
 
@@ -112,6 +134,12 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
         }
     }
 
+    public static class HorizontalItem extends Item {
+        public HorizontalItem(int icon, String data, String localizedDataType, @Nullable List<ListChoicePopup.Item> bottomSheetActions) {
+            super(icon, data, localizedDataType, bottomSheetActions);
+        }
+    }
+
     public class VH extends RecyclerView.ViewHolder {
 
         private final ImageView icon;
@@ -126,9 +154,7 @@ public class ProfileAdapter extends BaseAdapter<ProfileAdapter.Item, RecyclerVie
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    cb.clicked(
-                            getItem(
-                                    getAdapterPosition()));
+                    cb.clicked(getItem(getAdapterPosition()));
                 }
             });
         }

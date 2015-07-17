@@ -27,7 +27,7 @@ import static ru.korniltsev.telegram.common.AppUtils.call;
 import static ru.korniltsev.telegram.common.AppUtils.copy;
 import static ru.korniltsev.telegram.common.AppUtils.phoneNumberWithPlus;
 
-public class ProfileViewBase extends FrameLayout implements HandlesBack {
+public class ProfileView extends FrameLayout implements HandlesBack {
     @Inject
     ProfilePresenter presenter;
 
@@ -40,7 +40,7 @@ public class ProfileViewBase extends FrameLayout implements HandlesBack {
     private ProfileAdapter adapter;
     private ToolbarUtils toolbar;
 
-    public ProfileViewBase(Context context, AttributeSet attrs) {
+    public ProfileView(Context context, AttributeSet attrs) {
         super(context, attrs);
         ObjectGraphService.inject(context, this);
     }
@@ -101,8 +101,18 @@ public class ProfileViewBase extends FrameLayout implements HandlesBack {
                     createPhoneActions(phone)));
         }
         items.add(ProfileAdapter.Item.getDivider());
+        items.add(new ProfileAdapter.HorizontalItem(
+                R.drawable.ic_setlock,
+                getContext().getString(R.string.item_type_passcode),
+                getPassCodeStatusString(user),
+                null
+        ));
         adapter.addAll(items);
 
+    }
+
+    private String getPassCodeStatusString(@NonNull TdApi.User user) {
+        return getContext().getString(R.string.item_passcode_disabled);
     }
 
     private List<ListChoicePopup.Item> createPhoneActions(final String phone) {

@@ -4,4 +4,7 @@
     <string name="copy_phone">Скопировать</string>
     <string name="item_type_mobile">Мобильный</string>
     <string name="item_type_username">Ник</string>
+    <string name="item_type_passcode">Графический ключ</string>
+    <string name="item_passcode_enabled">Включен</string>
+    <string name="item_passcode_disabled">Выключен</string>
 </resources>
